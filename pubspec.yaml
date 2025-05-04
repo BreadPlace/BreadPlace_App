@@ -105,6 +105,9 @@ flutter:
     - family: pretendardSemiBold
       fonts:
         - asset: assets/fonts/pretendard_semibold.otf
+    - family: bmJua
+      fonts:
+        - asset: assets/fonts/bmJua.otf
 
   #
   # For details regarding fonts from package dependencies,
