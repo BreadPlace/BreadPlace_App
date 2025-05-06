@@ -1,6 +1,4 @@
 import 'package:bread_place/config/routing/router.dart';
-import 'package:bread_place/config/theme/dark_theme.dart';
-import 'package:bread_place/config/theme/light_theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,9 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'BreadPlace',
-      theme: AppLightTheme.theme,
-      darkTheme: AppDarkTheme.theme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       routerConfig: router,
     );
   }

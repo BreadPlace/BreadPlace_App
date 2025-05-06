@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class SecondaryButton extends StatelessWidget {
@@ -12,7 +13,6 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Padding(
@@ -23,16 +23,19 @@ class SecondaryButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: colorScheme.secondary,
-            foregroundColor: colorScheme.onSecondary,
+            backgroundColor: AppColors.sub,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
             textStyle: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w500,
+              color: AppColors.black
             ),
           ),
-          child: Text(text),
+          child: Text(text, style: TextStyle(
+              color: AppColors.white,
+              fontSize: 18
+          )),
         ),
       ),
     );

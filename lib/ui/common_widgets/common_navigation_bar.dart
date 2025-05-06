@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/routing/routes.dart';
@@ -37,9 +38,9 @@ class MainNavigationBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: (index) => _onTap(context, index),
-      selectedItemColor: Theme.of(context).colorScheme.primary,
-      unselectedItemColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      selectedItemColor: AppColors.primary,
+      unselectedItemColor: AppColors.icon,
+      backgroundColor: AppColors.background,
       type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(
