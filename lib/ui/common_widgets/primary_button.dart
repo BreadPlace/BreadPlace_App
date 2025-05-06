@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
@@ -8,9 +9,6 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SizedBox(
@@ -19,16 +17,15 @@ class PrimaryButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: colorScheme.primary,
-            foregroundColor: colorScheme.onPrimary,
+            backgroundColor: AppColors.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            textStyle: textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
           ),
-          child: Text(text),
+          child: Text(text, style: TextStyle(
+              color: AppColors.white,
+            fontSize: 18
+          )),
         ),
       ),
     );

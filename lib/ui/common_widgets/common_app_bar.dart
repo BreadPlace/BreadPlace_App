@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -22,12 +23,9 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
             ? title!
             : ''
         ,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
       ),
       centerTitle: centerTitle,
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: AppColors.primary,
       leading: leading,
       actions: actions,
     );
