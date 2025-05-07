@@ -51,6 +51,9 @@ dependencies:
 
   mocktail: ^1.0.4 # test
 
+  google_maps_flutter: ^2.12.1 # google maps
+  geolocator: ^14.0.0 # location services
+
 
 dev_dependencies:
   flutter_test:

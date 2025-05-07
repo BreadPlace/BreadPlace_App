@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,10 +7,21 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val envFile = rootProject.file("../.env") // 루트의 .env
+val envProperties = Properties()
+
+if (envFile.exists()) {
+    envFile.inputStream().use { stream ->
+        envProperties.load(stream)
+    }
+} else {
+    println(".env 파일을 찾을 수 없습니다.")
+}
+
 android {
     namespace = "com.example.bread_place"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -28,6 +41,11 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        resValue(
+            "string",
+            "google_cloud_key",
+            envProperties.getProperty("GOOGLE_CLOUD_KEY")?.let { "\"$it\"" } ?: "\"default_key\""
+        )
     }
 
     buildTypes {
