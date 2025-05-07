@@ -44,5 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# ignore env files
+# ignore secret files
 **/*.env
+**/GoogleService-Info.plist
+**/*.xcconfig
