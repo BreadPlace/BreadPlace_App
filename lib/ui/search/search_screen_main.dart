@@ -93,10 +93,10 @@ class _SearchScreenMainState extends State<SearchScreenMain> {
                     )
                 ),
                 if (state is SearchSuccess) ...[
-                  for (var doc in state.response)
+                  for (var doc in state.places)
                     ListTile(
-                      title: Text(doc.placeName),
-                      subtitle: Text(doc.addressName),
+                      title: Text(doc.name),
+                      subtitle: Text(doc.placeUrl),
                     )
                 ]
               ],

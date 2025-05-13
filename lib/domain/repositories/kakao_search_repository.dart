@@ -1,5 +1,5 @@
-import 'package:bread_place/data/dto/response/kakao/local_search/search_response.dart';
+import 'package:bread_place/domain/entities/place.dart';
 
 abstract class KakaoSearchRepository {
-  Future<SearchResponse> searchPlaces(String query);
+  Future<List<Place>> searchPlaces(String query);
 }

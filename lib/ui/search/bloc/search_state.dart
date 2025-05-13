@@ -1,5 +1,4 @@
-import 'package:bread_place/data/dto/response/kakao/local_search/search_document.dart';
-import 'package:bread_place/data/dto/response/kakao/local_search/search_response.dart';
+import 'package:bread_place/domain/entities/place.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class SearchState extends Equatable {
@@ -14,11 +13,11 @@ class SearchInitial extends SearchState {}
 class SearchLoading extends SearchState {}
 
 class SearchSuccess extends SearchState {
-  final List<SearchDocument> response;
-  const SearchSuccess(this.response);
+  final List<Place> places;
+  const SearchSuccess(this.places);
 
   @override
-  List<Object?> get props => [response];
+  List<Object?> get props => [places];
 }
 
 class SearchFailure extends SearchState {
