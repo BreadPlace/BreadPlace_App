@@ -5,12 +5,12 @@ import 'package:bread_place/domain/repositories/kakao_search_repository.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-GetIt locator = GetIt.instance;
+GetIt di = GetIt.instance;
 
 void initLocator() {
   // Kakao_local
-  locator.registerLazySingleton<KakaoDioClient>(() => KakaoDioClient());
-  locator.registerLazySingleton<KakaoLocalApi>(() => KakaoLocalApi(locator<KakaoDioClient>().dio));
-  locator.registerLazySingleton<KakaoSearchRepository>(() => KakaoSearchRepositoryImpl(kakaoLocalApi: locator<KakaoLocalApi>()));
-  locator.registerFactory(() => SearchBloc(locator<KakaoSearchRepository>()));
+  di.registerLazySingleton<KakaoDioClient>(() => KakaoDioClient());
+  di.registerLazySingleton<KakaoLocalApi>(() => KakaoLocalApi(di<KakaoDioClient>().dio));
+  di.registerLazySingleton<KakaoSearchRepository>(() => KakaoSearchRepositoryImpl(kakaoLocalApi: di<KakaoLocalApi>()));
+  di.registerFactory(() => SearchBloc(di<KakaoSearchRepository>()));
 }
