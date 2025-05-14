@@ -1,9 +1,9 @@
-import 'package:bread_place/config/di/locator.dart';
+import 'package:bread_place/ui/common_widgets/common_search_bar.dart';
+import 'package:bread_place/ui/common_widgets/empty_result_view.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:bread_place/ui/search/bloc/search_state.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:bread_place/ui/search/search_result_view.dart';
 import 'package:flutter/material.dart';
-
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,92 +17,72 @@ class SearchScreenMain extends StatefulWidget {
 }
 
 class _SearchScreenMainState extends State<SearchScreenMain> {
+  final String _headLine = '검색결과';
+  final String _emptyViewMsg = '일치하는 빵집이 빵개입니다...';
+  final String _hintText = '검색할 빵집을 입력해주세요';
+  final String _errorText = '검색 중 오류가 발생했습니다.';
+  final AssetImage emptyImage = AssetImage('assets/images/image_donut.png');
+
+  void onSubmitSearchKeyword(BuildContext context, String keyword) {
+    context.read<SearchBloc>().add(SearchPlace(keyword: keyword));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => locator<SearchBloc>(),
-      child: BlocBuilder<SearchBloc, SearchState>(
-        builder: (context, state) {
-          return SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                // 검색바
-                Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: SearchBar(
-                    leading: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(CupertinoIcons.search, color: AppColors.primary),
-                    ),
-                    elevation: WidgetStatePropertyAll(0),
-                    backgroundColor: WidgetStatePropertyAll(AppColors.white),
-                    overlayColor: WidgetStatePropertyAll(AppColors.sub),
-                    hintText: '검색할 빵집을 입력해주세요',
-                    hintStyle: WidgetStateProperty.all(
-                      TextStyle(color: AppColors.grey),
-                    ),
-                    onSubmitted: (value) {
-                      /// 키보드 입력을 마쳤을 때 작동할 함수
-                      if(value.isNotEmpty) {
-                        context.read<SearchBloc>().add(SearchPlace(query: value));
-                      }
-                    },
-                  ),
-                ),
-                // 헤드라인
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
-                  child: Container(
-                    alignment: AlignmentDirectional.centerStart,
+    // 빈공간 터치 시 키보드 내림
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Column(
+        children: [
+          SizedBox(height: 10),
+          // 검색바
+          CommonSearchBar(
+            hintText: _hintText,
+            onSubmitted: (value) => onSubmitSearchKeyword(context, value),
+          ),
+          // 상태별 결과 처리
+          Expanded(
+            child: BlocSelector<SearchBloc, SearchState, SearchState>(
+              selector: (state) => state,
+              builder: (context, state) {
+                if (state is SearchLoading) {
+                  return const Padding(
+                    padding: EdgeInsets.only(top: 32.0),
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                if (state is SearchFailure) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      '검색결과',
-                      style: TextStyle(
-                          fontSize: 30,
-                          color: AppColors.icon,
-                          fontFamily: 'bmJua',
-                          fontWeight: FontWeight.bold
-                      ),
+                      _errorText,
+                      style: TextStyle(color: AppColors.error),
                     ),
-                  ),
-                ),
-                // Empty View
-                Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    height: 400,
-                    width: double.maxFinite,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(15)
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset('assets/images/image_donut.png'),
-                        SizedBox(height: 30),
-                        Text(
-                          '일치하는 빵집이 빵개입니다...',
-                          style: TextStyle(
-                            fontFamily: 'pretendardBold',
-                            fontSize: 26,
-                            color: AppColors.sub,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    )
-                ),
-                if (state is SearchSuccess) ...[
-                  for (var doc in state.places)
-                    ListTile(
-                      title: Text(doc.name),
-                      subtitle: Text(doc.placeUrl),
-                    )
-                ]
-              ],
+                  );
+                }
+
+                if (state is SearchSuccess) {
+                  if (state.places.isEmpty) {
+                    return EmptyResultView(
+                      headLine: _headLine,
+                      message: _emptyViewMsg,
+                      imageProvider: emptyImage,
+                    );
+                  }
+                  return SearchResultView(
+                    itemCount: state.places.length,
+                    results: state.places,
+                  );
+                }
+
+                // 기본 상태 (초기 상태 등)
+                return const SizedBox.shrink();
+              },
             ),
-          );
-        }
+          ),
+        ],
       ),
     );
   }
