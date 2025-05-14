@@ -1,10 +1,13 @@
+import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/common_widgets/common_scaffold.dart';
 import 'package:bread_place/ui/home/home_screen_main.dart';
 import 'package:bread_place/ui/login/login_screen_main.dart';
 import 'package:bread_place/ui/mypage/mypage_screen_main.dart';
 import 'package:bread_place/ui/review/review_screen_main.dart';
+import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:bread_place/ui/search/search_screen_main.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 GoRouter router = GoRouter(
@@ -21,7 +24,11 @@ GoRouter router = GoRouter(
         ),
         GoRoute(
           path: Routes.search,
-          builder: (context, state) => const SearchScreenMain(),
+          builder:
+              (context, state) => BlocProvider(
+                create: (_) => di<SearchBloc>(),
+                child: const SearchScreenMain(),
+              ),
         ),
         GoRoute(
           path: Routes.review,
