@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'common_navigation_bar.dart';
@@ -15,8 +16,8 @@ class MainScaffold extends StatefulWidget {
 }
 
 class _MainScaffoldState extends State<MainScaffold> {
-  String _getTitle(String location) {
-    if (location == Routes.home) return '홈';
+  String? _getTitle(String location) {
+    if (location == Routes.home) return null;
     if (location == Routes.search) return '검색';
     if (location == Routes.review) return '리뷰';
     if (location == Routes.mypage) return '마이페이지';
@@ -49,7 +50,8 @@ class _MainScaffoldState extends State<MainScaffold> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: CommonAppBar(title: title, centerTitle: true),
+      appBar:
+          title == null ? null : CommonAppBar(title: title, centerTitle: true),
       body: SafeArea(child: widget.child),
       bottomNavigationBar: MainNavigationBar(),
     );

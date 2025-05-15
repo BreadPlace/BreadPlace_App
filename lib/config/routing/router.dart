@@ -1,7 +1,8 @@
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/common_widgets/common_scaffold.dart';
-import 'package:bread_place/ui/home/home_screen_main.dart';
+import 'package:bread_place/ui/home/bloc/home_bloc.dart';
+import 'package:bread_place/ui/home/view/home_screen_main.dart';
 import 'package:bread_place/ui/login/login_screen_main.dart';
 import 'package:bread_place/ui/mypage/mypage_screen_main.dart';
 import 'package:bread_place/ui/review/review_screen_main.dart';
@@ -20,7 +21,11 @@ GoRouter router = GoRouter(
       routes: [
         GoRoute(
           path: Routes.home,
-          builder: (context, state) => const HomeScreenMain(),
+          builder:
+              (context, state) => BlocProvider(
+                create: (_) => HomeBloc()..add(const HomeAppInitiate()),
+                child: const HomeScreenMain(),
+              ),
         ),
         GoRoute(
           path: Routes.search,
