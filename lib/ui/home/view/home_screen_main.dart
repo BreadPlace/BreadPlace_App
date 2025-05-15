@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -139,26 +140,16 @@ class _RecommandBakeryView extends StatelessWidget {
                       children: [
                         Text(
                           recommendBakery.name,
-                          style: TextStyle(
-                            fontFamily: 'pretendardBold',
-                            fontSize: 16,
-                          ),
+                          style: AppTextStyles.pretendardBold.copyWith(fontSize: 16),
                         ),
                         Text(
                           recommendBakery.address,
-                          style: TextStyle(
-                            fontFamily: 'pretendardSemiBold',
-                            fontSize: 12,
-                          ),
+                          style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 12),
                         ),
                         Text(
                           "${recommendBakery.distanceFromUser(userLocation)}KM",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontFamily: 'pretendardSemiBold',
-                            fontSize: 14,
+                          style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 14, color: AppColors.grey),
                           ),
-                        ),
                       ],
                     ),
 
@@ -209,10 +200,7 @@ class _MapView extends StatelessWidget {
                       Icon(CupertinoIcons.refresh, size: 16),
                       Text(
                         '다시 탐색',
-                        style: TextStyle(
-                          fontFamily: 'pretendardSemiBold',
-                          fontSize: 14,
-                        ),
+                        style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 14),
                       ),
                     ],
                   ),
@@ -321,25 +309,15 @@ class _BakeryListView extends StatelessWidget {
                             children: [
                               Text(
                                 bakery.name,
-                                style: TextStyle(
-                                  fontFamily: 'pretendardBold',
-                                  fontSize: 16,
-                                ),
+                                style: AppTextStyles.pretendardBold.copyWith(fontSize: 16),
                               ),
                               Text(
                                 bakery.address,
-                                style: TextStyle(
-                                  fontFamily: 'pretendardSemiBold',
-                                  fontSize: 12,
-                                ),
+                                style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 12),
                               ),
                               Text(
                                 "${distance}KM",
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontFamily: 'pretendardSemiBold',
-                                  fontSize: 14,
-                                ),
+                                style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 14, color: AppColors.grey),
                               ),
                             ],
                           ),

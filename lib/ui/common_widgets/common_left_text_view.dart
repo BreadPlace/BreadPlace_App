@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class LeftTextView extends StatelessWidget {
@@ -18,7 +19,7 @@ class LeftTextView extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: Row(
         children: [
-          Text(title, style: TextStyle(fontFamily: 'bmJua', fontSize: 28)),
+          Text(title, style: AppTextStyles.bmJua.copyWith(fontSize: 28)),
 
           const Spacer(),
 

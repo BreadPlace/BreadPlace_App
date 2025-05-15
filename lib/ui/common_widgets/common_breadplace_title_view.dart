@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/config/constants/app_colors.dart';
 
 
@@ -38,11 +39,7 @@ class BreadPlaceTitleView extends StatelessWidget {
 
                 Text(
                   title,
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontFamily: 'bmJua',
-                    fontSize: 32,
-                  ),
+                  style: AppTextStyles.bmJua.copyWith(fontSize: 32, color: AppColors.primary),
                 ),
               ],
             ),
