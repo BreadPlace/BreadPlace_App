@@ -1,18 +1,36 @@
+import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class AppTextStyles {
-  static TextStyle headline1(BuildContext context) =>
-      Theme.of(context).textTheme.headlineLarge!;
+  static TextStyle bmJua = TextStyle(
+    fontFamily: 'bmJua',
+    fontSize: 26,
+    color: AppColors.icon,
+    fontWeight: FontWeight.bold,
+  );
 
-  static TextStyle body1(BuildContext context) =>
-      Theme.of(context).textTheme.bodyLarge!;
+  static TextStyle pretendardBold = TextStyle(
+    fontFamily: 'pretendardBold',
+    fontSize: 26,
+    color: AppColors.black,
+    fontWeight: FontWeight.bold,
+  );
 
-  static TextStyle body2(BuildContext context) =>
-      Theme.of(context).textTheme.bodyMedium!;
+  static TextStyle pretendardSemiBold = TextStyle(
+    fontFamily: 'pretendardSemiBold',
+    fontSize: 16,
+    color: AppColors.black,
+  );
 
-  static TextStyle caption(BuildContext context) =>
-      Theme.of(context).textTheme.bodySmall!;
+  static TextStyle pretendardRegular = TextStyle(
+    fontFamily: 'pretendardRegular',
+    fontSize: 16,
+    color: AppColors.black,
+  );
 
-  static TextStyle button(BuildContext context) =>
-      Theme.of(context).textTheme.labelLarge!;
+  static TextStyle hintText = TextStyle(
+    fontFamily: 'pretendardRegular',
+    fontSize: 16,
+    color: AppColors.grey
+  );
 }

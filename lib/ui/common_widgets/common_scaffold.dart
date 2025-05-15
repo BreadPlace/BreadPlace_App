@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'common_navigation_bar.dart';
 import 'common_app_bar.dart';
 import '../../config/routing/routes.dart';
+import 'package:bread_place/config/constants/app_colors.dart';
 
 class MainScaffold extends StatefulWidget {
   final Widget child;
@@ -47,6 +48,7 @@ class _MainScaffoldState extends State<MainScaffold> {
     final title = _getTitle(location);
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: CommonAppBar(title: title, centerTitle: true),
       body: SafeArea(child: widget.child),
       bottomNavigationBar: MainNavigationBar(),
