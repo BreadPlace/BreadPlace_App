@@ -38,7 +38,7 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
         // 커스텀 타이틀
         BreadPlaceTitleView(
           title: '빵플레이스',
-          titleImageAsset: 'assets/images/Croissant.png',
+          titleImage: const AssetImage('assets/images/Croissant.png'),
           trailingIcon: CupertinoIcons.bell_fill,
           onTrailingTap: ontrailingIconTapped,
         ),

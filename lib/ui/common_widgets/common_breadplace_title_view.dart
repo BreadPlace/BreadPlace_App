@@ -3,16 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/config/constants/app_colors.dart';
 
-
 class BreadPlaceTitleView extends StatelessWidget {
   final String title;
-  final String? titleImageAsset;
+  final ImageProvider? titleImage;
   final IconData? trailingIcon;
   final VoidCallback? onTrailingTap;
 
   const BreadPlaceTitleView({
     required this.title,
-    this.titleImageAsset,
+    this.titleImage,
     this.trailingIcon,
     this.onTrailingTap,
     super.key,
@@ -30,8 +29,9 @@ class BreadPlaceTitleView extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (titleImageAsset != null) ...[
-                  Image.asset(titleImageAsset!, width: 44, height: 44),
+                if (titleImage != null) ...[
+                  Image(image: titleImage!, width: 44, height: 44),
+
                   const SizedBox(width: 4),
                 ],
 
@@ -39,7 +39,10 @@ class BreadPlaceTitleView extends StatelessWidget {
 
                 Text(
                   title,
-                  style: AppTextStyles.bmJua.copyWith(fontSize: 32, color: AppColors.primary),
+                  style: AppTextStyles.bmJua.copyWith(
+                    fontSize: 32,
+                    color: AppColors.primary,
+                  ),
                 ),
               ],
             ),
