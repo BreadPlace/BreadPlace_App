@@ -26,7 +26,6 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   @override
   void initState() {
     super.initState();
-    context.read<HomeBloc>();
   }
 
   late final GoogleMapController controller;
