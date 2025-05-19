@@ -7,15 +7,19 @@ class Place {
   final String categoryName;
   final String imagePath;
   final String? categoryGroupCode;
+  final String? x; // longitude
+  final String? y; // latitude
 
   Place({
     required this.id,
     required this.name,
     required this.roadAddress,
     required this.placeUrl,
-    required this.distance,
+    this.distance,
     required this.categoryName,
     required this.imagePath,
-    required this.categoryGroupCode
+    this.categoryGroupCode,
+    this.x,
+    this.y
   });
 }
