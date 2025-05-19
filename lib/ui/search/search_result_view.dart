@@ -55,7 +55,14 @@ class _SearchResultViewState extends State<SearchResultView> {
                 final place = widget.results[index];
                 return ListTile(
                   title: Text(place.name),
-                  subtitle: Text(place.roadAddress),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(place.roadAddress),
+                      Text(place.categoryName),
+                      Text(place.categoryGroupCode ?? '없음')
+                    ],
+                  ),
                 );
               },
             ),

@@ -18,9 +18,18 @@ class _KakaoLocalApi implements KakaoLocalApi {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<SearchResponse> searchPlaces(String query) async {
+  Future<SearchResponse> searchPlaces({
+    required String query,
+    String? x,
+    String? y,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'query': query};
+    final queryParameters = <String, dynamic>{
+      r'query': query,
+      r'x': x,
+      r'y': y,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<SearchResponse>(

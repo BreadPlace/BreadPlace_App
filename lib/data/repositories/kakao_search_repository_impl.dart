@@ -9,17 +9,42 @@ class KakaoSearchRepositoryImpl implements KakaoSearchRepository {
     : _kakaoLocalApi = kakaoLocalApi;
 
   @override
-  Future<List<Place>> searchPlaces(String query) async {
-    final response = await _kakaoLocalApi.searchPlaces(query);
+  Future<List<Place>> searchPlaces(String query, String? x, String? y) async {
+    final response = await _kakaoLocalApi.searchPlaces(
+      query: query,
+      x: x,
+      y: y,
+    );
+
+    // 카페(CE7) 또는 음식점(FD6) 중에서
+    // 이름이나 카테고리에 "빵", "베이커리"가 포함된 것만 필터링
+    final filteredResults = response.documents.where((doc) {
+      final isBakeryGroup =
+          doc.categoryGroupCode == 'CE7' || doc.categoryGroupCode == 'FD6';
+      final isBakeryCategoryName =
+          doc.categoryName.contains('베이커리') || doc.categoryName.contains('제과');
+      final hasBakeryKeyword =
+          doc.placeName.contains('빵') ||
+          doc.placeName.contains('베이커리') ||
+          doc.placeName.contains('제과') ||
+          doc.placeName.contains('디저트');
+
+      return isBakeryGroup && (isBakeryCategoryName || hasBakeryKeyword);
+    });
 
     // DTO -> Entity
-    return response.documents.map((doc) {
+    return filteredResults.map((result) {
       return Place(
-        id: doc.id,
-        name: doc.placeName,
-        roadAddress: doc.roadAddressName,
-        placeUrl: doc.placeUrl,
-        distance: doc.distance.isEmpty ? null : doc.distance,
+        id: result.id,
+        name: result.placeName,
+        roadAddress: result.roadAddressName,
+        placeUrl: result.placeUrl,
+        distance: result.distance,
+        categoryName: result.categoryName,
+        categoryGroupCode: result.categoryGroupCode,
+        imagePath: 'assets/images/Croissant.png',
+        x: result.x,
+        y: result.y,
       );
     }).toList();
   }
