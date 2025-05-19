@@ -11,5 +11,9 @@ abstract class KakaoLocalApi {
   factory KakaoLocalApi(Dio dio, {String baseUrl}) = _KakaoLocalApi;
 
   @GET("/v2/local/search/keyword.json")
-  Future<SearchResponse> searchPlaces(@Query("query") String query);
+  Future<SearchResponse> searchPlaces({
+    @Query("query") required String query,
+    @Query("x") String? x,
+    @Query("y") String? y,
+  });
 }
