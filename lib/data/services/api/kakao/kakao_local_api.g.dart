@@ -9,9 +9,7 @@ part of 'kakao_local_api.dart';
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
 class _KakaoLocalApi implements KakaoLocalApi {
-  _KakaoLocalApi(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://dapi.kakao.com';
-  }
+  _KakaoLocalApi(this._dio, {this.baseUrl, this.errorLogger});
 
   final Dio _dio;
 

@@ -7,9 +7,9 @@ part of 'same_name.dart';
 // **************************************************************************
 
 SameName _$SameNameFromJson(Map<String, dynamic> json) => SameName(
-  region: (json['region'] as List<dynamic>).map((e) => e as String).toList(),
-  keyword: json['keyword'] as String,
-  selectedRegion: json['selected_region'] as String,
+  region: (json['region'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  keyword: json['keyword'] as String?,
+  selectedRegion: json['selected_region'] as String?,
 );
 
 Map<String, dynamic> _$SameNameToJson(SameName instance) => <String, dynamic>{
