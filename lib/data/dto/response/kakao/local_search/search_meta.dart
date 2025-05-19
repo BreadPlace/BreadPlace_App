@@ -15,13 +15,13 @@ class SearchMeta {
   final bool isEnd; // 현재 페이지가 마지막 페이지인지 여부
 
   @JsonKey(name: 'same_name')
-  final SameName sameName; // 질의어의 지역 및 키워드 분석 정보
+  final SameName? sameName; // 질의어의 지역 및 키워드 분석 정보
 
   SearchMeta({
     required this.totalCount,
     required this.pageableCount,
     required this.isEnd,
-    required this.sameName,
+    this.sameName,
   });
 
   factory SearchMeta.fromJson(Map<String, dynamic> json) => _$SearchMetaFromJson(json);
