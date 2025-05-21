@@ -1,4 +1,4 @@
-import 'package:bread_place/domain/entities/place.dart';
+import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class SearchState extends Equatable {
@@ -13,11 +13,12 @@ class SearchInitial extends SearchState {}
 class SearchLoading extends SearchState {}
 
 class SearchSuccess extends SearchState {
-  final List<Place> places;
-  const SearchSuccess(this.places);
+  final List<Bakery> bakeries;
+
+  const SearchSuccess({required this.bakeries});
 
   @override
-  List<Object?> get props => [places];
+  List<Object?> get props => [bakeries];
 }
 
 class SearchFailure extends SearchState {
