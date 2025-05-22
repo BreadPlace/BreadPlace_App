@@ -1,3 +1,4 @@
+import 'package:bread_place/data/dto/mapper/bakery_mapper.dart';
 import 'package:bread_place/data/dto/request/google/place/text_query_request.dart';
 import 'package:bread_place/data/services/api/google/google_place_api.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
@@ -20,13 +21,13 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
           languageCode: dto.displayName.languageCode,
           formattedAddress: dto.formattedAddress,
           formattedPhoneNumber: dto.formattedPhoneNumber,
-          location: dto.location,
-          viewPort: dto.viewPort,
+          location: dto.location.toEntity(),
+          viewport: dto.viewPort.toEntity(),
           id: dto.id,
-          plusCode: dto.plusCode,
+          plusCode: dto.plusCode.toEntity(),
           uri: dto.uri,
           types: dto.types,
-          photos: dto.photos
+          photos: dto.photos.name
       );
     }).toList();
 
