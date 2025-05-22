@@ -1,18 +1,20 @@
+import 'package:bread_place/data/dto/response/google/place/bakery_dto_detail/location.dart';
+import 'package:bread_place/data/dto/response/google/place/bakery_dto_detail/photo_dto.dart';
+import 'package:bread_place/data/dto/response/google/place/bakery_dto_detail/plus_code.dart';
+import 'package:bread_place/data/dto/response/google/place/bakery_dto_detail/view_port.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'display_name.dart';
+import 'bakery_dto_detail/display_name.dart';
 
 part 'bakery_dto.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class BakeryDto {
-  final DisplayName displayName;
+  final String id;
   final String languageCode;
   final String formattedAddress;
+
+  @JsonKey(name: 'nationalPhoneNumber')
   final String formattedPhoneNumber;
-  final String location;
-  final String viewPort;
-  final String id;
-  final String plusCode;
 
   @JsonKey(name: 'googleMapsUri')
   final String uri;
@@ -20,8 +22,11 @@ class BakeryDto {
   @JsonKey(defaultValue: [])
   final List<String> types;
 
-  @JsonKey(defaultValue: [])
-  final List<String> photos;
+  final DisplayName displayName;
+  final LocationDto location;
+  final ViewportDto viewPort;
+  final PlusCodeDto plusCode;
+  final PhotoDto photos;
 
   BakeryDto({
     required this.displayName,
