@@ -18,9 +18,18 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
       return Bakery(
           displayName: dto.displayName.text,
           languageCode: dto.displayName.languageCode,
-          formattedAddress: dto.formattedAddress
+          formattedAddress: dto.formattedAddress,
+          formattedPhoneNumber: dto.formattedPhoneNumber,
+          location: dto.location,
+          viewPort: dto.viewPort,
+          id: dto.id,
+          plusCode: dto.plusCode,
+          uri: dto.uri,
+          types: dto.types,
+          photos: dto.photos
       );
     }).toList();
 
     return bakeries;
-}}
+  }
+}

@@ -10,4 +10,5 @@ class DisplayName {
   DisplayName({required this.text, required this.languageCode});
 
   factory DisplayName.fromJson(Map<String, dynamic> json) => _$DisplayNameFromJson(json);
+  Map<String, dynamic> toJson() => _$DisplayNameToJson(this);
 }
