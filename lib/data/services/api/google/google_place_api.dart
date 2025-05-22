@@ -12,7 +12,6 @@ abstract class GooglePlaceApi {
 
   /// 텍스트 문자열 및 특정 위치와 일치하는 장소의 목록을 반환
   @POST('v1/places:searchText')
-  @Headers({'X-Goog-FieldMask': 'places.displayName,places.formattedAddress'}) // 응답 받을 데이터 유형 지정
   Future<TextQueryResponse> searchText({
     @Body() required TextQueryRequest body,
   });

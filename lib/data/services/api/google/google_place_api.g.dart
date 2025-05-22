@@ -21,10 +21,7 @@ class _GooglePlaceApi implements GooglePlaceApi {
   Future<TextQueryResponse> searchText({required TextQueryRequest body}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{
-      r'X-Goog-FieldMask': 'places.displayName,places.formattedAddress',
-    };
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body.toJson());
     final _options = _setStreamType<TextQueryResponse>(

@@ -15,6 +15,8 @@ class GooglePlaceDioClient {
             'Content-Type': 'application/json',
             'X-Goog-Api-Key': dotenv.env['GOOGLE_CLOUD_KEY'],
             'Accept-Language': 'ko',
+            'X-Goog-FieldMask':
+                'places.displayName,places.formattedAddress,places.location,places.viewport,places.id,places.plusCode,places.googleMapsUri,places.types,places.photos,places.nationalPhoneNumber',
           },
         ),
       );
