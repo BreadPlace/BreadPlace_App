@@ -1,11 +1,12 @@
 import 'package:bread_place/config/constants/app_colors.dart';
+import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/place.dart';
 import 'package:flutter/material.dart';
 
 class SearchResultView extends StatefulWidget {
   final double? height;
   final int itemCount;
-  final List<Place> results;
+  final List<Bakery> results;
 
   const SearchResultView({
     super.key,
@@ -52,15 +53,14 @@ class _SearchResultViewState extends State<SearchResultView> {
             child: ListView.builder(
               itemCount: widget.itemCount,
               itemBuilder: (context, index) {
-                final place = widget.results[index];
+                final bakery = widget.results[index];
                 return ListTile(
-                  title: Text(place.name),
+                  title: Text(bakery.displayName),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(place.roadAddress),
-                      Text(place.categoryName),
-                      Text(place.categoryGroupCode ?? '없음')
+                      Text(bakery.formattedAddress),
+                      Text(bakery.languageCode)
                     ],
                   ),
                 );

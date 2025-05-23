@@ -64,7 +64,7 @@ class _SearchScreenMainState extends State<SearchScreenMain> {
                 }
 
                 if (state is SearchSuccess) {
-                  if (state.places.isEmpty) {
+                  if (state.bakeries.isEmpty) {
                     return EmptyResultView(
                       headLine: _headLine,
                       message: _emptyViewMsg,
@@ -72,8 +72,8 @@ class _SearchScreenMainState extends State<SearchScreenMain> {
                     );
                   }
                   return SearchResultView(
-                    itemCount: state.places.length,
-                    results: state.places,
+                    itemCount: state.bakeries.length,
+                    results: state.bakeries,
                   );
                 }
 

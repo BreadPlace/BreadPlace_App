@@ -1,31 +1,24 @@
-import 'package:bread_place/domain/repositories/kakao_search_repository.dart';
+import 'package:bread_place/domain/repositories/google_place_repository.dart';
 import 'package:bread_place/ui/search/bloc/search_event.dart';
 import 'package:bread_place/ui/search/bloc/search_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final KakaoSearchRepository _repository;
+  final GooglePlaceRepository _repository;
 
   SearchBloc(this._repository) : super(SearchInitial()) {
-    on<SearchPlace>(getSearchPlace);
+    on<SearchPlace>(onSearchPlace);
   }
 
-  Future<void> getSearchPlace(
+  Future<void> onSearchPlace(
     SearchPlace event,
     Emitter<SearchState> emit,
   ) async {
     emit(SearchLoading());
 
-    final currentPosition = await Geolocator.getCurrentPosition();
-
     try {
-      final results = await _repository.searchPlaces(
-        event.keyword,
-        currentPosition.longitude.toString(),
-        currentPosition.latitude.toString(),
-      );
-      emit(SearchSuccess(results));
+      final results = await _repository.searchText(event.keyword);
+      emit(SearchSuccess(bakeries: results));
     } catch (e) {}
   }
 }
