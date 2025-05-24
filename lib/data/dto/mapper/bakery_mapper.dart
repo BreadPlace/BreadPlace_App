@@ -8,17 +8,17 @@ import 'package:bread_place/domain/entities/bakery.dart';
 extension BakeryDtoMapper on BakeryDto {
   Bakery toEntity() {
     return Bakery(
-      displayName: displayName.text,
-      languageCode: displayName.languageCode,
-      formattedAddress: formattedAddress,
-      formattedPhoneNumber: formattedPhoneNumber,
-      location: location.toEntity(),
-      viewport: viewPort.toEntity(),
       id: id,
-      plusCode: plusCode.toEntity(),
-      uri: uri,
       types: types,
-      photos: photos.name,
+      formattedAddress: formattedAddress ?? '',
+      displayName: displayName?.text ?? '',
+      languageCode: displayName?.languageCode ?? '',
+      formattedPhoneNumber: formattedPhoneNumber ?? '',
+      location: location?.toEntity() ?? Location.empty(),
+      viewport: viewPort?.toEntity() ?? Viewport.empty(),
+      plusCode: plusCode?.toEntity() ?? PlusCode.empty(),
+      uri: uri ?? '',
+      photos: photos?.first.name ?? "", // 사진 1장의 ID만 추출
     );
   }
 }
@@ -26,29 +26,26 @@ extension BakeryDtoMapper on BakeryDto {
 // LocationDto -> Location 변환
 extension LocationDtoMapper on LocationDto {
   Location toEntity() {
-    return Location(
-      latitude: latitude,
-      longitude: longitude,
-    );
+    return Location(latitude: latitude ?? 0.0, longitude: longitude ?? 0.0);
   }
 }
 
-// ViewportDto -> Viewport 변환
+// ViewportDto -> Viewport 변환 수정
 extension ViewportDtoMapper on ViewportDto {
   Viewport toEntity() {
     return Viewport(
-      low: low.toEntity(),
-      high: high.toEntity(),
+      low: low?.toEntity() ?? Location.empty(),
+      high: high?.toEntity() ?? Location.empty(),
     );
   }
 }
 
-// PlusCodeDto -> PlusCode 변환
+// PlusCodeDto -> PlusCode 변환 수정
 extension PlusCodeDtoMapper on PlusCodeDto {
   PlusCode toEntity() {
     return PlusCode(
-      globalCode: globalCode,
-      compoundCode: compoundCode,
+      globalCode: globalCode ?? '',
+      compoundCode: compoundCode ?? '',
     );
   }
 }

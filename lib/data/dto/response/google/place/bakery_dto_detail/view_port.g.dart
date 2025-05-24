@@ -7,8 +7,14 @@ part of 'view_port.dart';
 // **************************************************************************
 
 ViewportDto _$ViewportDtoFromJson(Map<String, dynamic> json) => ViewportDto(
-  low: LocationDto.fromJson(json['low'] as Map<String, dynamic>),
-  high: LocationDto.fromJson(json['high'] as Map<String, dynamic>),
+  low:
+      json['low'] == null
+          ? null
+          : LocationDto.fromJson(json['low'] as Map<String, dynamic>),
+  high:
+      json['high'] == null
+          ? null
+          : LocationDto.fromJson(json['high'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$ViewportDtoToJson(ViewportDto instance) =>

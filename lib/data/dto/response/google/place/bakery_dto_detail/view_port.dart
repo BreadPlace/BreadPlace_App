@@ -5,10 +5,10 @@ part 'view_port.g.dart';
 
 @JsonSerializable()
 class ViewportDto {
-  final LocationDto low;
-  final LocationDto high;
+  final LocationDto? low;
+  final LocationDto? high;
 
-  ViewportDto({required this.low, required this.high});
+  ViewportDto({this.low, this.high});
 
   factory ViewportDto.fromJson(Map<String, dynamic> json) => _$ViewportDtoFromJson(json);
   Map<String, dynamic> toJson() => _$ViewportDtoToJson(this);

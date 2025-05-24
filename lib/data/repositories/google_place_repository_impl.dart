@@ -8,28 +8,17 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
   final GooglePlaceApi _api;
 
   GooglePlaceRepositoryImpl({required GooglePlaceApi googlePlaceApi})
-      : _api = googlePlaceApi;
+    : _api = googlePlaceApi;
 
   @override
   Future<List<Bakery>> searchText(String query) async {
     final request = TextQueryRequest(textQuery: query);
     final response = await _api.searchText(body: request);
 
-    final bakeries = response.bakeries.map((dto) {
-      return Bakery(
-          displayName: dto.displayName.text,
-          languageCode: dto.displayName.languageCode,
-          formattedAddress: dto.formattedAddress,
-          formattedPhoneNumber: dto.formattedPhoneNumber,
-          location: dto.location.toEntity(),
-          viewport: dto.viewPort.toEntity(),
-          id: dto.id,
-          plusCode: dto.plusCode.toEntity(),
-          uri: dto.uri,
-          types: dto.types,
-          photos: dto.photos.name
-      );
-    }).toList();
+    final bakeries =
+        response.bakeries.map((dto) {
+          return dto.toEntity();
+        }).toList();
 
     return bakeries;
   }
