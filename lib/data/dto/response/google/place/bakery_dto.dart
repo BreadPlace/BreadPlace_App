@@ -10,36 +10,34 @@ part 'bakery_dto.g.dart';
 @JsonSerializable(explicitToJson: true)
 class BakeryDto {
   final String id;
-  final String languageCode;
-  final String formattedAddress;
-
-  @JsonKey(name: 'nationalPhoneNumber')
-  final String formattedPhoneNumber;
+  final String? formattedAddress;
 
   @JsonKey(name: 'googleMapsUri')
-  final String uri;
+  final String? uri;
+
+  @JsonKey(name: 'nationalPhoneNumber')
+  final String? formattedPhoneNumber;
 
   @JsonKey(defaultValue: [])
   final List<String> types;
 
-  final DisplayName displayName;
-  final LocationDto location;
-  final ViewportDto viewPort;
-  final PlusCodeDto plusCode;
-  final PhotoDto photos;
+  final DisplayName? displayName;
+  final LocationDto? location;
+  final ViewportDto? viewPort;
+  final PlusCodeDto? plusCode;
+  final List<PhotoDto>? photos;
 
   BakeryDto({
-    required this.displayName,
-    required this.languageCode,
-    required this.formattedAddress,
-    required this.formattedPhoneNumber,
-    required this.location,
-    required this.viewPort,
     required this.id,
-    required this.plusCode,
-    required this.uri,
     required this.types,
-    required this.photos,
+    this.formattedAddress,
+    this.uri,
+    this.formattedPhoneNumber,
+    this.displayName,
+    this.location,
+    this.viewPort,
+    this.plusCode,
+    this.photos,
   });
 
   factory BakeryDto.fromJson(Map<String, dynamic> json) => _$BakeryDtoFromJson(json);
