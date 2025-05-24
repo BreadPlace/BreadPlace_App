@@ -7,8 +7,8 @@ part of 'plus_code.dart';
 // **************************************************************************
 
 PlusCodeDto _$PlusCodeDtoFromJson(Map<String, dynamic> json) => PlusCodeDto(
-  globalCode: json['globalCode'] as String,
-  compoundCode: json['compoundCode'] as String,
+  globalCode: json['globalCode'] as String?,
+  compoundCode: json['compoundCode'] as String?,
 );
 
 Map<String, dynamic> _$PlusCodeDtoToJson(PlusCodeDto instance) =>
