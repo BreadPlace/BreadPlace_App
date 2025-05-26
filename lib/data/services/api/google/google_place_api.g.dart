@@ -78,10 +78,12 @@ class _GooglePlaceApi implements GooglePlaceApi {
   @override
   Future<PlacePhotoResponse> getPlacePhotoUri({
     required String photoName,
+    int maxWidthPx = 400,
     bool skipHttpRedirect = true,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
+      r'maxWidthPx': maxWidthPx,
       r'skipHttpRedirect': skipHttpRedirect,
     };
     final _headers = <String, dynamic>{};
@@ -90,7 +92,7 @@ class _GooglePlaceApi implements GooglePlaceApi {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'v1/places/${photoName}/media',
+            'v1/${photoName}/media',
             queryParameters: queryParameters,
             data: _data,
           )

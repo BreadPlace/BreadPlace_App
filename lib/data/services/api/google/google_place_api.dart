@@ -13,7 +13,7 @@ abstract class GooglePlaceApi {
   factory GooglePlaceApi(Dio dio, {String baseUrl}) = _GooglePlaceApi;
 
   /// 텍스트 문자열 및 특정 위치와 일치하는 장소의 목록을 반환
-  @POST('v1/places:searchText')
+  @POST(GooglePlaceEndpoint.searchText)
   Future<TextQueryResponse> searchText({
     @Body() required TextQueryRequest body,
   });
@@ -24,7 +24,7 @@ abstract class GooglePlaceApi {
   });
 
   /// photoName 으로 photoUri 가져오기
-  @GET('v1/places/{name}/media')
+  @GET(GooglePlaceEndpoint.getPlacePhotoUri)
   Future<PlacePhotoResponse> getPlacePhotoUri({
     @Path('name') required String photoName,
     @Query('skipHttpRedirect') bool skipHttpRedirect = true, // true = Json 반환, false = byte 반환
