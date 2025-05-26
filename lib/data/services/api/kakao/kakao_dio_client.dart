@@ -12,5 +12,11 @@ class KakaoDioClient {
           'Authorization': 'KakaoAK ${dotenv.env['KAKAO_REST_API_KEY']}',
         },
       ),
-    );
+    )..interceptors.add(LogInterceptor(
+    request: true,
+    requestBody: true,
+    responseBody: true,
+    responseHeader: false,
+    error: true,
+  ));
 }
