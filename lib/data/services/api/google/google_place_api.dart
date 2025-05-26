@@ -1,4 +1,5 @@
 import 'package:bread_place/data/dto/request/google/place/text_query_request.dart';
+import 'package:bread_place/data/dto/request/google/search_nearby/search_nearby_request.dart';
 import 'package:bread_place/data/dto/response/google/place/text_query_response.dart';
 import 'package:dio/dio.dart' hide Headers;
 import 'package:retrofit/error_logger.dart';
@@ -14,5 +15,10 @@ abstract class GooglePlaceApi {
   @POST('v1/places:searchText')
   Future<TextQueryResponse> searchText({
     @Body() required TextQueryRequest body,
+  });
+  
+  @POST('v1/places:searchNearby')
+  Future<TextQueryResponse> searchNearby({
+    @Body() required SearchNearbyRequest body,
   });
 }
