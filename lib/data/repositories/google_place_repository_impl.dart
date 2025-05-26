@@ -49,4 +49,12 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
 
     return bakeries;
   }
+
+  @override
+  Future<String> getPlacePhotoUri(String photoName) async {
+    final response = await _api.getPlacePhotoUri(photoName: photoName);
+    final photoUri = response.photoUri ?? '';
+
+    return photoUri;
+  }
 }
