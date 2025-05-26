@@ -1,4 +1,3 @@
-import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,12 +7,15 @@ import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/domain/entities/temp_bakery_entity.dart';
 import 'package:bread_place/ui/common_widgets/common_left_text_view.dart';
 import 'package:bread_place/ui/common_widgets/common_breadplace_title_view.dart';
+import 'package:bread_place/config/constants/app_text_styles.dart';
+import 'package:bread_place/domain/entities/bakery.dart';
+import 'package:bread_place/ui/common_widgets/empty_result_view.dart';
+import 'package:bread_place/ui/home/bloc/home_bloc.dart';
+import 'package:bread_place/config/constants/app_locations.dart';
+import 'package:bread_place/ui/common_widgets/common_bakery_content_view.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bread_place/ui/home/bloc/home_bloc.dart';
-import 'package:bread_place/ui/home/bloc/latlng_extension.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 
 class HomeScreenMain extends StatefulWidget {
   const HomeScreenMain({super.key});
@@ -23,12 +25,16 @@ class HomeScreenMain extends StatefulWidget {
 }
 
 class _HomeScreenMainState extends State<HomeScreenMain> {
+  final String tabTitle = '빵플레이스';
+  final String mapViewTitle = '현재 위치';
+  final String bakeryListViewTitle = '근처 베이커리';
+
+  late GoogleMapController mapController;
+
   @override
   void initState() {
     super.initState();
   }
-
-  late final GoogleMapController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +42,10 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
       children: [
         // 커스텀 타이틀
         BreadPlaceTitleView(
-          title: '빵플레이스',
+          title: tabTitle,
           titleImage: const AssetImage('assets/images/Croissant.png'),
           trailingIcon: CupertinoIcons.bell_fill,
-          onTrailingTap: ontrailingIconTapped,
+          onTrailingTap: _onBellIconTapped,
         ),
 
         const SizedBox(height: 8),
@@ -54,11 +60,18 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
                 const SizedBox(height: 16),
 
                 // 근처 빵집 지도
-                _MapView(),
+                _MapView(
+                  title: mapViewTitle,
+                  onTrailingTap: _onSearchLocationTapped,
+                  onMapCreated: _onMapCreated,
+                  onMarkerTapped: _onMarkerTapped,
+                  onMapTapped: _onMapTapped,
+                  changeCameraPosition: _changeCameraPosition,
+                ),
                 const SizedBox(height: 16),
 
                 // 근처 빵집 리스트
-                const _BakeryListView(),
+                _BakeryListView(title: bakeryListViewTitle),
                 const SizedBox(height: 32),
               ],
             ),
@@ -68,8 +81,45 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     );
   }
 
-  void ontrailingIconTapped() {
-    // context.read<HomeBloc>().add(추가예정);
+  // 벨 아이콘이 눌렸을 때 이벤트
+  void _onBellIconTapped() {
+    context.read<HomeBloc>().add(HomeBellIconTapped());
+  }
+
+  // 탐색 버튼이 눌렸을 때 이벤트
+  void _onSearchLocationTapped() async {
+    final bounds = await mapController.getVisibleRegion();
+    final center = LatLng(
+        (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
+        (bounds.northeast.longitude + bounds.southwest.longitude) / 2
+    );
+
+    context.read<HomeBloc>().add(
+      HomeSearchLocation(location: center),
+    );
+  }
+
+  // 마커가 선택되었을 때 이벤트
+  void _onMarkerTapped(String bakeryID) {
+    context.read<HomeBloc>().add(HomeMarkerTapped(bakeryID: bakeryID));
+  }
+
+  // 지도가 눌렸을 때 이벤트
+  void _onMapTapped(LatLng? touchedLocation) {
+    context.read<HomeBloc>().add(HomeMapTapped());
+  }
+
+  // 지도 컨트롤러를 상위로 넘기는 함수
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  void _changeCameraPosition(LatLng to) {
+    mapController.animateCamera(
+      CameraUpdate.newLatLng(to),
+    );
+
+    print('카메라 이동 동작: $to');
   }
 }
 
@@ -139,16 +189,23 @@ class _RecommandBakeryView extends StatelessWidget {
                       children: [
                         Text(
                           recommendBakery.name,
-                          style: AppTextStyles.pretendardBold.copyWith(fontSize: 16),
+                          style: AppTextStyles.pretendardBold.copyWith(
+                            fontSize: 16,
+                          ),
                         ),
                         Text(
                           recommendBakery.address,
-                          style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 12),
+                          style: AppTextStyles.pretendardSemiBold.copyWith(
+                            fontSize: 12,
+                          ),
                         ),
                         Text(
                           "${recommendBakery.distanceFromUser(userLocation)}KM",
-                          style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 14, color: AppColors.grey),
+                          style: AppTextStyles.pretendardSemiBold.copyWith(
+                            fontSize: 14,
+                            color: AppColors.grey,
                           ),
+                        ),
                       ],
                     ),
 
@@ -167,169 +224,192 @@ class _RecommandBakeryView extends StatelessWidget {
 }
 
 class _MapView extends StatelessWidget {
-  const _MapView({super.key});
+  final String title;
+  final VoidCallback onTrailingTap;
+  final void Function(GoogleMapController) onMapCreated;
+  final void Function(String) onMarkerTapped;
+  final void Function(LatLng?) onMapTapped;
+  final void Function(LatLng) changeCameraPosition;
+
+  const _MapView({
+    required this.title,
+    required this.onTrailingTap,
+    required this.onMapCreated,
+    required this.onMarkerTapped,
+    required this.onMapTapped,
+    required this.changeCameraPosition,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<HomeBloc, HomeState, LatLng?>(
-      selector: (state) => state is HomeScreenState ? state.userLocation : null,
-      builder: (context, userLocation) {
-        final cameraPosition =
-            userLocation != null
-                ? CameraPosition(target: userLocation, zoom: 15)
-                : CameraPosition(target: AppLocations.seoulStation, zoom: 15);
-
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LeftTextView(
-                title: '현재 위치',
-                trailingWidget: Container(
-                  width: 96,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(CupertinoIcons.refresh, size: 16),
-                      Text(
-                        '다시 탐색',
-                        style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              SizedBox(
-                height: 280,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: GoogleMap(
-                    initialCameraPosition: cameraPosition,
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
-
-                    gestureRecognizers: {
-                      Factory<OneSequenceGestureRecognizer>(
-                        () => EagerGestureRecognizer(),
-                      ),
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
+    return BlocListener<HomeBloc, HomeState>(
+      listenWhen: (prev, curr) =>
+      prev.userLocation != curr.userLocation,
+      listener: (context, state) {
+        if (state.userLocation != null){
+          changeCameraPosition(state.userLocation!);
+        }
       },
+      child: BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng?)>(
+        selector:
+            (state) =>
+                state is HomeScreenState
+                    ? (state.bakeryList, state.userLocation)
+                    : ([], AppLocations.seoulStation),
+        builder: (context, data) {
+          final nearbyBakeries = data.$1;
+          final userLocation = data.$2;
+
+          final cameraPosition =
+              userLocation != null
+                  ? CameraPosition(target: userLocation, zoom: 15)
+                  : CameraPosition(target: AppLocations.seoulStation, zoom: 15);
+
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                LeftTextView(
+                  title: title,
+                  trailingWidget: TextButton(
+                    onPressed: onTrailingTap,
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      minimumSize: const Size(96, 28),
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(CupertinoIcons.refresh, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          '다시 탐색',
+                          style: AppTextStyles.pretendardSemiBold.copyWith(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                SizedBox(
+                  height: 280,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: GoogleMap(
+                      initialCameraPosition: cameraPosition,
+                      onMapCreated: (GoogleMapController controller){
+                        onMapCreated(controller);
+                      },
+                      onTap: onMapTapped,
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
+                      markers: {
+                        for (final bakery in nearbyBakeries)
+                          Marker(
+                            markerId: MarkerId(bakery.id),
+                            position: LatLng(
+                              double.tryParse(
+                                    bakery.location.latitude.toString() ?? '',
+                                  ) ??
+                                  AppLocations.seoulStation.latitude,
+                              double.tryParse(
+                                    bakery.location.longitude.toString() ?? '',
+                                  ) ??
+                                  AppLocations.seoulStation.longitude,
+                            ),
+                            infoWindow: InfoWindow(title: bakery.displayName),
+                            onTap:() => onMarkerTapped(bakery.id),
+                          ),
+                      },
+
+                      gestureRecognizers: {
+                        Factory<OneSequenceGestureRecognizer>(
+                          () => EagerGestureRecognizer(),
+                        ),
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
 class _BakeryListView extends StatelessWidget {
-  const _BakeryListView({super.key});
+  final String title;
+
+  const _BakeryListView({required this.title, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<HomeBloc, HomeState, (List<TempBakeryEntity>, LatLng)>(
+    return BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng, Bakery?)>(
       selector:
           (state) =>
               state is HomeScreenState
                   ? (
-                    state.nearbyBakeries,
+                    state.bakeryList,
                     state.userLocation ?? AppLocations.seoulStation,
+                    state.markerTappedBakery,
                   )
-                  : ([], AppLocations.seoulStation),
+                  : ([], AppLocations.seoulStation, null),
 
       builder: (context, data) {
         final nearbyBackeies = data.$1;
         final userLocation = data.$2;
+        final markerTappedBakery = data.$3;
+
+        final bakeryListView = Container(
+          height: 400,
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child:
+          nearbyBackeies.isEmpty
+              ? EmptyResultView(
+            headLine: '검색결과',
+            message: '근처에 있는 빵집이 빵개입니다...',
+            imageProvider: AssetImage(
+              'assets/images/image_donut.png',
+            ),
+          )
+              : ListView.separated(
+            itemCount: nearbyBackeies.length,
+            separatorBuilder:
+                (context, index) => Divider(height: 1),
+            itemBuilder: (context, index) {
+              final bakery = nearbyBackeies[index];
+              return BakeryContentView(bakery: bakery, userLocation: userLocation);
+            },
+          ),
+        );
 
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              LeftTextView(title: "근처 베이커리"),
+              LeftTextView(title: title),
 
               const SizedBox(height: 8),
 
-              Container(
-                height: 400,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: ListView.separated(
-                  itemCount: nearbyBackeies.length,
-                  separatorBuilder: (context, index) => Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final bakery = nearbyBackeies[index];
-                    final distance = bakery.distanceFromUser(userLocation);
-
-                    return Container(
-                      padding: EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // 이미지를 담은 컨테이너
-                          Container(
-                            width: 64,
-                            height: 64,
-                            decoration: BoxDecoration(
-                              color: AppColors.grey,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            // 베이커리 이미지
-                            child: Center(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.asset(
-                                  'assets/images/DonutCharacter.png',
-                                  width: 44,
-                                  height: 44,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(width: 20),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                bakery.name,
-                                style: AppTextStyles.pretendardBold.copyWith(fontSize: 16),
-                              ),
-                              Text(
-                                bakery.address,
-                                style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 12),
-                              ),
-                              Text(
-                                "${distance}KM",
-                                style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 14, color: AppColors.grey),
-                              ),
-                            ],
-                          ),
-
-                          Spacer(),
-
-                          Text("리뷰 >"),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
+              (markerTappedBakery == null)
+              ? bakeryListView
+              : BakeryContentView(bakery: markerTappedBakery, userLocation: userLocation),
             ],
           ),
         );
