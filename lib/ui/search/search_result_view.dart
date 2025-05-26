@@ -60,7 +60,10 @@ class _SearchResultViewState extends State<SearchResultView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(bakery.formattedAddress),
-                      Text(bakery.languageCode)
+                      Text(bakery.photoId),
+
+                      Divider(),
+                      Image.network(bakery.photoUri),
                     ],
                   ),
                 );

@@ -7,6 +7,7 @@ import 'package:bread_place/data/services/api/kakao/kakao_local_api.dart';
 import 'package:bread_place/domain/repositories/google_place_repository.dart';
 import 'package:bread_place/domain/repositories/kakao_search_repository.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
+import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:get_it/get_it.dart';
 
@@ -23,9 +24,10 @@ void initLocator() {
   di.registerLazySingleton<GooglePlaceDioClient>(() => GooglePlaceDioClient());
   di.registerLazySingleton<GooglePlaceApi>(() => GooglePlaceApi(di<GooglePlaceDioClient>().dio));
   di.registerLazySingleton<GooglePlaceRepository>(() => GooglePlaceRepositoryImpl(googlePlaceApi: di<GooglePlaceApi>()));
+  di.registerLazySingleton<SearchBakeryUseCase>(() => SearchBakeryUseCase(repository: di<GooglePlaceRepository>()));
 
   /// Blocs
   // di.registerFactory(() => HomeBloc(di<KakaoSearchRepository>()));
   di.registerFactory(() => HomeBloc(di<GooglePlaceRepository>()));
-  di.registerFactory(() => SearchBloc(di<GooglePlaceRepository>()));
+  di.registerFactory(() => SearchBloc(di<SearchBakeryUseCase>()));
 }
