@@ -1,5 +1,6 @@
 import 'package:bread_place/data/dto/request/google/place/text_query_request.dart';
 import 'package:bread_place/data/dto/request/google/search_nearby/search_nearby_request.dart';
+import 'package:bread_place/data/dto/response/google/place/place_photo_response.dart';
 import 'package:bread_place/data/dto/response/google/place/text_query_response.dart';
 import 'package:dio/dio.dart' hide Headers;
 import 'package:retrofit/error_logger.dart';
@@ -16,9 +17,16 @@ abstract class GooglePlaceApi {
   Future<TextQueryResponse> searchText({
     @Body() required TextQueryRequest body,
   });
-  
+
   @POST('v1/places:searchNearby')
   Future<TextQueryResponse> searchNearby({
     @Body() required SearchNearbyRequest body,
+  });
+
+  /// photoName 으로 photoUri 가져오기
+  @GET('v1/places/{name}/media')
+  Future<PlacePhotoResponse> getPlacePhotoUri({
+    @Path('name') required String photoName,
+    @Query('skipHttpRedirect') bool skipHttpRedirect = true, // true = Json 반환, false = byte 반환
   });
 }
