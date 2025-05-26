@@ -54,6 +54,7 @@ dependencies:
   google_maps_flutter: ^2.12.1 # google maps
   geolocator: ^14.0.0 # location services
   flutter_dotenv: ^5.2.1 # env file load
+  cached_network_image: ^3.4.1
 
 
 dev_dependencies:
