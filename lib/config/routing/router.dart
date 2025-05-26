@@ -23,7 +23,7 @@ GoRouter router = GoRouter(
           path: Routes.home,
           builder:
               (context, state) => BlocProvider(
-                create: (_) => HomeBloc()..add(const HomeAppInitiate()),
+                create: (_) => di<HomeBloc>()..add(HomeAppInitiate()),
                 child: const HomeScreenMain(),
               ),
         ),

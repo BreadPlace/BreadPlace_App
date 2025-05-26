@@ -53,6 +53,47 @@ class _KakaoLocalApi implements KakaoLocalApi {
     return _value;
   }
 
+  @override
+  Future<SearchResponse> searchLocation({
+    required String groupCode,
+    required String longitude,
+    required String latitude,
+    int radius = 500,
+    String sort = 'distance',
+    int page = 1,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'category_group_code': groupCode,
+      r'x': longitude,
+      r'y': latitude,
+      r'radius': radius,
+      r'sort': sort,
+      r'page': page,
+    };
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<SearchResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/v2/local/search/category.json',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late SearchResponse _value;
+    try {
+      _value = SearchResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||

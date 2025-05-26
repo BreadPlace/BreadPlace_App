@@ -16,4 +16,14 @@ abstract class KakaoLocalApi {
     @Query("x") String? x,
     @Query("y") String? y,
   });
+
+  @GET("/v2/local/search/category.json")
+  Future<SearchResponse> searchLocation({
+    @Query("category_group_code") required String groupCode,
+    @Query("x") required String longitude,
+    @Query("y") required String latitude,
+    @Query("radius") int radius = 500,
+    @Query("sort") String sort = 'distance',
+    @Query('page') int page = 1
+  });
 }

@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:bread_place/ui/home/bloc/latlng_extension.dart';
 
 
 class TempBakeryEntity extends Equatable {
@@ -23,7 +22,7 @@ class TempBakeryEntity extends Equatable {
     id: '',
     name: '',
     address: '',
-    location: AppLocations.seoulStation,
+    location: LatLng(0, 0),
     imagePath: 'assets/images/Croissant.png',
   );
 
