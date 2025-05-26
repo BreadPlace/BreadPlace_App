@@ -7,9 +7,10 @@ class Bakery {
   final Viewport viewport;
   final String id;
   final PlusCode plusCode;
-  final String uri; // googleMapsUri
   final List<String> types;
-  final String photos;
+  final String googleMapsUri;
+  String photoUri;
+  String photoId;
 
   Bakery({
     required this.displayName,
@@ -20,9 +21,10 @@ class Bakery {
     required this.viewport,
     required this.id,
     required this.plusCode,
-    required this.uri,
     required this.types,
-    required this.photos,
+    required this.googleMapsUri,
+    required this.photoUri,
+    required this.photoId,
   });
 }
 

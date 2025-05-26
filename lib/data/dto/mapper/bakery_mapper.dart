@@ -17,8 +17,9 @@ extension BakeryDtoMapper on BakeryDto {
       location: location?.toEntity() ?? Location.empty(),
       viewport: viewPort?.toEntity() ?? Viewport.empty(),
       plusCode: plusCode?.toEntity() ?? PlusCode.empty(),
-      uri: uri ?? '',
-      photos: photos?.first.name ?? "", // 사진 1장의 ID만 추출
+      googleMapsUri: uri ?? '',
+      photoId: photos?.first.name ?? "", // 사진 1장의 ID만 추출
+      photoUri: ''
     );
   }
 }
