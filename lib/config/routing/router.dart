@@ -40,7 +40,7 @@ GoRouter router = GoRouter(
                   // 애니메이션 없이 페이지 전환
                   (context, state) => NoTransitionPage(
                     child: BlocProvider(
-                      create: (_) => HomeBloc()..add(const HomeAppInitiate()),
+                      create: (_) => di<HomeBloc>()..add(HomeAppInitiate()),
                       child: const HomeScreenMain(),
                     ),
                   ),

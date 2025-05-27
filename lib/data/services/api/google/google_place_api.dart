@@ -2,6 +2,7 @@ import 'package:bread_place/data/dto/request/google/place/text_query_request.dar
 import 'package:bread_place/data/dto/request/google/search_nearby/search_nearby_request.dart';
 import 'package:bread_place/data/dto/response/google/place/place_photo_response.dart';
 import 'package:bread_place/data/dto/response/google/place/text_query_response.dart';
+import 'google_place_endpoint.dart';
 import 'package:dio/dio.dart' hide Headers;
 import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
