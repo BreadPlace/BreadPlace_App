@@ -14,19 +14,25 @@ class MainNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: navigationShell.currentIndex,
-      onTap: _goBranch,
-      selectedItemColor: AppColors.background,
-      unselectedItemColor: AppColors.icon,
-      backgroundColor: AppColors.primary,
-      type: BottomNavigationBarType.fixed,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: '홈'),
-        BottomNavigationBarItem(icon: Icon(CupertinoIcons.search), label: '검색'),
-        BottomNavigationBarItem(icon: Icon(CupertinoIcons.pen), label: '리뷰'),
-        BottomNavigationBarItem(icon: Icon(CupertinoIcons.person), label: '설정'),
-      ],
+    return ClipRRect(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(30),
+        topRight: Radius.circular(30),
+      ),
+      child: BottomNavigationBar(
+        currentIndex: navigationShell.currentIndex,
+        onTap: _goBranch,
+        selectedItemColor: AppColors.background,
+        unselectedItemColor: AppColors.icon,
+        backgroundColor: AppColors.primary,
+        type: BottomNavigationBarType.fixed,
+        items: [
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: '홈'),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.search), label: '검색'),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.pen), label: '리뷰'),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.person), label: '설정'),
+        ],
+      ),
     );
   }
 }
