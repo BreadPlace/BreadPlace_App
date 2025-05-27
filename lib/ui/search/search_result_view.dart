@@ -1,7 +1,8 @@
+import 'package:bread_place/config/constants/app_colors.dart';
+import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
 import 'package:flutter/material.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/common_left_text_view.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class SearchResultView extends StatefulWidget {
   final double? height;
@@ -41,29 +42,15 @@ class _SearchResultViewState extends State<SearchResultView> {
             flex: 5,
             child: Padding(
               padding: const EdgeInsets.all(4.0),
-              child: ListView.builder(
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: 10),
                 itemCount: widget.itemCount,
                 itemBuilder: (context, index) {
                   final bakery = widget.results[index];
-                  return ListTile(
-                    title: Text(bakery.displayName),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(bakery.formattedAddress),
-                        Text(bakery.photoId),
-
-                        Divider(),
-                        CachedNetworkImage(
-                          imageUrl: bakery.photoUri,
-                          placeholder:
-                              (context, url) => CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => Icon(Icons.error),
-                        ),
-                      ],
-                    ),
-                  );
+                  return CommonBakeryContainer(bakery: bakery);
                 },
+                separatorBuilder:
+                    (context, int index) => Divider(color: AppColors.grey),
               ),
             ),
           ),
