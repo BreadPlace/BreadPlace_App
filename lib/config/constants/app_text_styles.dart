@@ -12,25 +12,25 @@ class AppTextStyles {
   static TextStyle pretendardBold = TextStyle(
     fontFamily: 'pretendardBold',
     fontSize: 26,
-    color: AppColors.black,
+    color: AppColors.fontTitleBlack,
     fontWeight: FontWeight.bold,
   );
 
   static TextStyle pretendardSemiBold = TextStyle(
     fontFamily: 'pretendardSemiBold',
     fontSize: 16,
-    color: AppColors.black,
+    color: AppColors.fontTitleBlack,
   );
 
   static TextStyle pretendardRegular = TextStyle(
     fontFamily: 'pretendardRegular',
     fontSize: 16,
-    color: AppColors.black,
+    color: AppColors.fontMainBlack,
   );
 
   static TextStyle hintText = TextStyle(
     fontFamily: 'pretendardRegular',
     fontSize: 16,
-    color: AppColors.grey
+    color: AppColors.fontGrey
   );
 }
