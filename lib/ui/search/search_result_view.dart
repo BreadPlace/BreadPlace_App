@@ -1,7 +1,7 @@
 import 'package:bread_place/config/constants/app_colors.dart';
-import 'package:bread_place/domain/entities/bakery.dart';
-import 'package:bread_place/domain/entities/place.dart';
 import 'package:flutter/material.dart';
+import 'package:bread_place/domain/entities/bakery.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SearchResultView extends StatefulWidget {
   final double? height;
@@ -63,7 +63,12 @@ class _SearchResultViewState extends State<SearchResultView> {
                       Text(bakery.photoId),
 
                       Divider(),
-                      Image.network(bakery.photoUri),
+                      CachedNetworkImage(
+                        imageUrl: bakery.photoUri,
+                        placeholder:
+                            (context, url) => CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                      ),
                     ],
                   ),
                 );
