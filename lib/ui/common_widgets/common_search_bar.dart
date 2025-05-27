@@ -23,6 +23,7 @@ class _CommonSearchBarState extends State<CommonSearchBar> {
       child: SearchBar(
         leading: Icon(CupertinoIcons.search, color: AppColors.primary),
         elevation: WidgetStatePropertyAll(0),
+        textStyle: WidgetStatePropertyAll<TextStyle>(TextStyle(color: AppColors.primary)),
         backgroundColor: WidgetStatePropertyAll(AppColors.white),
         overlayColor: WidgetStatePropertyAll(AppColors.sub),
         hintText: widget.hintText ?? defaultHintText,
