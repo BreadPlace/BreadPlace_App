@@ -80,10 +80,12 @@ class _GooglePlaceApi implements GooglePlaceApi {
   @override
   Future<PlacePhotoResponse> getPlacePhotoUri({
     required String photoName,
+    int maxWidthPx = 600,
     bool skipHttpRedirect = true,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
+      r'maxWidthPx': maxWidthPx,
       r'skipHttpRedirect': skipHttpRedirect,
     };
     final _headers = <String, dynamic>{};

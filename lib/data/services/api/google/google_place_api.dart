@@ -28,6 +28,7 @@ abstract class GooglePlaceApi {
   @GET(GooglePlaceEndpoint.getPlacePhotoUri)
   Future<PlacePhotoResponse> getPlacePhotoUri({
     @Path('name') required String photoName,
+    @Query('maxWidthPx') int maxWidthPx = 600,
     @Query('skipHttpRedirect') bool skipHttpRedirect = true, // true = Json 반환, false = byte 반환
   });
 }
