@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'text_query_response.dart';
+part of 'text_search_response.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-TextQueryResponse _$TextQueryResponseFromJson(Map<String, dynamic> json) =>
-    TextQueryResponse(
+TextSearchResponse _$TextSearchResponseFromJson(Map<String, dynamic> json) =>
+    TextSearchResponse(
       bakeries:
           (json['places'] as List<dynamic>?)
               ?.map((e) => BakeryDto.fromJson(e as Map<String, dynamic>))
@@ -15,5 +15,5 @@ TextQueryResponse _$TextQueryResponseFromJson(Map<String, dynamic> json) =>
           [],
     );
 
-Map<String, dynamic> _$TextQueryResponseToJson(TextQueryResponse instance) =>
+Map<String, dynamic> _$TextSearchResponseToJson(TextSearchResponse instance) =>
     <String, dynamic>{'places': instance.bakeries};

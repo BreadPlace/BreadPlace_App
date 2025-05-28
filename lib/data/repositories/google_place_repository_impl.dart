@@ -1,6 +1,6 @@
 import 'package:bread_place/data/dto/mapper/bakery_mapper.dart';
-import 'package:bread_place/data/dto/request/google/place/text_query_request.dart';
 import 'package:bread_place/data/dto/request/google/search_nearby/search_nearby_request.dart';
+import 'package:bread_place/data/dto/request/google/text_search/text_search_request.dart';
 import 'package:bread_place/data/services/api/google/google_place_api.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/repositories/google_place_repository.dart';
@@ -14,7 +14,7 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
 
   @override
   Future<List<Bakery>> searchText(String query) async {
-    final request = TextQueryRequest(textQuery: query);
+    final request = TextSearchRequest(textQuery: query);
     final response = await _api.searchText(body: request);
 
     final bakeries =

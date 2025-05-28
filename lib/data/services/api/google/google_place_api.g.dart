@@ -18,13 +18,15 @@ class _GooglePlaceApi implements GooglePlaceApi {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<TextQueryResponse> searchText({required TextQueryRequest body}) async {
+  Future<TextSearchResponse> searchText({
+    required TextSearchRequest body,
+  }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body.toJson());
-    final _options = _setStreamType<TextQueryResponse>(
+    final _options = _setStreamType<TextSearchResponse>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -35,9 +37,9 @@ class _GooglePlaceApi implements GooglePlaceApi {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late TextQueryResponse _value;
+    late TextSearchResponse _value;
     try {
-      _value = TextQueryResponse.fromJson(_result.data!);
+      _value = TextSearchResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -46,7 +48,7 @@ class _GooglePlaceApi implements GooglePlaceApi {
   }
 
   @override
-  Future<TextQueryResponse> searchNearby({
+  Future<TextSearchResponse> searchNearby({
     required SearchNearbyRequest body,
   }) async {
     final _extra = <String, dynamic>{};
@@ -54,7 +56,7 @@ class _GooglePlaceApi implements GooglePlaceApi {
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body.toJson());
-    final _options = _setStreamType<TextQueryResponse>(
+    final _options = _setStreamType<TextSearchResponse>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -65,9 +67,9 @@ class _GooglePlaceApi implements GooglePlaceApi {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late TextQueryResponse _value;
+    late TextSearchResponse _value;
     try {
-      _value = TextQueryResponse.fromJson(_result.data!);
+      _value = TextSearchResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -78,12 +80,10 @@ class _GooglePlaceApi implements GooglePlaceApi {
   @override
   Future<PlacePhotoResponse> getPlacePhotoUri({
     required String photoName,
-    int maxWidthPx = 400,
     bool skipHttpRedirect = true,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
-      r'maxWidthPx': maxWidthPx,
       r'skipHttpRedirect': skipHttpRedirect,
     };
     final _headers = <String, dynamic>{};
