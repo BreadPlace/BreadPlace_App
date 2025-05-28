@@ -26,6 +26,12 @@ final class HomeMapTapped extends HomeEvent {
   const HomeMapTapped();
 }
 
+/// 지도가 움직일 때
+final class HomeMapMoved extends HomeEvent {
+  final LatLng cameraPosition;
+  const HomeMapMoved({required this.cameraPosition});
+}
+
 /// 특정 베이커리를 선택했을 때
 final class HomeSelectBakery extends HomeEvent {
   final TempBakeryEntity bakery;

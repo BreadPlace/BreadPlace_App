@@ -1,15 +1,16 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/temp_bakery_entity.dart';
 import 'package:bread_place/domain/repositories/google_place_repository.dart';
 import 'package:bread_place/config/constants/app_locations.dart';
+import 'package:bread_place/utils/calculate_distance.dart';
 
-import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:equatable/equatable.dart';
 
 part 'home_event.dart';
-
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
@@ -25,6 +26,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           markerTappedBakery: null,
 
           hasLocationPermission: false,
+          isFarFromLastSearch: true,
         ),
       ) {
     on<HomeAppInitiate>(_onAppInitiate);
@@ -33,6 +35,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeSelectBakery>(_onSelectBakery);
     on<HomeBellIconTapped>(_onBellIconTapped);
     on<HomeMapTapped>(_onMapTapped);
+    on<HomeMapMoved>(_onMapMoved);
   }
 
   /// 앱의 Initiate 시점 결과 반환
@@ -54,6 +57,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           markerTappedBakery: null,
 
           hasLocationPermission: false,
+          isFarFromLastSearch: false,
         ),
       );
     }
@@ -70,6 +74,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (state as HomeScreenState).copyWith(
         hasLocationPermission: true,
         bakeryList: bakeryList,
+        lastSearchLocation: LatLng(currentPosition.latitude, currentPosition.longitude),
         userLocation: LatLng(
           currentPosition.latitude,
           currentPosition.longitude,
@@ -97,7 +102,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       emit(
         (state as HomeScreenState).copyWith(
           hasLocationPermission: true,
-          lastSearchLocation: event.location,
+          lastSearchLocation: searchLocation,
           bakeryList: result,
         ),
       );
@@ -154,6 +159,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     //     recommendBakery: TempBakeryEntity.empty,
     //     realnearbyBakeries: []));
   }
+
+
+  void _onMapMoved(HomeMapMoved event, Emitter<HomeState> emit) {
+    if (state.lastSearchLocation != null) {
+      final distance = getDistanceKM(state.lastSearchLocation!, event.cameraPosition);
+
+      emit(
+          (state as HomeScreenState).copyWith(
+              isFarFromLastSearch: distance >= 0.14
+          )
+      );
+    }
+}
 
   /// 위치정보 권한 요청
   Future<bool> _checkLocationPermission() async {
