@@ -35,7 +35,7 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
             latitude: searchLocation.latitude,
             longitude: searchLocation.longitude,
           ),
-          radius: 260,
+          radius: 200,
         ),
       ),
     );
