@@ -1,12 +1,12 @@
-import 'package:bread_place/domain/repositories/google_place_repository.dart';
+import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/ui/search/bloc/search_event.dart';
 import 'package:bread_place/ui/search/bloc/search_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final GooglePlaceRepository _repository;
+  final SearchBakeryUseCase _useCase;
 
-  SearchBloc(this._repository) : super(SearchInitial()) {
+  SearchBloc(this._useCase) : super(SearchInitial()) {
     on<SearchPlace>(onSearchPlace);
   }
 
@@ -17,8 +17,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     emit(SearchLoading());
 
     try {
-      final results = await _repository.searchText(event.keyword);
+      final results = await _useCase.searchPlace(event.keyword);
       emit(SearchSuccess(bakeries: results));
-    } catch (e) {}
+    } catch (e) {
+      emit(SearchFailure("검색 실패: ${e.toString()}"));
+    }
   }
 }

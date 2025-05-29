@@ -21,10 +21,10 @@ class _CommonSearchBarState extends State<CommonSearchBar> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: SearchBar(
-        leading: Icon(CupertinoIcons.search, color: AppColors.primary),
+        leading: Icon(CupertinoIcons.search, color: AppColors.sub),
         elevation: WidgetStatePropertyAll(0),
+        textStyle: WidgetStatePropertyAll<TextStyle>(TextStyle(color: AppColors.sub)),
         backgroundColor: WidgetStatePropertyAll(AppColors.white),
-        overlayColor: WidgetStatePropertyAll(AppColors.sub),
         hintText: widget.hintText ?? defaultHintText,
         hintStyle: WidgetStateProperty.all(AppTextStyles.hintText),
         onSubmitted: widget.onSubmitted,

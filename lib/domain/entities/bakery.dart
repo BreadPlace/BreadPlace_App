@@ -1,3 +1,6 @@
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 class Bakery {
   final String displayName;
   final String languageCode;
@@ -7,9 +10,10 @@ class Bakery {
   final Viewport viewport;
   final String id;
   final PlusCode plusCode;
-  final String uri; // googleMapsUri
   final List<String> types;
-  final String photos;
+  final String googleMapsUri;
+  String photoUri;
+  String photoId;
 
   Bakery({
     required this.displayName,
@@ -20,9 +24,10 @@ class Bakery {
     required this.viewport,
     required this.id,
     required this.plusCode,
-    required this.uri,
     required this.types,
-    required this.photos,
+    required this.googleMapsUri,
+    required this.photoUri,
+    required this.photoId,
   });
 }
 
@@ -55,4 +60,18 @@ class PlusCode {
   PlusCode({required this.globalCode, required this.compoundCode});
 
   static PlusCode empty() => PlusCode(globalCode: '', compoundCode: '');
+}
+
+extension BakeryDistanceExtension on Bakery {
+  double distanceFromUser(LatLng userLocation) {
+    double distance = Geolocator.distanceBetween(
+      location.latitude,
+      location.longitude,
+      userLocation.latitude,
+      userLocation.longitude,
+    );
+
+    double distanceInKm = distance / 1000;
+    return double.parse(distanceInKm.toStringAsFixed(2));
+  }
 }

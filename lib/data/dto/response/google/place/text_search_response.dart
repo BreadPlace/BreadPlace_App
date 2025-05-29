@@ -1,14 +1,14 @@
 import 'package:bread_place/data/dto/response/google/place/bakery_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'text_query_response.g.dart';
+part 'text_search_response.g.dart';
 
 @JsonSerializable()
-class TextQueryResponse {
+class TextSearchResponse {
   @JsonKey(name: 'places', defaultValue: [])
   final List<BakeryDto> bakeries;
 
-  TextQueryResponse({required this.bakeries});
+  TextSearchResponse({required this.bakeries});
 
-  factory TextQueryResponse.fromJson(Map<String, dynamic> json) => _$TextQueryResponseFromJson(json);
+  factory TextSearchResponse.fromJson(Map<String, dynamic> json) => _$TextSearchResponseFromJson(json);
 }
