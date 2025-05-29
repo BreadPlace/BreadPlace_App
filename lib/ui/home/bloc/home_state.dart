@@ -8,6 +8,7 @@ sealed class HomeState extends Equatable {
   final Bakery? markerTappedBakery;
 
   final bool hasLocationPermission;
+  final bool isFarFromLastSearch;
 
   const HomeState({
     required this.userLocation,
@@ -17,6 +18,7 @@ sealed class HomeState extends Equatable {
     required this.markerTappedBakery,
 
     required this.hasLocationPermission,
+    required this.isFarFromLastSearch,
   });
 }
 
@@ -29,6 +31,7 @@ final class HomeScreenState extends HomeState {
     required super.markerTappedBakery,
 
     required super.hasLocationPermission,
+    required super.isFarFromLastSearch,
   });
 
   @override
@@ -40,6 +43,7 @@ final class HomeScreenState extends HomeState {
     markerTappedBakery,
 
     hasLocationPermission,
+    isFarFromLastSearch,
   ];
 }
 
@@ -52,6 +56,7 @@ extension HomeScreenStateCopy on HomeScreenState {
     Bakery? markerTappedBakery,
 
     bool? hasLocationPermission,
+    bool? isFarFromLastSearch,
   }) {
     return HomeScreenState(
       userLocation: userLocation ?? this.userLocation,
@@ -61,6 +66,7 @@ extension HomeScreenStateCopy on HomeScreenState {
       markerTappedBakery: markerTappedBakery,
 
       hasLocationPermission: hasLocationPermission ?? this.hasLocationPermission,
+      isFarFromLastSearch: isFarFromLastSearch ?? this.isFarFromLastSearch,
     );
   }
 }

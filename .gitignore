@@ -46,5 +46,7 @@ app.*.map.json
 
 # ignore secret files
 **/*.env
+**/firebase_options.dart
+**/google-services.json
 **/GoogleService-Info.plist
 **/*.xcconfig

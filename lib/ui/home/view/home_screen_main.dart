@@ -67,6 +67,7 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
                   onMarkerTapped: _onMarkerTapped,
                   onMapTapped: _onMapTapped,
                   changeCameraPosition: _changeCameraPosition,
+                  onMapMoved: _onMapMoved,
                 ),
                 const SizedBox(height: 16),
 
@@ -112,6 +113,10 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   // 지도 컨트롤러를 상위로 넘기는 함수
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+  }
+
+  void _onMapMoved(CameraPosition position) {
+    context.read<HomeBloc>().add(HomeMapMoved(cameraPosition: position.target));
   }
 
   void _changeCameraPosition(LatLng to) {
@@ -230,6 +235,7 @@ class _MapView extends StatelessWidget {
   final void Function(String) onMarkerTapped;
   final void Function(LatLng?) onMapTapped;
   final void Function(LatLng) changeCameraPosition;
+  final void Function(CameraPosition) onMapMoved;
 
   const _MapView({
     required this.title,
@@ -238,6 +244,7 @@ class _MapView extends StatelessWidget {
     required this.onMarkerTapped,
     required this.onMapTapped,
     required this.changeCameraPosition,
+    required this.onMapMoved,
     super.key
   });
 
@@ -251,15 +258,16 @@ class _MapView extends StatelessWidget {
           changeCameraPosition(state.userLocation!);
         }
       },
-      child: BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng?)>(
+      child: BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng?, bool)>(
         selector:
             (state) =>
                 state is HomeScreenState
-                    ? (state.bakeryList, state.userLocation)
-                    : ([], AppLocations.seoulStation),
+                    ? (state.bakeryList, state.userLocation, state.isFarFromLastSearch)
+                    : ([], AppLocations.seoulStation, true),
         builder: (context, data) {
           final nearbyBakeries = data.$1;
           final userLocation = data.$2;
+          final isFarFromLastSearch = data.$3;
 
           final cameraPosition =
               userLocation != null
@@ -274,9 +282,13 @@ class _MapView extends StatelessWidget {
                 LeftTextView(
                   title: title,
                   trailingWidget: TextButton(
-                    onPressed: onTrailingTap,
+                    onPressed: isFarFromLastSearch
+                    ? onTrailingTap
+                    : null,
                     style: TextButton.styleFrom(
-                      backgroundColor: AppColors.white,
+                      backgroundColor: isFarFromLastSearch
+                          ? AppColors.white
+                          : AppColors.grey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -311,6 +323,9 @@ class _MapView extends StatelessWidget {
                         onMapCreated(controller);
                       },
                       onTap: onMapTapped,
+                      onCameraMove: (CameraPosition position) {
+                        onMapMoved(position);
+                      },
                       myLocationEnabled: true,
                       myLocationButtonEnabled: true,
                       markers: {
@@ -417,3 +432,8 @@ class _BakeryListView extends StatelessWidget {
     );
   }
 }
+
+
+// 1. 카메라가 이동할때마다 State 바로 갱신 X => 계산 후 갱신
+// 2. 그럼 지도가 움직이는 시점 이벤트로 전달.
+// 3. 재검색 가능한 상태인지 State 추가.
