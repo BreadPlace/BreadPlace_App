@@ -55,6 +55,7 @@ dependencies:
   geolocator: ^14.0.0 # location services
   flutter_dotenv: ^5.2.1 # env file load
   cached_network_image: ^3.4.1
+  kakao_flutter_sdk_user: ^1.9.7+3 # kakao login
 
 
 dev_dependencies:
