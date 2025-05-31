@@ -1,4 +1,5 @@
 import 'package:bread_place/config/constants/app_constants.dart';
+import 'package:bread_place/utils/calculate_distance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -92,11 +93,7 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   // 탐색 버튼이 눌렸을 때 이벤트
   void _onSearchLocationTapped() async {
     final bounds = await mapController.getVisibleRegion();
-    final center = LatLng(
-        (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
-        (bounds.northeast.longitude + bounds.southwest.longitude) / 2
-    );
-
+    final center = getCenterLatLng(bounds);
     context.read<HomeBloc>().add(
       HomeSearchLocation(location: center),
     );
@@ -123,10 +120,7 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
 
   void _onMapStopped() async {
     final bounds = await mapController.getVisibleRegion();
-    final center = LatLng(
-        (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
-        (bounds.northeast.longitude + bounds.southwest.longitude) / 2
-    );
+    final center = getCenterLatLng(bounds);
 
     context.read<HomeBloc>().add(HomeMapStopped(lastPosition: center));
   }
