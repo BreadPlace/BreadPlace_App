@@ -1,3 +1,4 @@
+import 'package:bread_place/config/routing/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/ui/common_widgets/main_scaffold.dart';
@@ -28,11 +29,15 @@ final _shellNavigatorReviewKey = GlobalKey<NavigatorState>(
 
 final _loginBloc = di<LoginBloc>();
 
-const List<String> protectedPaths = ['/review', '/myPage'];
+/// 로그인 했을 때만 접근 가능한 화면
+const List<String> protectedPaths = [
+  Routes.review,
+  // Routes.mypage
+];
 
 GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/home',
+  initialLocation: Routes.home,
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -44,7 +49,7 @@ GoRouter router = GoRouter(
           navigatorKey: _shellNavigatorHomeKey,
           routes: [
             GoRoute(
-              path: '/home',
+              path: Routes.home,
               pageBuilder:
                   // 애니메이션 없이 페이지 전환
                   (context, state) => NoTransitionPage(
@@ -60,7 +65,7 @@ GoRouter router = GoRouter(
           navigatorKey: _shellNavigatorSearchKey,
           routes: [
             GoRoute(
-              path: '/search',
+              path: Routes.search,
               pageBuilder:
                   (context, state) => NoTransitionPage(
                     child: BlocProvider(
@@ -75,7 +80,7 @@ GoRouter router = GoRouter(
           navigatorKey: _shellNavigatorReviewKey,
           routes: [
             GoRoute(
-              path: '/review',
+              path: Routes.review,
               pageBuilder:
                   (context, state) =>
                       const NoTransitionPage(child: ReviewScreenMain()),
@@ -85,7 +90,7 @@ GoRouter router = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/myPage',
+              path: Routes.mypage,
               pageBuilder:
                   (context, state) =>
                       const NoTransitionPage(child: MypageScreenMain()),
@@ -95,7 +100,7 @@ GoRouter router = GoRouter(
       ],
     ),
     GoRoute(
-        path: '/login',
+        path: Routes.login,
         pageBuilder: (context, state) => const NoTransitionPage(child: LoginScreenMain())
     )
   ],
@@ -116,8 +121,8 @@ String? _redirect(BuildContext context, GoRouterState state, LoginBloc loginBloc
   }
 
   // 인증된 상태에서 로그인 페이지 접근 시 -> 홈 또는 이전 경로로 리다이렉트
-  if (isAuthenticated && matchedLocation == '/login') {
-    return fromParam ?? '/home';
+  if (isAuthenticated && matchedLocation == Routes.login) {
+    return fromParam ?? Routes.home;
   }
 
   return null;
