@@ -8,6 +8,7 @@ import 'package:bread_place/domain/repositories/google_place_repository.dart';
 import 'package:bread_place/domain/repositories/kakao_search_repository.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
+import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:get_it/get_it.dart';
 
@@ -30,4 +31,5 @@ void initLocator() {
   // di.registerFactory(() => HomeBloc(di<KakaoSearchRepository>()));
   di.registerFactory(() => HomeBloc(di<GooglePlaceRepository>()));
   di.registerFactory(() => SearchBloc(di<SearchBakeryUseCase>()));
+  di.registerLazySingleton(() => LoginBloc());
 }
