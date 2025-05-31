@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:bread_place/domain/entities/bakery.dart';
@@ -11,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:equatable/equatable.dart';
 
 part 'home_event.dart';
+
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
@@ -24,9 +26,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           lastSearchLocation: null,
           bakeryList: [],
           markerTappedBakery: null,
+          mapCenter: null,
 
           hasLocationPermission: false,
           isFarFromLastSearch: true,
+          isMapMoving: false,
         ),
       ) {
     on<HomeAppInitiate>(_onAppInitiate);
@@ -36,6 +40,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeBellIconTapped>(_onBellIconTapped);
     on<HomeMapTapped>(_onMapTapped);
     on<HomeMapMoved>(_onMapMoved);
+    on<HomeMapStopped>(_onMapStopped);
   }
 
   /// 앱의 Initiate 시점 결과 반환
@@ -55,15 +60,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           lastSearchLocation: null,
           bakeryList: [],
           markerTappedBakery: null,
+          mapCenter: null,
 
           hasLocationPermission: false,
           isFarFromLastSearch: false,
+          isMapMoving: false,
         ),
       );
     }
 
     // 권한이 있는 경우
     final currentPosition = await Geolocator.getCurrentPosition();
+
+    final currentLatLng = LatLng(
+      currentPosition.latitude,
+      currentPosition.longitude,
+    );
 
     // 사용자 위치 주변 베이커리 검색
     final bakeryList = await _fetchNearby(
@@ -74,11 +86,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (state as HomeScreenState).copyWith(
         hasLocationPermission: true,
         bakeryList: bakeryList,
-        lastSearchLocation: LatLng(currentPosition.latitude, currentPosition.longitude),
-        userLocation: LatLng(
-          currentPosition.latitude,
-          currentPosition.longitude,
-        ),
+        lastSearchLocation: currentLatLng,
+        userLocation: currentLatLng,
+        mapCenter: currentLatLng,
       ),
     );
   }
@@ -113,29 +123,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  void _onMarkerTapped(
-      HomeMarkerTapped event,
-      Emitter<HomeState> emit,
-  ) {
-    final Bakery? selectedBakery = state.bakeryList
-        .where((bakery) => bakery.id == event.bakeryID)
-        .firstOrNull;
+  void _onMarkerTapped(HomeMarkerTapped event, Emitter<HomeState> emit) {
+    final Bakery? selectedBakery =
+        state.bakeryList
+            .where((bakery) => bakery.id == event.bakeryID)
+            .firstOrNull;
 
     emit(
-        (state as HomeScreenState).copyWith(
-          markerTappedBakery: selectedBakery
-        )
+      (state as HomeScreenState).copyWith(markerTappedBakery: selectedBakery),
     );
   }
 
-  void _onMapTapped(
-      HomeMapTapped event,
-      Emitter<HomeState> emit,) {
-    emit(
-        (state as HomeScreenState).copyWith(
-            markerTappedBakery: null
-        )
-    );
+  void _onMapTapped(HomeMapTapped event, Emitter<HomeState> emit) {
+    emit((state as HomeScreenState).copyWith(markerTappedBakery: null));
   }
 
   /// 알람 아이콘 버튼이 눌렸을 때
@@ -160,18 +160,30 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     //     realnearbyBakeries: []));
   }
 
-
   void _onMapMoved(HomeMapMoved event, Emitter<HomeState> emit) {
     if (state.lastSearchLocation != null) {
-      final distance = getDistanceKM(state.lastSearchLocation!, event.cameraPosition);
+      final distance = getDistanceKM(
+        state.lastSearchLocation!,
+        event.cameraPosition,
+      );
 
       emit(
-          (state as HomeScreenState).copyWith(
-              isFarFromLastSearch: distance >= 0.14
-          )
+        (state as HomeScreenState).copyWith(
+          isFarFromLastSearch: distance >= AppConstants.researchableKM,
+          isMapMoving: true,
+        ),
       );
     }
-}
+  }
+
+  void _onMapStopped(HomeMapStopped event, Emitter<HomeState> emit) {
+    emit(
+        (state as HomeScreenState).copyWith(
+          mapCenter: event.lastPosition,
+          isMapMoving: false,
+        )
+    );
+  }
 
   /// 위치정보 권한 요청
   Future<bool> _checkLocationPermission() async {
