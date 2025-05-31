@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -68,6 +69,7 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
                   onMapTapped: _onMapTapped,
                   changeCameraPosition: _changeCameraPosition,
                   onMapMoved: _onMapMoved,
+                  onMapStopped: _onMapStopped,
                 ),
                 const SizedBox(height: 16),
 
@@ -119,12 +121,20 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     context.read<HomeBloc>().add(HomeMapMoved(cameraPosition: position.target));
   }
 
+  void _onMapStopped() async {
+    final bounds = await mapController.getVisibleRegion();
+    final center = LatLng(
+        (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
+        (bounds.northeast.longitude + bounds.southwest.longitude) / 2
+    );
+
+    context.read<HomeBloc>().add(HomeMapStopped(lastPosition: center));
+  }
+
   void _changeCameraPosition(LatLng to) {
     mapController.animateCamera(
       CameraUpdate.newLatLng(to),
     );
-
-    print('카메라 이동 동작: $to');
   }
 }
 
@@ -236,6 +246,7 @@ class _MapView extends StatelessWidget {
   final void Function(LatLng?) onMapTapped;
   final void Function(LatLng) changeCameraPosition;
   final void Function(CameraPosition) onMapMoved;
+  final VoidCallback onMapStopped;
 
   const _MapView({
     required this.title,
@@ -245,6 +256,7 @@ class _MapView extends StatelessWidget {
     required this.onMapTapped,
     required this.changeCameraPosition,
     required this.onMapMoved,
+    required this.onMapStopped,
     super.key
   });
 
@@ -258,16 +270,18 @@ class _MapView extends StatelessWidget {
           changeCameraPosition(state.userLocation!);
         }
       },
-      child: BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng?, bool)>(
+      child: BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng?, bool, bool, LatLng?)>(
         selector:
             (state) =>
                 state is HomeScreenState
-                    ? (state.bakeryList, state.userLocation, state.isFarFromLastSearch)
-                    : ([], AppLocations.seoulStation, true),
+                    ? (state.bakeryList, state.userLocation, state.isFarFromLastSearch, state.isMapMoving, state.mapCenter)
+                    : ([], AppLocations.seoulStation, true, false, null),
         builder: (context, data) {
           final nearbyBakeries = data.$1;
           final userLocation = data.$2;
           final isFarFromLastSearch = data.$3;
+          final isMapMoving = data.$4;
+          final mapCenter = data.$5;
 
           final cameraPosition =
               userLocation != null
@@ -326,6 +340,7 @@ class _MapView extends StatelessWidget {
                       onCameraMove: (CameraPosition position) {
                         onMapMoved(position);
                       },
+                      onCameraIdle: onMapStopped,
                       myLocationEnabled: true,
                       myLocationButtonEnabled: true,
                       markers: {
@@ -345,6 +360,18 @@ class _MapView extends StatelessWidget {
                             infoWindow: InfoWindow(title: bakery.displayName),
                             onTap:() => onMarkerTapped(bakery.id),
                           ),
+                      },
+                      circles: isMapMoving
+                          ? {}
+                          : {
+                        Circle(
+                            circleId: CircleId('searchPlace'),
+                            center: mapCenter ?? AppLocations.seoulStation,
+                            radius: AppConstants.searchRadiusMeter,
+                            fillColor: Colors.blue.withOpacity(0.5),
+                            strokeColor: Colors.blue,
+                            strokeWidth: 1
+                        )
                       },
 
                       gestureRecognizers: {

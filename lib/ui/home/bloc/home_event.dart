@@ -32,6 +32,12 @@ final class HomeMapMoved extends HomeEvent {
   const HomeMapMoved({required this.cameraPosition});
 }
 
+/// 지도가 멈췄을 때
+final class HomeMapStopped extends HomeEvent {
+  final LatLng lastPosition;
+  const HomeMapStopped({required this.lastPosition});
+}
+
 /// 특정 베이커리를 선택했을 때
 final class HomeSelectBakery extends HomeEvent {
   final TempBakeryEntity bakery;
