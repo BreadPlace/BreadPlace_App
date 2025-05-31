@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_constants.dart';
 import 'package:bread_place/data/dto/mapper/bakery_mapper.dart';
 import 'package:bread_place/data/dto/request/google/search_nearby/search_nearby_request.dart';
 import 'package:bread_place/data/dto/request/google/text_search/text_search_request.dart';
@@ -35,7 +36,7 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
             latitude: searchLocation.latitude,
             longitude: searchLocation.longitude,
           ),
-          radius: 200,
+          radius: AppConstants.searchRadiusMeter,
         ),
       ),
     );
