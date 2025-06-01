@@ -9,9 +9,6 @@ class Authenticated extends LoginState {}
 // 로그인되지 않은 상태
 class Unauthenticated extends LoginState {}
 
-// 인증 실패
-class AuthFailure extends LoginState {}
-
 // 로그인 처리 중
 class LoginInProgress extends LoginState {}
 
