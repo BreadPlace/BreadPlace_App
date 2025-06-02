@@ -110,17 +110,10 @@ GoRouter router = GoRouter(
 
 String? _redirect(BuildContext context, GoRouterState state, LoginBloc loginBloc) {
   final isAuthenticated = loginBloc.state is Authenticated;
-  final isUnAuthenticated = loginBloc.state is Unauthenticated;
-
   final matchedLocation = state.matchedLocation;
   final fromParam = state.uri.queryParameters['from'];
 
-  // 인증 안 된 상태에서 보호된 경로 접근 시 -> 로그인 페이지로 리다이렉트
-  if (isUnAuthenticated && _isProtectedPath(matchedLocation)) {
-    return '/login?from=$matchedLocation';
-  }
-
-  // 인증된 상태에서 로그인 페이지 접근 시 -> 홈 또는 이전 경로로 리다이렉트
+  // 이미 인증된 상태에서 로그인 페이지 접근 시 -> 홈 또는 이전 경로로 보내기
   if (isAuthenticated && matchedLocation == Routes.login) {
     return fromParam ?? Routes.home;
   }
