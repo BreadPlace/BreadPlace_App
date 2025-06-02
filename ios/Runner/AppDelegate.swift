@@ -12,6 +12,10 @@ import GoogleMaps
     if let key = Bundle.main.infoDictionary?["GOOGLE_CLOUD_KEY"] as? String {
        GMSServices.provideAPIKey(key)
     }
+    
+    if let kakaoKey = Bundle.main.infoDictionary?["KAKAO_NATIVE_APP_KEY"] as? String {
+        GMSServices.provideAPIKey(kakaoKey)
+    }
 
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)

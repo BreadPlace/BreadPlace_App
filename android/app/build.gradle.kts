@@ -49,6 +49,10 @@ android {
             "google_cloud_key",
             envProperties.getProperty("GOOGLE_CLOUD_KEY")?.let { "\"$it\"" } ?: "\"default_key\""
         )
+        manifestPlaceholders.put(
+            "KAKAO_NATIVE_APP_KEY",
+            envProperties.getProperty("KAKAO_NATIVE_APP_KEY") ?: "default_kakao_key"
+        )
     }
 
     buildTypes {
