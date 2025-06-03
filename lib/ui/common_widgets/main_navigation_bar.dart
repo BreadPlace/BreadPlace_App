@@ -28,6 +28,7 @@ class MainNavigationBar extends StatelessWidget {
     // 로그인이 필요한 화면 정의
     final protectedPaths = [
       Routes.review,
+      // Routes.like
     ];
 
     // 현재 탭이 로그인 필요한 화면인지 확인
@@ -62,7 +63,7 @@ class MainNavigationBar extends StatelessWidget {
         items: [
           BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: '홈'),
           BottomNavigationBarItem(icon: Icon(CupertinoIcons.search), label: '검색'),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.pen), label: '리뷰'),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.heart), label: '좋아요'),
           BottomNavigationBarItem(icon: Icon(CupertinoIcons.person), label: '설정'),
         ],
       ),
