@@ -13,7 +13,7 @@ class ScaffoldWithNestedNavigation extends StatelessWidget {
   String _getAppbarTitle(int index) {
     return switch (index) {
       1 => '검색',
-      2 => '리뷰',
+      2 => '저장한 빵집',
       3 => '마이페이지',
       _ => '빵플레이스'
     };
