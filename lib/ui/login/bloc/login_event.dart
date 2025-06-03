@@ -5,7 +5,6 @@ sealed class LoginEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoggedIn extends LoginEvent {}
 class LoggedOut extends LoginEvent {}
 class CheckAuthStatus extends LoginEvent {}
 class LoginWithKakaoRequested extends LoginEvent {}

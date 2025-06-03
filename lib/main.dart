@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:bread_place/config/routing/router.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/config/di/locator.dart';
+import 'data/services/local/user_local_storage.dart';
 import 'firebase_options.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
 Future<void> _initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _initEnvFile();
+  await UserLocalStorage.init();
   _initKakaoSdk();
   await _initFirebase();
   initLocator();

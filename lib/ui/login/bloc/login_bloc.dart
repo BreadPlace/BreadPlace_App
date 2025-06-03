@@ -1,3 +1,4 @@
+import 'package:bread_place/data/services/local/user_local_storage.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/utils/generate_timestamp_nickname.dart';
@@ -12,40 +13,28 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final FirestoreRepository _repository;
 
   LoginBloc(this._repository) : super(Unauthenticated()) {
-    on<LoggedIn>(_onLoggedIn);
     on<LoggedOut>(_onLoggedOut);
     on<CheckAuthStatus>(_onAuthStatusChecked);
     on<LoginWithKakaoRequested>(_loginWithKakao);
-  }
-
-  // 로그인 처리
-  Future<void> _onLoggedIn(LoggedIn event, Emitter<LoginState> emit) async {
-    emit(AuthInProgress());
-    try {
-      // await _loginWithKakao():
-      emit(Authenticated());
-    } catch (e) {
-      emit(LoginFailure());
-    }
   }
 
   // 로그아웃 처리
   Future<void> _onLoggedOut(LoggedOut event, Emitter<LoginState> emit) async {
     emit(AuthInProgress());
     try {
-      // await _logout();
+      await UserLocalStorage.removeUserId();
       emit(Unauthenticated());
     } catch (e) {
       emit(LogoutFailure());
     }
   }
 
-  // 인증 상태 확인 처리
+  // 로그인 상태 확인 처리
   Future<void> _onAuthStatusChecked(CheckAuthStatus event, Emitter<LoginState> emit) async {
     emit(AuthInProgress());
-    bool hasKakaoToken = await AuthApi.instance.hasToken();
+    String? id = await UserLocalStorage.getUserId();
 
-    hasKakaoToken
+    (id != null)
     ? emit(Authenticated())
     : emit(Unauthenticated());
   }
@@ -70,7 +59,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       if (token.accessToken.isNotEmpty) {
         final userInfo = await _getUserInfoWithKakao();
-        await _saveUser(userInfo); // 파이어베이스 저장
+        await _saveUserToServerAndLocal(userInfo); // 저장
+
         emit(Authenticated());
       } else {
         emit(Unauthenticated());
@@ -91,7 +81,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       if (token.accessToken.isNotEmpty) {
         final userInfo = await _getUserInfoWithKakao();
-        await _saveUser(userInfo); // 파이어베이스 저장
+        await _saveUserToServerAndLocal(userInfo); // 저장
+
         emit(Authenticated());
       } else {
         emit(Unauthenticated());
@@ -103,13 +94,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
   }
 
-  // 유저 정보를 파이어베이스에 저장
-  Future<void> _saveUser(UserEntity user) async {
+  // 유저 정보 저장
+  Future<void> _saveUserToServerAndLocal(UserEntity user) async {
     try {
-      bool success = await _repository.saveUser(user); // 저장 시도
-      // 성공 여부에 따라 토스트 메세지
+      await _repository.saveUser(user); // 파이어베이스 저장
+      await UserLocalStorage.saveUserId(user.uid); // 로컬 저장
     } catch (e) {
-      print("saveUserWithKakaoId 에러 $e");
+      print("_saveUserId 에러 $e");
     }
   }
 
