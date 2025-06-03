@@ -62,6 +62,8 @@ dependencies:
   firebase_storage: ^12.4.6
   firebase_messaging: ^15.2.6
 
+  shared_preferences: ^2.5.3 # caching
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
