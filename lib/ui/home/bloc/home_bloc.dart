@@ -12,7 +12,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:equatable/equatable.dart';
 
 part 'home_event.dart';
-
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
@@ -36,7 +35,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeAppInitiate>(_onAppInitiate);
     on<HomeSearchLocation>(_onSearchLocation);
     on<HomeMarkerTapped>(_onMarkerTapped);
-    on<HomeSelectBakery>(_onSelectBakery);
     on<HomeBellIconTapped>(_onBellIconTapped);
     on<HomeMapTapped>(_onMapTapped);
     on<HomeMapMoved>(_onMapMoved);
@@ -136,17 +134,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   void _onMapTapped(HomeMapTapped event, Emitter<HomeState> emit) {
     emit((state as HomeScreenState).copyWith(markerTappedBakery: null));
-  }
-
-  /// 알람 아이콘 버튼이 눌렸을 때
-  void _onSelectBakery(HomeSelectBakery event, Emitter<HomeState> emit) {
-    print('${event.bakery.name} 베이커리 눌림');
-    // emit(HomeScreenState(
-    //     userLocation: AppLocations.seoulStation,
-    //     hasLocationPermission: false,
-    //     nearbyBakeries: [],
-    //     recommendBakery: TempBakeryEntity.empty,
-    //     realnearbyBakeries: []));
   }
 
   /// 알람 아이콘 버튼이 눌렸을 때
