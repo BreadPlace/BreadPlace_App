@@ -39,5 +39,5 @@ void initLocator() {
   // di.registerFactory(() => HomeBloc(di<KakaoSearchRepository>()));
   di.registerFactory(() => HomeBloc(di<GooglePlaceRepository>()));
   di.registerFactory(() => SearchBloc(di<SearchBakeryUseCase>()));
-  di.registerLazySingleton(() => LoginBloc(di<FirestoreRepository>()));
+  di.registerFactory(() => LoginBloc(di<FirestoreRepository>()));
 }

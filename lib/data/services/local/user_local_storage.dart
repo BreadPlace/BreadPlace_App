@@ -16,6 +16,7 @@ class UserLocalStorage {
 
   static Future<void> saveUserId(String userId) async {
     await _prefs.setString(_userIdKey, userId);
+    await _prefs.reloadCache();
   }
 
   static Future<String?> getUserId() async {
@@ -24,5 +25,6 @@ class UserLocalStorage {
 
   static Future<void> removeUserId() async {
     await _prefs.remove(_userIdKey);
+    await _prefs.reloadCache();
   }
 }

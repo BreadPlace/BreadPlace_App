@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:bread_place/config/constants/app_colors.dart';
-import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/common_widgets/login_required_dialog.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:go_router/go_router.dart';
 
@@ -22,13 +22,13 @@ class MainNavigationBar extends StatelessWidget {
 
   // 로그인하지 않은 사용자가 특정 화면 접근 시, 로그인 요구
   void _requireLoginIfProtectedTab(context, int index) {
-    // 로그인 상태
-    final loginState = di<LoginBloc>().state;
+    // 현재 로그인 상태
+    final loginState = BlocProvider.of<LoginBloc>(context).state;
 
     // 로그인이 필요한 화면 정의
     final protectedPaths = [
       Routes.review,
-      // Routes.like
+      Routes.like
     ];
 
     // 현재 탭이 로그인 필요한 화면인지 확인

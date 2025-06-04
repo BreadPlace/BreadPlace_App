@@ -6,19 +6,13 @@ class FirestoreService {
 
   FirestoreService(this._db);
 
+  // 저장되지 않은 사용자라면 신규 저장
   Future<bool> saveUser(UserDto user) async {
     try {
-      // 해당 uid 를 가진 사용자가 이미 있는지 확인
-      QuerySnapshot existingUsers = await _db
-          .collection('users')
-          .where('uid', isEqualTo: user.uid)
-          .limit(1)
-          .get();
-
-      print("💙 ${existingUsers.docs.length}");
+      bool exist = await isExistingUser(user.uid);
 
       // 이미 저장된 사용자
-      if (existingUsers.docs.isNotEmpty) {
+      if (exist) {
         return false;
       }
 
@@ -29,5 +23,26 @@ class FirestoreService {
       print("사용자 저장 중 오류: $e");
       return false;
     }
+  }
+
+  // 해당 uid 를 가진 사용자가 있는지 확인
+  Future<bool> isExistingUser(String uid) async {
+    try {
+      QuerySnapshot existingUsers =
+          await _db
+              .collection('users')
+              .where('uid', isEqualTo: uid)
+              .limit(1)
+              .get();
+
+      return existingUsers.docs.isNotEmpty ? true : false;
+    } catch (e) {
+      print("파이어베이스에 등록되지 않은 uid 입니다.. $e");
+      return false;
+    }
+  }
+
+  Future<void> fetchUserLike() async {
+
   }
 }
