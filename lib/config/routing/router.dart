@@ -1,4 +1,7 @@
 import 'package:bread_place/config/routing/routes.dart';
+import 'package:bread_place/domain/entities/bakery.dart';
+import 'package:bread_place/ui/bakery_detail/bloc/bakery_detail_bloc.dart';
+import 'package:bread_place/ui/bakery_detail/view/bakery_detail_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/ui/common_widgets/main_scaffold.dart';
@@ -102,7 +105,18 @@ GoRouter router = GoRouter(
     GoRoute(
         path: Routes.login,
         pageBuilder: (context, state) => const NoTransitionPage(child: LoginScreenMain())
-    )
+    ),
+    GoRoute(
+      path: Routes.bakeryDetail,
+      builder: (context, state) {
+        final bakery = state.extra as Bakery;
+
+        return BlocProvider(
+          create: (_) => BakeryDetailBloc(bakery),
+          child: const BakeryDetailScreen(),
+        );
+      },
+    ),
   ],
   refreshListenable: StreamToListenable([_loginBloc.stream]),
   redirect: (context, state) => _redirect(context, state, _loginBloc)
