@@ -2,13 +2,13 @@ import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/bakery_detail/bloc/bakery_detail_bloc.dart';
 import 'package:bread_place/ui/bakery_detail/view/bakery_detail_screen.dart';
+import 'package:bread_place/ui/like/view/like_screen_main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/ui/common_widgets/main_scaffold.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/ui/home/view/home_screen_main.dart';
 import 'package:bread_place/ui/mypage/mypage_screen_main.dart';
-import 'package:bread_place/ui/review/review_screen_main.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:bread_place/ui/search/search_screen_main.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
@@ -26,17 +26,11 @@ final _shellNavigatorHomeKey = GlobalKey<NavigatorState>(
 final _shellNavigatorSearchKey = GlobalKey<NavigatorState>(
   debugLabel: 'shellSearch',
 );
-final _shellNavigatorReviewKey = GlobalKey<NavigatorState>(
-  debugLabel: 'shellReview',
+final _shellNavigatorLikeKey = GlobalKey<NavigatorState>(
+  debugLabel: 'shellLike',
 );
 
 final _loginBloc = di<LoginBloc>();
-
-/// 로그인 했을 때만 접근 가능한 화면
-const List<String> protectedPaths = [
-  Routes.review,
-  // Routes.mypage
-];
 
 GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -80,13 +74,13 @@ GoRouter router = GoRouter(
           ],
         ),
         StatefulShellBranch(
-          navigatorKey: _shellNavigatorReviewKey,
+          navigatorKey: _shellNavigatorLikeKey,
           routes: [
             GoRoute(
-              path: Routes.review,
+              path: Routes.like,
               pageBuilder:
                   (context, state) =>
-                      const NoTransitionPage(child: ReviewScreenMain()),
+              const NoTransitionPage(child: LikeScreenMain()),
             ),
           ],
         ),
@@ -133,8 +127,4 @@ String? _redirect(BuildContext context, GoRouterState state, LoginBloc loginBloc
   }
 
   return null;
-}
-
-bool _isProtectedPath(String location) {
-  return protectedPaths.any((path) => location.startsWith(path));
 }
