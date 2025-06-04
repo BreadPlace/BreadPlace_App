@@ -15,7 +15,7 @@ final class HomeSearchLocation extends HomeEvent {
   const HomeSearchLocation({required this.location});
 }
 
-/// 특정 베이커르 마커를 눌렀을 때
+/// 특정 베이커리 마커를 눌렀을 때
 final class HomeMarkerTapped extends HomeEvent {
   final String bakeryID;
   const HomeMarkerTapped({required this.bakeryID});
@@ -36,12 +36,6 @@ final class HomeMapMoved extends HomeEvent {
 final class HomeMapStopped extends HomeEvent {
   final LatLng lastPosition;
   const HomeMapStopped({required this.lastPosition});
-}
-
-/// 특정 베이커리를 선택했을 때
-final class HomeSelectBakery extends HomeEvent {
-  final TempBakeryEntity bakery;
-  const HomeSelectBakery({required this.bakery});
 }
 
 /// 알림 버튼이 눌렸을 때

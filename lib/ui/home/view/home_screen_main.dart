@@ -1,4 +1,6 @@
 import 'package:bread_place/config/constants/app_constants.dart';
+import 'package:bread_place/config/routing/routes.dart';
+import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
 import 'package:bread_place/utils/calculate_distance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +19,7 @@ import 'package:bread_place/config/constants/app_locations.dart';
 import 'package:bread_place/ui/common_widgets/common_bakery_content_view.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomeScreenMain extends StatefulWidget {
@@ -75,7 +78,10 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
                 const SizedBox(height: 16),
 
                 // 근처 빵집 리스트
-                _BakeryListView(title: bakeryListViewTitle),
+                _BakeryListView(
+                  title: bakeryListViewTitle,
+                  onSelectBakery: _onSelectBakery,
+                ),
                 const SizedBox(height: 32),
               ],
             ),
@@ -123,6 +129,10 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     final center = getCenterLatLng(bounds);
 
     context.read<HomeBloc>().add(HomeMapStopped(lastPosition: center));
+  }
+
+  void _onSelectBakery(Bakery bakery) {
+    context.push(Routes.bakeryDetail, extra: bakery);
   }
 
   void _changeCameraPosition(LatLng to) {
@@ -387,8 +397,13 @@ class _MapView extends StatelessWidget {
 
 class _BakeryListView extends StatelessWidget {
   final String title;
+  final void Function(Bakery) onSelectBakery;
 
-  const _BakeryListView({required this.title, super.key});
+  const _BakeryListView({
+    required this.title,
+    required this.onSelectBakery,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -429,7 +444,11 @@ class _BakeryListView extends StatelessWidget {
                 (context, index) => Divider(height: 1),
             itemBuilder: (context, index) {
               final bakery = nearbyBackeies[index];
-              return BakeryContentView(bakery: bakery, userLocation: userLocation);
+              return CommonBakeryContainer(
+                bakery: bakery,
+                userLocation: userLocation,
+                 onTap: () => onSelectBakery(bakery),
+              );
             },
           ),
         );
@@ -445,7 +464,11 @@ class _BakeryListView extends StatelessWidget {
 
               (markerTappedBakery == null)
               ? bakeryListView
-              : BakeryContentView(bakery: markerTappedBakery, userLocation: userLocation),
+              : CommonBakeryContainer(
+                  bakery: markerTappedBakery,
+                  userLocation: userLocation,
+                  onTap: () => onSelectBakery(markerTappedBakery),
+              ),
             ],
           ),
         );
@@ -453,8 +476,3 @@ class _BakeryListView extends StatelessWidget {
     );
   }
 }
-
-
-// 1. 카메라가 이동할때마다 State 바로 갱신 X => 계산 후 갱신
-// 2. 그럼 지도가 움직이는 시점 이벤트로 전달.
-// 3. 재검색 가능한 상태인지 State 추가.
