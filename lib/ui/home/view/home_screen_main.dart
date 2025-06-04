@@ -16,7 +16,6 @@ import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/empty_result_view.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/config/constants/app_locations.dart';
-import 'package:bread_place/ui/common_widgets/common_bakery_content_view.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
