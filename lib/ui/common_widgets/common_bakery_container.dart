@@ -1,6 +1,7 @@
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
+import 'package:bread_place/ui/common_widgets/common_image_container.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,25 +47,10 @@ Widget bakeryImageContainer(String photoUri) {
   return Flexible(
     child: Align(
       alignment: Alignment.center,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.grey,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        // 베이커리 이미지
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: CachedNetworkImage(
-            width: 77,
-            height: 77,
-            fit: BoxFit.fill,
-            imageUrl: photoUri,
-            placeholder:
-                (context, url) =>
-                CircularProgressIndicator(color: AppColors.primary),
-            errorWidget: (context, url, error) => Icon(Icons.error),
-          ),
-        ),
+      child: CommonImageContainer(
+          uri: photoUri,
+          width: 77,
+          height: 77
       ),
     ),
   );
