@@ -88,8 +88,9 @@ Widget bakeryInfoText(Bakery bakery, LatLng? userLocation) {
           )
               : Text(
             "사용자 위치 정보가 없습니다",
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.pretendardSemiBold.copyWith(
-              fontSize: 14,
+              fontSize: 12,
               color: AppColors.disabledGrey,
             ),
           ),
