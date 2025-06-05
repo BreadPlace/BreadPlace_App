@@ -10,6 +10,11 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
 
   @override
   Future<bool> saveUser(UserEntity user) async {
-     return await _service.saveUser(user.toDto());
+     return await _service.saveUserId(user.toDto());
+  }
+
+  @override
+  Future<bool> isExistingUser(String uid) async {
+      return await _service.isExistingUser(uid);
   }
 }

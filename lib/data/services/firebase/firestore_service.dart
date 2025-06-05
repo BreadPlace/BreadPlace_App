@@ -7,7 +7,7 @@ class FirestoreService {
   FirestoreService(this._db);
 
   // 저장되지 않은 사용자라면 신규 저장
-  Future<bool> saveUser(UserDto user) async {
+  Future<bool> saveUserId(UserDto user) async {
     try {
       bool exist = await isExistingUser(user.uid);
 
@@ -40,9 +40,5 @@ class FirestoreService {
       print("파이어베이스에 등록되지 않은 uid 입니다.. $e");
       return false;
     }
-  }
-
-  Future<void> fetchUserLike() async {
-
   }
 }
