@@ -88,7 +88,6 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
                   text: '저장',
                   onPressed: () {
                     _saveNickname();
-                    print("🩷 저장한 닉네임. text = ${_controller.text}");
                   },
                 ),
 
@@ -99,7 +98,6 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
                   onPressed: () {
                     _clearTextController();
                     _saveNickname();
-                    print("🩷 나중에변경 닉네임. text = ${_controller.text}");
                   },
                 ),
               ],
