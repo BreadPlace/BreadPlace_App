@@ -6,4 +6,5 @@ abstract final class Routes {
   static const mypage = '/mypage';
   static const bakeryDetail = '/bakeryDetail';
   static const like = '/like';
+  static const editNickName = '/editNickName';
 }

@@ -5,6 +5,8 @@ import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
+import 'package:bread_place/config/routing/routes.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -19,24 +21,35 @@ class LoginScreenMain extends StatefulWidget {
 class _LoginScreenMainState extends State<LoginScreenMain> {
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: SafeArea(
-        child: Container(
-          color: AppColors.background,
-          child: SingleChildScrollView(
-            child: SizedBox(
-              height: 800,
-              child: Column(
-                children: [
-                  _cancelLoginButton(),
-                  Flexible(child: _titleImage()),
-                  Flexible(flex: 2, child: _content()),
+    return BlocListener<LoginBloc, LoginState>(
+      listener: (context, state) {
+        // 신규 유저 -> 닉네임 입력 화면으로 이동
+        if (state is NicknameInputInProgress) {
+          context.push(Routes.editNickName);
+          // 그 외 상태 -> 홈으로 보내기
+        } else {
+          context.go(Routes.home);
+        }
+      },
+      child: Material(
+        child: SafeArea(
+          child: Container(
+            color: AppColors.background,
+            child: SingleChildScrollView(
+              child: SizedBox(
+                height: 800,
+                child: Column(
+                  children: [
+                    _cancelLoginButton(),
+                    Flexible(child: _titleImage()),
+                    Flexible(flex: 2, child: _content()),
 
-                  SizedBox(height: 20),
-                  Flexible(child: _kakaoLoginButton()),
-                  _loginOptionButtonDivider(),
-                  Flexible(child: _guestModeButton()),
-                ],
+                    SizedBox(height: 20),
+                    Flexible(child: _kakaoLoginButton()),
+                    _loginOptionButtonDivider(),
+                    Flexible(child: _guestModeButton()),
+                  ],
+                ),
               ),
             ),
           ),
@@ -116,9 +129,11 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
       child: Align(
         alignment: Alignment.topLeft,
         child: IconButton(
-            onPressed: () {
-              context.go('/home');
-            }, icon: Icon(CupertinoIcons.xmark)),
+          onPressed: () {
+            context.read<LoginBloc>().add(LoginCanceled());
+          },
+          icon: Icon(CupertinoIcons.xmark),
+        ),
       ),
     );
   }
@@ -183,7 +198,9 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
             shadowColor: AppColors.grey,
             elevation: 3,
           ),
