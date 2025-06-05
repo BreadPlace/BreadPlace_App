@@ -76,14 +76,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
 
     // 사용자 위치 주변 베이커리 검색
-    final bakeryList = await _fetchNearby(
-      LatLng(currentPosition.latitude, currentPosition.longitude),
-    );
+    // final bakeryList = await _fetchNearby(
+    //   LatLng(currentPosition.latitude, currentPosition.longitude),
+    // );
 
     emit(
       (state as HomeScreenState).copyWith(
         hasLocationPermission: true,
-        bakeryList: bakeryList,
+        // bakeryList: bakeryList,
         lastSearchLocation: currentLatLng,
         userLocation: currentLatLng,
         mapCenter: currentLatLng,

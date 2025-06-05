@@ -3,6 +3,7 @@ import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/bakery_detail/bloc/bakery_detail_bloc.dart';
 import 'package:bread_place/ui/bakery_detail/view/bakery_detail_screen.dart';
 import 'package:bread_place/ui/like/view/like_screen_main.dart';
+import 'package:bread_place/ui/login/view/edit_nickname_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/ui/common_widgets/main_scaffold.dart';
@@ -110,6 +111,12 @@ GoRouter router = GoRouter(
           child: const BakeryDetailScreen(),
         );
       },
+    ),
+    GoRoute(
+        path: Routes.editNickName,
+        builder: (context, state) {
+          return EditNicknameScreen();
+        }
     ),
   ],
   refreshListenable: StreamToListenable([_loginBloc.stream]),

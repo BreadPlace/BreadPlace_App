@@ -1,3 +1,4 @@
+import 'package:bread_place/data/services/local/user_local_storage.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/utils/generate_timestamp_nickname.dart';
@@ -12,115 +13,142 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final FirestoreRepository _repository;
 
   LoginBloc(this._repository) : super(Unauthenticated()) {
-    on<LoggedIn>(_onLoggedIn);
     on<LoggedOut>(_onLoggedOut);
     on<CheckAuthStatus>(_onAuthStatusChecked);
     on<LoginWithKakaoRequested>(_loginWithKakao);
-  }
-
-  // 로그인 처리
-  Future<void> _onLoggedIn(LoggedIn event, Emitter<LoginState> emit) async {
-    emit(AuthInProgress());
-    try {
-      // await _loginWithKakao():
-      emit(Authenticated());
-    } catch (e) {
-      emit(LoginFailure());
-    }
+    on<LoginCanceled>(_onCanceledLogin);
+    on<NicknameSubmitted>(_onNicknameSubmit);
   }
 
   // 로그아웃 처리
   Future<void> _onLoggedOut(LoggedOut event, Emitter<LoginState> emit) async {
     emit(AuthInProgress());
     try {
-      // await _logout();
+      await UserLocalStorage.removeUserId();
       emit(Unauthenticated());
     } catch (e) {
       emit(LogoutFailure());
     }
   }
 
-  // 인증 상태 확인 처리
-  Future<void> _onAuthStatusChecked(CheckAuthStatus event, Emitter<LoginState> emit) async {
+  // 로그인 상태 확인 처리
+  Future<void> _onAuthStatusChecked(
+    CheckAuthStatus event,
+    Emitter<LoginState> emit,
+  ) async {
     emit(AuthInProgress());
-    bool hasKakaoToken = await AuthApi.instance.hasToken();
+    String? id = await UserLocalStorage.getUserId();
 
-    hasKakaoToken
-    ? emit(Authenticated())
-    : emit(Unauthenticated());
+    (id != null)
+        ? emit(Authenticated(uid: '', createdAt: ''))
+        : emit(Unauthenticated());
   }
 
   /// 카카오 로그인 로직
-  Future<void> _loginWithKakao(LoginWithKakaoRequested event, Emitter<LoginState> emit) async {
+  Future<void> _loginWithKakao(
+    LoginWithKakaoRequested event,
+    Emitter<LoginState> emit,
+  ) async {
     try {
       bool isKakaoTalkAvailable = await isKakaoTalkInstalled();
 
+      // 로그인 시도
       isKakaoTalkAvailable
-          ? await _tryLoginWithKakaoTalk(emit)
-          : await _tryLoginWithKakaoAccount(emit);
-    } catch(e) {
-      print('카카오 로그인 실패 $e');
+          ? await _tryLoginWithKakaoTalk()
+          : await _tryLoginWithKakaoAccount();
+
+      // 로그인 성공 이후
+      final userInfo = await UserApi.instance.me();
+      final uid = userInfo.id.toString();
+      final createdAt = userInfo.connectedAt.toString();
+
+      // 로컬 저장
+      _saveUserIdToLocal(uid);
+
+      // 신규 유저 체크
+      final isNewUser = await _isNewUser(uid);
+      if (isNewUser) {
+        // 신규 유저 -> 닉네임 입력받는 화면으로 이동
+        emit(NicknameInputInProgress(uid: uid, createdAt: createdAt));
+      } else {
+        // 기존 유저 -> 인증 완료
+        emit(
+          Authenticated(uid: uid, createdAt: userInfo.connectedAt.toString()),
+        );
+      }
+    } on PlatformException catch (e) {
+      // 사용자가 로그인 취소한 경우
+      if (e.code == 'CANCELED') {
+        print('사용자 로그인 취소');
+      } else {
+        print('카카오 로그인 오류: $e');
+      }
+      emit(LoginFailure());
+    } catch (e) {
+      print('알 수 없는 로그인 오류: $e');
+      emit(LoginFailure());
     }
   }
 
   // 카카오톡 앱으로 로그인 시도
-  Future<void> _tryLoginWithKakaoTalk(Emitter<LoginState> emit) async {
-    try {
-      final token = await UserApi.instance.loginWithKakaoTalk();
-
-      if (token.accessToken.isNotEmpty) {
-        final userInfo = await _getUserInfoWithKakao();
-        await _saveUser(userInfo); // 파이어베이스 저장
-        emit(Authenticated());
-      } else {
-        emit(Unauthenticated());
-      }
-    } catch (error) {
-      // 사용자가 로그인 화면에서 취소한 경우
-      if (error is PlatformException && error.code == 'CANCELED') {
-        emit(Unauthenticated());
-        return; // 이후 계정 로그인 시도하지 않음
-      }
-    }
+  Future<void> _tryLoginWithKakaoTalk() async {
+    await UserApi.instance.loginWithKakaoTalk();
   }
 
   // 카카오계정으로 로그인 시도
-  Future<void> _tryLoginWithKakaoAccount(Emitter<LoginState> emit) async {
-    try {
-      final token = await UserApi.instance.loginWithKakaoAccount();
-
-      if (token.accessToken.isNotEmpty) {
-        final userInfo = await _getUserInfoWithKakao();
-        await _saveUser(userInfo); // 파이어베이스 저장
-        emit(Authenticated());
-      } else {
-        emit(Unauthenticated());
-      }
-
-    } catch (error) {
-      emit(Unauthenticated());
-      print('카카오계정으로 로그인 실패 $error');
-    }
+  Future<void> _tryLoginWithKakaoAccount() async {
+    await UserApi.instance.loginWithKakaoAccount();
   }
 
-  // 유저 정보를 파이어베이스에 저장
-  Future<void> _saveUser(UserEntity user) async {
+  Future<bool> _isNewUser(String uid) async {
+    final isExist = await _repository.isExistingUser(uid);
+    return !isExist;
+  }
+
+  Future<void> _saveUserToServer(UserEntity user) async {
     try {
-      bool success = await _repository.saveUser(user); // 저장 시도
-      // 성공 여부에 따라 토스트 메세지
+      await _repository.saveUser(user); // 파이어베이스 저장
     } catch (e) {
-      print("saveUserWithKakaoId 에러 $e");
+      print("_saveUserId 에러 $e");
     }
   }
 
-  // 카카오 토큰으로 유저 정보를 가져옴
-  Future<UserEntity> _getUserInfoWithKakao() async {
-    final userInfo = await UserApi.instance.me();
-    UserEntity user = UserEntity(
-        uid: userInfo.id.toString(),
-        nickname: generateTimestampNickname(), // 랜덤 닉네임 생성
-        createdAt: userInfo.connectedAt?.toIso8601String() ?? DateTime.now().toIso8601String()
-    );
-    return user;
+  Future<void> _saveUserIdToLocal(String uid) async {
+    await UserLocalStorage.saveUserId(uid);
+  }
+
+  // 닉네임 입력이 끝나면, 유저 정보 저장
+  Future<void> _onNicknameSubmit(NicknameSubmitted event, Emitter emit) async {
+    final nickname = event.nickname.trim();
+
+    // 나중에 입력하기 선택 시, 닉네임 랜덤 생성
+    final resolveNickname =
+        (nickname.isNotEmpty) ? nickname : generateTimestampNickname();
+
+    if (state is NicknameInputInProgress) {
+      final current = state as NicknameInputInProgress;
+
+      final UserEntity user = UserEntity(
+        uid: current.uid,
+        createdAt: current.createdAt,
+        nickname: resolveNickname,
+      );
+
+      await _saveUserToServer(user); // 서버 저장
+
+      // 상태 전환
+      emit(
+        Authenticated(
+          uid: user.uid,
+          createdAt: user.createdAt,
+          nickname: user.nickname,
+        ),
+      );
+    }
+  }
+
+  // 로그인 취소
+  void _onCanceledLogin(LoginCanceled event, Emitter emit) {
+    emit(LoginFailure());
   }
 }
