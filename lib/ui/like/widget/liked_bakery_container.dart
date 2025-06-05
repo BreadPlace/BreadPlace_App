@@ -46,7 +46,7 @@ class LikedBakeryContainer extends StatelessWidget {
     return Flexible(
       child: Row(
         children: [
-          Expanded(child: _likeButton()),
+          Expanded(child: _heartButton()),
           Expanded(child: _notificationButton(false)),
         ],
       ),
@@ -54,7 +54,7 @@ class LikedBakeryContainer extends StatelessWidget {
   }
 
   //  좋아요 버튼
-  Widget _likeButton() {
+  Widget _heartButton() {
     return IconButton(
       onPressed: () {},
       icon: const Icon(CupertinoIcons.heart_fill, color: AppColors.icon),
