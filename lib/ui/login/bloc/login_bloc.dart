@@ -37,10 +37,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) async {
     emit(AuthInProgress());
-    String? id = await UserLocalStorage.getUserId();
+    String? cachedId = await UserLocalStorage.getUserId();
 
-    (id != null)
-        ? emit(Authenticated(uid: '', createdAt: ''))
+    (cachedId != null)
+        ? emit(Authenticated(uid: cachedId, createdAt: ''))
         : emit(Unauthenticated());
   }
 
@@ -60,20 +60,28 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       // 로그인 성공 이후
       final userInfo = await UserApi.instance.me();
       final uid = userInfo.id.toString();
-      final createdAt = userInfo.connectedAt.toString();
 
       // 로컬 저장
-      _saveUserIdToLocal(uid);
+      await UserLocalStorage.saveUserId(uid);
 
-      // 신규 유저 체크
-      final isNewUser = await _isNewUser(uid);
-      if (isNewUser) {
-        // 신규 유저 -> 닉네임 입력받는 화면으로 이동
-        emit(NicknameInputInProgress(uid: uid, createdAt: createdAt));
-      } else {
-        // 기존 유저 -> 인증 완료
+      // 데이터가 없으면 신규유저
+      final userData = await _fetchUserDataByUid(uid);
+
+      // 신규 유저 -> 닉네임 입력받는 화면으로 이동
+      if (userData == null) {
         emit(
-          Authenticated(uid: uid, createdAt: userInfo.connectedAt.toString()),
+          NicknameInputInProgress(
+            uid: uid,
+            createdAt: DateTime.now().toIso8601String(),
+          ),
+        );
+      } else {
+        emit(
+          Authenticated(
+            uid: userData.uid,
+            createdAt: userData.createdAt,
+            nickname: userData.nickname,
+          ),
         );
       }
     } on PlatformException catch (e) {
@@ -92,7 +100,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   // 카카오톡 앱으로 로그인 시도
   Future<void> _tryLoginWithKakaoTalk() async {
-    await UserApi.instance.loginWithKakaoTalk();
+    final token = await UserApi.instance.loginWithKakaoTalk();
+    token.idToken;
   }
 
   // 카카오계정으로 로그인 시도
@@ -100,9 +109,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     await UserApi.instance.loginWithKakaoAccount();
   }
 
-  Future<bool> _isNewUser(String uid) async {
-    final isExist = await _repository.isExistingUser(uid);
-    return !isExist;
+  Future<UserEntity?> _fetchUserDataByUid(String uid) async {
+    try {
+      final userData = await _repository.fetchUserDataByUid(uid);
+      return userData;
+    } catch (e) {
+      print("_fetchUserData 에러 $e");
+      return null;
+    }
   }
 
   Future<void> _saveUserToServer(UserEntity user) async {
@@ -111,10 +125,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     } catch (e) {
       print("_saveUserId 에러 $e");
     }
-  }
-
-  Future<void> _saveUserIdToLocal(String uid) async {
-    await UserLocalStorage.saveUserId(uid);
   }
 
   // 닉네임 입력이 끝나면, 유저 정보 저장

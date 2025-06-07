@@ -14,7 +14,11 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
   }
 
   @override
-  Future<bool> isExistingUser(String uid) async {
-      return await _service.isExistingUser(uid);
+  Future<UserEntity?> fetchUserDataByUid(String uid) async {
+      final userDto = await _service.fetchUserDataByUid(uid);
+      if(userDto != null) {
+        return userDto.toEntity();
+      }
+      return null;
   }
 }
