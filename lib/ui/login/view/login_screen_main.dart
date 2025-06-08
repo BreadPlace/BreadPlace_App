@@ -221,48 +221,23 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
                       )
                   ),
 
+                  const Spacer(),
+
                   Expanded(
                     child: Align(
                       alignment: Alignment.center,
-                      child: Text('Sign in with Google', style: AppTextStyles.rotoboMedium),
+                      child: Text('구글 로그인', style: AppTextStyles.rotoboMedium),
                     ),
                   ),
 
-              //    const Spacer(),
-                  const SizedBox(width: 24),
+                  const Spacer(),
+                  const SizedBox(width: 54),
                 ]
             ),
           ),
         ),
       ),
     );
-
-
-    // return Padding(
-    //   padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
-    //   child: InkWell(
-    //     onTap: () {
-    //       context.read<LoginBloc>().add(LoginWithGoogleRequested());
-    //     },
-    //     child: Container(
-    //       width: double.infinity,
-    //       height: 54,
-    //       decoration: BoxDecoration(
-    //         boxShadow: [
-    //           BoxShadow(
-    //             color: AppColors.grey,
-    //             blurRadius: 4,
-    //             offset: Offset(2, 4),
-    //           ),
-    //         ],
-    //       ),
-    //       child: Image.asset(
-    //         'assets/images/google_login.png',
-    //         fit: BoxFit.fill,
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 
   Widget _guestModeButton() {
