@@ -37,7 +37,7 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
             color: AppColors.background,
             child: SingleChildScrollView(
               child: SizedBox(
-                height: 800,
+                height: 900,
                 child: Column(
                   children: [
                     _cancelLoginButton(),
@@ -46,6 +46,7 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
 
                     SizedBox(height: 20),
                     Flexible(child: _kakaoLoginButton()),
+                    Flexible(child: _googleLoginButton()),
                     _loginOptionButtonDivider(),
                     Flexible(child: _guestModeButton()),
                   ],
@@ -180,6 +181,59 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
           child: Image.asset(
             'assets/images/kakao_login_large_wide.png',
             fit: BoxFit.cover,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _googleLoginButton() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
+      child: InkWell(
+        onTap: () {
+          context.read<LoginBloc>().add(LoginWithGoogleRequested());
+        },
+        child: Container(
+          width: double.infinity,
+          height: 54,
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.grey,
+                blurRadius: 4,
+                offset: Offset(2, 4),
+              ),
+            ],
+          ),
+          child: Container(
+            width: double.infinity,
+            height: 54,
+            decoration: BoxDecoration(color: Color(0xFFF2F2F2)),
+            child: Row(
+                children: [
+                  Align(
+                      alignment: Alignment.centerLeft,
+                      child:
+                      Image.asset(
+                        'assets/images/google_logo.png',
+                        fit: BoxFit.cover,
+                      )
+                  ),
+
+                  const Spacer(),
+
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text('구글 로그인', style: AppTextStyles.rotoboMedium),
+                    ),
+                  ),
+
+                  const Spacer(),
+                  const SizedBox(width: 54),
+                ]
+            ),
           ),
         ),
       ),

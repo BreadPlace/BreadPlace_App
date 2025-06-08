@@ -8,6 +8,7 @@ sealed class LoginEvent extends Equatable {
 class LoggedOut extends LoginEvent {}
 class CheckAuthStatus extends LoginEvent {}
 class LoginWithKakaoRequested extends LoginEvent {}
+class LoginWithGoogleRequested extends LoginEvent {}
 
 class LoginCanceled extends LoginEvent {}
 

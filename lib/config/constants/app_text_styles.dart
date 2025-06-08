@@ -33,4 +33,11 @@ class AppTextStyles {
     fontSize: 16,
     color: AppColors.fontGrey
   );
+
+  static TextStyle rotoboMedium = TextStyle(
+    fontFamily: 'roboto',
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: AppColors.black,
+  );
 }

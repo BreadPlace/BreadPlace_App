@@ -61,8 +61,11 @@ dependencies:
   cloud_firestore: ^5.6.8
   firebase_storage: ^12.4.6
   firebase_messaging: ^15.2.6
+  google_sign_in: ^6.1.5
+  firebase_auth: ^5.0.0
 
   shared_preferences: ^2.5.3 # caching
+
 
 dev_dependencies:
   flutter_test:
@@ -121,6 +124,9 @@ flutter:
     - family: bmJua
       fonts:
         - asset: assets/fonts/bmJua.otf
+    - family: roboto
+      fonts:
+        - asset: assets/fonts/roboto_variable.ttf
 
   #
   # For details regarding fonts from package dependencies,
