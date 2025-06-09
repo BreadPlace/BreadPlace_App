@@ -1,10 +1,3 @@
-import 'package:bread_place/config/constants/app_constants.dart';
-import 'package:bread_place/config/routing/routes.dart';
-import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
-import 'package:bread_place/ui/login/bloc/login_bloc.dart';
-import 'package:bread_place/ui/login/bloc/login_event.dart';
-import 'package:bread_place/ui/login/view/login_screen_main.dart';
-import 'package:bread_place/utils/calculate_distance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +12,12 @@ import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/empty_result_view.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/config/constants/app_locations.dart';
+import 'package:bread_place/config/constants/app_constants.dart';
+import 'package:bread_place/config/routing/routes.dart';
+import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
+import 'package:bread_place/ui/login/bloc/login_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_event.dart';
+import 'package:bread_place/utils/calculate_distance.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -32,11 +31,7 @@ class HomeScreenMain extends StatefulWidget {
 }
 
 class _HomeScreenMainState extends State<HomeScreenMain> {
-  final String tabTitle = '빵플레이스';
-  final String mapViewTitle = '현재 위치';
-  final String bakeryListViewTitle = '근처 베이커리';
-
-  late GoogleMapController mapController;
+  late final GoogleMapController mapController;
 
   @override
   void initState() {
@@ -46,56 +41,6 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
 
   void _checkLogin() {
     context.read<LoginBloc>().add(CheckAuthStatus());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // 커스텀 타이틀
-        BreadPlaceTitleView(
-          title: tabTitle,
-          titleImage: const AssetImage('assets/images/Croissant.png'),
-          trailingIcon: CupertinoIcons.bell_fill,
-          onTrailingTap: _onBellIconTapped,
-        ),
-
-        const SizedBox(height: 8),
-
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 랜덤 추천 빵집
-                const _RecommandBakeryView(),
-                const SizedBox(height: 16),
-
-                // 근처 빵집 지도
-                _MapView(
-                  title: mapViewTitle,
-                  onTrailingTap: _onSearchLocationTapped,
-                  onMapCreated: _onMapCreated,
-                  onMarkerTapped: _onMarkerTapped,
-                  onMapTapped: _onMapTapped,
-                  changeCameraPosition: _changeCameraPosition,
-                  onMapMoved: _onMapMoved,
-                  onMapStopped: _onMapStopped,
-                ),
-                const SizedBox(height: 16),
-
-                // 근처 빵집 리스트
-                _BakeryListView(
-                  title: bakeryListViewTitle,
-                  onSelectBakery: _onSelectBakery,
-                ),
-                const SizedBox(height: 32),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   // 벨 아이콘이 눌렸을 때 이벤트
@@ -145,6 +90,60 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   void _changeCameraPosition(LatLng to) {
     mapController.animateCamera(
       CameraUpdate.newLatLng(to),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const String tabTitle = '빵플레이스';
+    const String mapViewTitle = '현재 위치';
+    const String bakeryListViewTitle = '근처 베이커리';
+
+    return Column(
+      children: [
+        // 커스텀 타이틀
+        BreadPlaceTitleView(
+          title: tabTitle,
+          titleImage: const AssetImage('assets/images/Croissant.png'),
+          trailingIcon: CupertinoIcons.bell_fill,
+          onTrailingTap: _onBellIconTapped,
+        ),
+
+        const SizedBox(height: 8),
+
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 랜덤 추천 빵집
+                const _RecommandBakeryView(),
+                const SizedBox(height: 16),
+
+                // 근처 빵집 지도
+                _MapView(
+                  title: mapViewTitle,
+                  onTrailingTap: _onSearchLocationTapped,
+                  onMapCreated: _onMapCreated,
+                  onMarkerTapped: _onMarkerTapped,
+                  onMapTapped: _onMapTapped,
+                  changeCameraPosition: _changeCameraPosition,
+                  onMapMoved: _onMapMoved,
+                  onMapStopped: _onMapStopped,
+                ),
+                const SizedBox(height: 16),
+
+                // 근처 빵집 리스트
+                _BakeryListView(
+                  title: bakeryListViewTitle,
+                  onSelectBakery: _onSelectBakery,
+                ),
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
