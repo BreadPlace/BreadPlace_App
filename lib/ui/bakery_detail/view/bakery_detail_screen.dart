@@ -1,3 +1,4 @@
+import 'package:bread_place/config/routing/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +21,10 @@ class BakeryDetailScreen extends StatefulWidget {
 }
 
 class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
+  void _onAddReviewButtonTapped(Bakery bakery) {
+    context.push(Routes.addReview, extra: bakery);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -52,7 +57,10 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
                           SizedBox(height: 24),
 
                           // 리뷰 리스트 뷰
-                          _ReviewListView(),
+                          _ReviewListView(
+                              bakery: bakery,
+                              onTrailingTap: _onAddReviewButtonTapped
+                          ),
                         ],
                       ),
                     ),
@@ -176,18 +184,47 @@ class _IconTextView extends StatelessWidget {
 }
 
 class _ReviewListView extends StatelessWidget {
-  const _ReviewListView({super.key});
+  final Bakery bakery;
+  final void Function(Bakery) onTrailingTap;
+
+  const _ReviewListView({
+    required this.bakery,
+    required this.onTrailingTap,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
-    final double horizontalPadding = 16;
-    final screenWidth = MediaQuery.of(context).size.width;
+    const String title = '리뷰';
+    const double horizontalPadding = 16;
 
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
         child: Column(
           children: [
-            LeftTextView(title: '리뷰'),
+            LeftTextView(
+              title: title,
+              trailingWidget: TextButton(
+                  onPressed: () => onTrailingTap(bakery),
+                  style: TextButton.styleFrom(
+                    backgroundColor: AppColors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    minimumSize: const Size(96, 28),
+                    padding: EdgeInsets.zero,
+                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(CupertinoIcons.plus_circle, size: 16),
+                    SizedBox(width: 4),
+                    Text(
+                      '리뷰 추가',
+                      style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 14),
+                    )
+                  ],
+                ),
+              ),
+            ),
             SizedBox(height: 12),
 
             Container(
@@ -224,6 +261,8 @@ class _ReviewContentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -257,7 +296,7 @@ class _ReviewContentView extends StatelessWidget {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Container(
-                  constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - (horizontalPadding * 4)),
+                  constraints: BoxConstraints(minWidth: screenWidth - (horizontalPadding * 4)),
                   child: Row(
                     children: List.generate(
                         3,
