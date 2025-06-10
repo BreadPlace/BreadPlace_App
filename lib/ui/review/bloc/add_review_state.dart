@@ -1,19 +1,24 @@
 part of 'add_review_bloc.dart';
 
-abstract class AddReviewState extends Equatable {
-  const AddReviewState();
+class AddReviewState extends Equatable {
+  final Bakery bakery;
+  final int rate;
+
+  const AddReviewState({required this.bakery, this.rate = 5});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [bakery, rate];
 }
 
-class AddReviewInitial extends AddReviewState {
-  final Bakery bakery;
-
-  const AddReviewInitial({
-    required this.bakery
-  });
-
-  @override
-  List<Object?> get props => [];
+extension AddReviewCopy on AddReviewState {
+  AddReviewState copyWith(
+      {
+        Bakery? bakery,
+        int? rate
+      }) {
+    return AddReviewState(
+      bakery: bakery ?? this.bakery,
+      rate: rate ?? this.rate,
+    );
+  }
 }
