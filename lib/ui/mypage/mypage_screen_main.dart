@@ -9,7 +9,17 @@ class MypageScreenMain extends StatefulWidget {
 
 class _MypageScreenMainState extends State<MypageScreenMain> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-    return Column(children: [Expanded(child: Text('MypageScreenMain'))]);
+    return Column(
+      children: [
+         Text("Mypage Screen"),
+      ],
+    );
   }
 }
