@@ -1,10 +1,3 @@
-import 'package:bread_place/config/constants/app_constants.dart';
-import 'package:bread_place/config/routing/routes.dart';
-import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
-import 'package:bread_place/ui/login/bloc/login_bloc.dart';
-import 'package:bread_place/ui/login/bloc/login_event.dart';
-import 'package:bread_place/ui/login/view/login_screen_main.dart';
-import 'package:bread_place/utils/calculate_distance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +12,12 @@ import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/empty_result_view.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/config/constants/app_locations.dart';
+import 'package:bread_place/config/constants/app_constants.dart';
+import 'package:bread_place/config/routing/routes.dart';
+import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
+import 'package:bread_place/ui/login/bloc/login_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_event.dart';
+import 'package:bread_place/utils/calculate_distance.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -32,11 +31,7 @@ class HomeScreenMain extends StatefulWidget {
 }
 
 class _HomeScreenMainState extends State<HomeScreenMain> {
-  final String tabTitle = '빵플레이스';
-  final String mapViewTitle = '현재 위치';
-  final String bakeryListViewTitle = '근처 베이커리';
-
-  late GoogleMapController mapController;
+  late final GoogleMapController mapController;
 
   @override
   void initState() {
@@ -48,8 +43,58 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     context.read<LoginBloc>().add(CheckAuthStatus());
   }
 
+  // 벨 아이콘이 눌렸을 때 이벤트
+  void _onBellIconTapped() {
+    context.read<HomeBloc>().add(HomeBellIconTapped());
+  }
+
+  // 탐색 버튼이 눌렸을 때 이벤트
+  void _onSearchLocationTapped() async {
+    final bounds = await mapController.getVisibleRegion();
+    final center = getCenterLatLng(bounds);
+    context.read<HomeBloc>().add(HomeSearchLocation(location: center));
+  }
+
+  // 마커가 선택되었을 때 이벤트
+  void _onMarkerTapped(String bakeryID) {
+    context.read<HomeBloc>().add(HomeMarkerTapped(bakeryID: bakeryID));
+  }
+
+  // 지도가 눌렸을 때 이벤트
+  void _onMapTapped(LatLng? touchedLocation) {
+    context.read<HomeBloc>().add(HomeMapTapped());
+  }
+
+  // 지도 컨트롤러를 상위로 넘기는 함수
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  void _onMapMoved(CameraPosition position) {
+    context.read<HomeBloc>().add(HomeMapMoved(cameraPosition: position.target));
+  }
+
+  void _onMapStopped() async {
+    final bounds = await mapController.getVisibleRegion();
+    final center = getCenterLatLng(bounds);
+
+    context.read<HomeBloc>().add(HomeMapStopped(lastPosition: center));
+  }
+
+  void _onSelectBakery(Bakery bakery) {
+    context.push(Routes.bakeryDetail, extra: bakery);
+  }
+
+  void _changeCameraPosition(LatLng to) {
+    mapController.animateCamera(CameraUpdate.newLatLng(to));
+  }
+
   @override
   Widget build(BuildContext context) {
+    const String tabTitle = '빵플레이스';
+    const String mapViewTitle = '현재 위치';
+    const String bakeryListViewTitle = '근처 베이커리';
+
     return Column(
       children: [
         // 커스텀 타이틀
@@ -95,56 +140,6 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
           ),
         ),
       ],
-    );
-  }
-
-  // 벨 아이콘이 눌렸을 때 이벤트
-  void _onBellIconTapped() {
-    context.read<HomeBloc>().add(HomeBellIconTapped());
-  }
-
-  // 탐색 버튼이 눌렸을 때 이벤트
-  void _onSearchLocationTapped() async {
-    final bounds = await mapController.getVisibleRegion();
-    final center = getCenterLatLng(bounds);
-    context.read<HomeBloc>().add(
-      HomeSearchLocation(location: center),
-    );
-  }
-
-  // 마커가 선택되었을 때 이벤트
-  void _onMarkerTapped(String bakeryID) {
-    context.read<HomeBloc>().add(HomeMarkerTapped(bakeryID: bakeryID));
-  }
-
-  // 지도가 눌렸을 때 이벤트
-  void _onMapTapped(LatLng? touchedLocation) {
-    context.read<HomeBloc>().add(HomeMapTapped());
-  }
-
-  // 지도 컨트롤러를 상위로 넘기는 함수
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
-
-  void _onMapMoved(CameraPosition position) {
-    context.read<HomeBloc>().add(HomeMapMoved(cameraPosition: position.target));
-  }
-
-  void _onMapStopped() async {
-    final bounds = await mapController.getVisibleRegion();
-    final center = getCenterLatLng(bounds);
-
-    context.read<HomeBloc>().add(HomeMapStopped(lastPosition: center));
-  }
-
-  void _onSelectBakery(Bakery bakery) {
-    context.push(Routes.bakeryDetail, extra: bakery);
-  }
-
-  void _changeCameraPosition(LatLng to) {
-    mapController.animateCamera(
-      CameraUpdate.newLatLng(to),
     );
   }
 }
@@ -268,24 +263,33 @@ class _MapView extends StatelessWidget {
     required this.changeCameraPosition,
     required this.onMapMoved,
     required this.onMapStopped,
-    super.key
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<HomeBloc, HomeState>(
-      listenWhen: (prev, curr) =>
-      prev.userLocation != curr.userLocation,
+      listenWhen: (prev, curr) => prev.userLocation != curr.userLocation,
       listener: (context, state) {
-        if (state.userLocation != null){
+        if (state.userLocation != null) {
           changeCameraPosition(state.userLocation!);
         }
       },
-      child: BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng?, bool, bool, LatLng?)>(
+      child: BlocSelector<
+        HomeBloc,
+        HomeState,
+        (List<Bakery>, LatLng?, bool, bool, LatLng?)
+      >(
         selector:
             (state) =>
                 state is HomeScreenState
-                    ? (state.bakeryList, state.userLocation, state.isFarFromLastSearch, state.isMapMoving, state.mapCenter)
+                    ? (
+                      state.bakeryList,
+                      state.userLocation,
+                      state.isFarFromLastSearch,
+                      state.isMapMoving,
+                      state.mapCenter,
+                    )
                     : ([], AppLocations.seoulStation, true, false, null),
         builder: (context, data) {
           final nearbyBakeries = data.$1;
@@ -307,13 +311,12 @@ class _MapView extends StatelessWidget {
                 LeftTextView(
                   title: title,
                   trailingWidget: TextButton(
-                    onPressed: isFarFromLastSearch
-                    ? onTrailingTap
-                    : null,
+                    onPressed: isFarFromLastSearch ? onTrailingTap : null,
                     style: TextButton.styleFrom(
-                      backgroundColor: isFarFromLastSearch
-                          ? AppColors.white
-                          : AppColors.grey,
+                      backgroundColor:
+                          isFarFromLastSearch
+                              ? AppColors.white
+                              : AppColors.grey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -344,7 +347,7 @@ class _MapView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     child: GoogleMap(
                       initialCameraPosition: cameraPosition,
-                      onMapCreated: (GoogleMapController controller){
+                      onMapCreated: (GoogleMapController controller) {
                         onMapCreated(controller);
                       },
                       onTap: onMapTapped,
@@ -369,21 +372,23 @@ class _MapView extends StatelessWidget {
                                   AppLocations.seoulStation.longitude,
                             ),
                             infoWindow: InfoWindow(title: bakery.displayName),
-                            onTap:() => onMarkerTapped(bakery.id),
+                            onTap: () => onMarkerTapped(bakery.id),
                           ),
                       },
-                      circles: isMapMoving
-                          ? {}
-                          : {
-                        Circle(
-                            circleId: CircleId('searchPlace'),
-                            center: mapCenter ?? AppLocations.seoulStation,
-                            radius: AppConstants.searchRadiusMeter,
-                            fillColor: Colors.blue.withOpacity(0.5),
-                            strokeColor: Colors.blue,
-                            strokeWidth: 1
-                        )
-                      },
+                      circles:
+                          isMapMoving
+                              ? {}
+                              : {
+                                Circle(
+                                  circleId: CircleId('searchPlace'),
+                                  center:
+                                      mapCenter ?? AppLocations.seoulStation,
+                                  radius: AppConstants.searchRadiusMeter,
+                                  fillColor: Colors.blue.withOpacity(0.5),
+                                  strokeColor: Colors.blue,
+                                  strokeWidth: 1,
+                                ),
+                              },
 
                       gestureRecognizers: {
                         Factory<OneSequenceGestureRecognizer>(
@@ -409,7 +414,7 @@ class _BakeryListView extends StatelessWidget {
   const _BakeryListView({
     required this.title,
     required this.onSelectBakery,
-    super.key
+    super.key,
   });
 
   @override
@@ -437,27 +442,24 @@ class _BakeryListView extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child:
-          nearbyBackeies.isEmpty
-              ? EmptyResultView(
-            headLine: '검색결과',
-            message: '근처에 있는 빵집이 빵개입니다...',
-            imageProvider: AssetImage(
-              'assets/images/image_donut.png',
-            ),
-          )
-              : ListView.separated(
-            itemCount: nearbyBackeies.length,
-            separatorBuilder:
-                (context, index) => Divider(height: 1),
-            itemBuilder: (context, index) {
-              final bakery = nearbyBackeies[index];
-              return CommonBakeryContainer(
-                bakery: bakery,
-                userLocation: userLocation,
-                 onTap: () => onSelectBakery(bakery),
-              );
-            },
-          ),
+              nearbyBackeies.isEmpty
+                  ? EmptyResultView(
+                    headLine: '검색결과',
+                    message: '근처에 있는 빵집이 빵개입니다...',
+                    imageProvider: AssetImage('assets/images/image_donut.png'),
+                  )
+                  : ListView.separated(
+                    itemCount: nearbyBackeies.length,
+                    separatorBuilder: (context, index) => Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final bakery = nearbyBackeies[index];
+                      return CommonBakeryContainer(
+                        bakery: bakery,
+                        userLocation: userLocation,
+                        onTap: () => onSelectBakery(bakery),
+                      );
+                    },
+                  ),
         );
 
         return Padding(
@@ -470,12 +472,12 @@ class _BakeryListView extends StatelessWidget {
               const SizedBox(height: 8),
 
               (markerTappedBakery == null)
-              ? bakeryListView
-              : CommonBakeryContainer(
-                  bakery: markerTappedBakery,
-                  userLocation: userLocation,
-                  onTap: () => onSelectBakery(markerTappedBakery),
-              ),
+                  ? bakeryListView
+                  : CommonBakeryContainer(
+                    bakery: markerTappedBakery,
+                    userLocation: userLocation,
+                    onTap: () => onSelectBakery(markerTappedBakery),
+                  ),
             ],
           ),
         );

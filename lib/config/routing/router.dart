@@ -4,6 +4,8 @@ import 'package:bread_place/ui/bakery_detail/bloc/bakery_detail_bloc.dart';
 import 'package:bread_place/ui/bakery_detail/view/bakery_detail_screen.dart';
 import 'package:bread_place/ui/like/view/like_screen_main.dart';
 import 'package:bread_place/ui/login/view/edit_nickname_screen.dart';
+import 'package:bread_place/ui/review/bloc/add_review_bloc.dart';
+import 'package:bread_place/ui/review/view/add_review_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/ui/common_widgets/main_scaffold.dart';
@@ -117,6 +119,17 @@ GoRouter router = GoRouter(
         builder: (context, state) {
           return EditNicknameScreen();
         }
+    ),
+    GoRoute(
+      path: Routes.addReview,
+      builder: (context, state) {
+        final bakery = state.extra as Bakery;
+
+        return BlocProvider(
+          create: (_) => AddReviewBloc(bakery),
+          child: const AddReviewScreen(),
+        );
+      },
     ),
   ],
   refreshListenable: StreamToListenable([_loginBloc.stream]),
