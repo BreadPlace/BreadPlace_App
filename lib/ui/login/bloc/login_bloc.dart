@@ -1,16 +1,16 @@
-import 'package:bread_place/data/services/local/user_local_storage.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
+import 'package:bread_place/ui/login/bloc/login_event.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/utils/generate_timestamp_nickname.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import 'login_event.dart';
-import 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final FirestoreRepository _firestoreRepo;
