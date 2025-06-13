@@ -1,3 +1,7 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
 import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/bakery_detail/bloc/bakery_detail_bloc.dart';
@@ -6,12 +10,11 @@ import 'package:bread_place/ui/like/view/like_screen_main.dart';
 import 'package:bread_place/ui/login/view/edit_nickname_screen.dart';
 import 'package:bread_place/ui/review/bloc/add_review_bloc.dart';
 import 'package:bread_place/ui/review/view/add_review_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/ui/common_widgets/main_scaffold.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/ui/home/view/home_screen_main.dart';
-import 'package:bread_place/ui/mypage/mypage_screen_main.dart';
+import 'package:bread_place/ui/mypage/view/mypage_screen_main.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:bread_place/ui/search/search_screen_main.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
@@ -19,8 +22,7 @@ import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/login/view/login_screen_main.dart';
 import 'package:bread_place/utils/stream_to_listenable.dart';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorHomeKey = GlobalKey<NavigatorState>(
