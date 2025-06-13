@@ -37,11 +37,15 @@ class MyApp extends StatelessWidget {
 
 Future<void> _initializeApp() async {
   await _initEnvFile();
-  await UserLocalStorage.init();
+  await _initDependencies();
   _initKakaoSdk();
   await _initFirebase();
-  initLocator();
   _initLocalNotification();
+}
+
+Future<void> _initDependencies() async {
+  initLocator();
+  await di.allReady(); // 비동기 의존성 준비 완료될 때까지 대기
 }
 
 Future<void> _initEnvFile() async {
