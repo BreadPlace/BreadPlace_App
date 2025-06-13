@@ -1,29 +1,30 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UserLocalStorage {
-  static late final SharedPreferencesWithCache _prefs;
+class UserLocalStorageService {
+  late SharedPreferencesWithCache _prefs;
+  UserLocalStorageService();
 
   // Key 상수 정의
-  static const String _userIdKey = 'userId';
+  final String _userIdKey = 'userId';
 
-  static Future<void> init() async {
+  Future<void> init() async {
     _prefs = await SharedPreferencesWithCache.create(
-      cacheOptions: const SharedPreferencesWithCacheOptions(
+      cacheOptions: SharedPreferencesWithCacheOptions(
         allowList: <String>{_userIdKey},
       ),
     );
   }
 
-  static Future<void> saveUserId(String userId) async {
+  Future<void> saveUserId(String userId) async {
     await _prefs.setString(_userIdKey, userId);
     await _prefs.reloadCache();
   }
 
-  static Future<String?> getUserId() async {
+  Future<String?> getUserId() async {
     return _prefs.getString(_userIdKey);
   }
 
-  static Future<void> removeUserId() async {
+  Future<void> removeUserId() async {
     await _prefs.remove(_userIdKey);
     await _prefs.reloadCache();
   }

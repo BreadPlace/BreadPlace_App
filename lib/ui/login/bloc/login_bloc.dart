@@ -1,20 +1,22 @@
-import 'package:bread_place/data/services/local/user_local_storage.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
+import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
+import 'package:bread_place/ui/login/bloc/login_event.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/utils/generate_timestamp_nickname.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import 'login_event.dart';
-import 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final FirestoreRepository _repository;
+  final FirestoreRepository _firestoreRepo;
+  final UserLocalStorageRepository _userLocalStorageRepo;
 
-  LoginBloc(this._repository) : super(Unauthenticated()) {
+  LoginBloc(this._firestoreRepo, this._userLocalStorageRepo) : super(Unauthenticated()) {
     on<LoggedOut>(_onLoggedOut);
     on<CheckAuthStatus>(_onAuthStatusChecked);
     on<LoginWithKakaoRequested>(_loginWithKakao);
@@ -27,7 +29,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Future<void> _onLoggedOut(LoggedOut event, Emitter<LoginState> emit) async {
     emit(AuthInProgress());
     try {
-      await UserLocalStorage.removeUserId();
+      await _userLocalStorageRepo.removeUserId();
       emit(Unauthenticated());
     } catch (e) {
       emit(LogoutFailure());
@@ -40,7 +42,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) async {
     emit(AuthInProgress());
-    String? cachedId = await UserLocalStorage.getUserId();
+    String? cachedId = await _userLocalStorageRepo.getUserId();
 
     (cachedId != null)
         ? emit(Authenticated(uid: cachedId, createdAt: ''))
@@ -65,7 +67,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final uid = userInfo.id.toString();
 
       // 로컬 저장
-      await UserLocalStorage.saveUserId(uid);
+      await _userLocalStorageRepo.saveUserId(uid);
 
       // 데이터가 없으면 신규유저
       final userData = await _fetchUserDataByUid(uid);
@@ -117,7 +119,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (uid == null) { return Future.error(Exception('구글 로그인 실패: UID가 null입니다.'));}
       
       // 로컬 저장
-      await UserLocalStorage.saveUserId(uid);
+      await _userLocalStorageRepo.saveUserId(uid);
 
       // 데이터가 없으면 신규유저
       final userData = await _fetchUserDataByUid(uid);
@@ -192,7 +194,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   Future<UserEntity?> _fetchUserDataByUid(String uid) async {
     try {
-      final userData = await _repository.fetchUserDataByUid(uid);
+      final userData = await _firestoreRepo.fetchUserDataByUid(uid);
       return userData;
     } catch (e) {
       print("_fetchUserData 에러 $e");
@@ -202,7 +204,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   Future<void> _saveUserToServer(UserEntity user) async {
     try {
-      await _repository.saveUser(user); // 파이어베이스 저장
+      await _firestoreRepo.saveUser(user); // 파이어베이스 저장
     } catch (e) {
       print("_saveUserId 에러 $e");
     }
