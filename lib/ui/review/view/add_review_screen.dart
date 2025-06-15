@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/config/constants/app_constants.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/ui/common_widgets/common_breadplace_title_view.dart';
 import 'package:bread_place/ui/common_widgets/common_left_text_view.dart';
+import 'package:bread_place/ui/common_widgets/primary_button.dart';
 import 'package:bread_place/ui/review/bloc/add_review_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,35 +18,69 @@ class AddReviewScreen extends StatefulWidget {
 }
 
 class _AddReviewScreenState extends State<AddReviewScreen> {
-  void _onContentSaved(String? val) {
-    // if (val == null) {
-    //   return;
-    // }
+  final GlobalKey<FormState> formKey = GlobalKey();
+  String recommendBread = "";
+  String content = "";
 
-    // content = val;
+  void _onRecommendBreadSaved(String? val) {
+    if (val == null) {
+      return;
+    }
+
+    recommendBread = val;
+  }
+
+  String? _onRecommendBreadValidate(String? val) {
+    if (val == null) {
+      return '내용을 입력해주세요';
+    }
+
+    return null;
+  }
+
+  void _onContentSaved(String? val) {
+    if (val == null) {
+      return;
+    }
+
+    content = val;
   }
 
   String? _onContentValidate(String? val) {
-    // if (val == null) {
-    //   return '내용을 입력해주세요';
-    // }
-    //
-    // if (val.length < 5) {
-    //   return '5자 이상을 입력해주세요!';
-    // }
+    if (val == null) {
+      return '내용을 입력해주세요';
+    }
+
+    if (val.length < 5) {
+      return '5자 이상을 입력해주세요!';
+    }
 
     return null;
   }
 
   void _onStarTapped(int rate) {
-    print('전달받은 rate: $rate');
     context.read<AddReviewBloc>().add(RateStar(rate: rate));
-    print('동작 ${context.read<AddReviewBloc>().state.rate}');
+  }
+
+  void _onAddImageButtomTapped() {
+    context.read<AddReviewBloc>().add(AddPhoto());
+  }
+
+  void _onSavedButtonTapped() {
+    final isValid = formKey.currentState!.validate();
+
+    if(isValid) {
+      formKey.currentState!.save();
+      
+      context.read<AddReviewBloc>().add(SaveReview(
+          recommendBread: recommendBread,
+          content: content)
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<FormState> formKey = GlobalKey();
     const String title = '리뷰 작성';
 
     return Scaffold(
@@ -52,8 +89,6 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
         child: BlocBuilder<AddReviewBloc, AddReviewState>(
           builder: (context, state) {
             if (state is AddReviewState) {
-              final bakery = state.bakery;
-
               return Form(
                 key: formKey,
                 child: Column(
@@ -61,36 +96,49 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                     /// 커스텀 타이틀
                     BreadPlaceTitleView(title: title),
 
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppConstants.horizontalPadding,
-                      ),
-                      child: Column(
-                        children: [
-                          /// 별점 뷰
-                          _StarRateView(
-                            star: state.rate,
-                            onStarTapped: _onStarTapped,
-                          ),
-                          SizedBox(height: 12),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppConstants.horizontalPadding,
+                        ).copyWith(bottom: 32),
+                        child: Column(
+                          children: [
+                            /// 별점 뷰
+                            _StarRateView(
+                              star: state.rate,
+                              onStarTapped: _onStarTapped,
+                            ),
+                            SizedBox(height: 12),
 
-                          /// 사진 추가 뷰
-                          _AddPhotoView(),
-                          SizedBox(height: 24),
+                            /// 사진 추가 뷰
+                            _AddPhotoView(
+                              imageFile: state.imageFile,
+                              addPhotoTapped: _onAddImageButtomTapped,
+                            ),
+                            SizedBox(height: 24),
 
-                          /// 추천하는 빵 뷰
-                          _RecommendBreadView(
-                            onSaved: _onContentSaved,
-                            validator: _onContentValidate,
-                          ),
-                          SizedBox(height: 24),
+                            /// 추천하는 빵 뷰
+                            _RecommendBreadView(
+                              onSaved: _onRecommendBreadSaved,
+                              validator: _onRecommendBreadValidate,
+                            ),
+                            SizedBox(height: 24),
 
-                          /// 리뷰 내용 뷰
-                          _ReviewContentView(
-                            onSaved: _onContentSaved,
-                            validator: _onContentValidate,
-                          ),
-                        ],
+                            /// 리뷰 내용 뷰
+                            _ReviewContentView(
+                              onSaved: _onContentSaved,
+                              validator: _onContentValidate,
+                            ),
+                            SizedBox(height: 44),
+
+                            /// 저장 버튼
+                            PrimaryButton(
+                              text: '리뷰 남기기',
+                              horiaontalPadding: 0,
+                              onPressed: _onSavedButtonTapped,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -143,31 +191,47 @@ class _StarRateView extends StatelessWidget {
 }
 
 class _AddPhotoView extends StatelessWidget {
-  const _AddPhotoView({super.key});
+  final File? imageFile;
+  final VoidCallback addPhotoTapped;
+
+  const _AddPhotoView({
+    required this.imageFile,
+    required this.addPhotoTapped,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return InkWell(
-      onTap: () {},
+      onTap: addPhotoTapped,
       child: Container(
-        padding: EdgeInsets.all(24),
+        padding: EdgeInsets.all(imageFile != null ? 0 : 24),
         width: double.infinity,
+        height: ((screenWidth - (AppConstants.horizontalPadding * 2)) * 3) / 4,
         decoration: BoxDecoration(
           color: AppColors.grey,
           borderRadius: BorderRadius.circular(AppConstants.border),
         ),
-        child: Column(
-          children: [
-            Icon(Icons.photo_camera, size: 34),
+        child:
+            imageFile != null
+                ? Image(image: FileImage(imageFile!), fit: BoxFit.fill)
+                : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.photo_camera, size: 36),
 
-            SizedBox(height: 4),
+                    SizedBox(height: 8),
 
-            Text(
-              '사진 추가',
-              style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 16),
-            ),
-          ],
-        ),
+                    Text(
+                      '사진 추가',
+                      style: AppTextStyles.pretendardSemiBold.copyWith(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
       ),
     );
   }
