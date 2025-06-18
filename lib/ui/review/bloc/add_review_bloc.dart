@@ -47,6 +47,8 @@ class AddReviewBloc extends Bloc<AddReviewEvent, AddReviewState> {
   }
 
   Future<void> _onSaveReview(SaveReview event, Emitter<AddReviewState> emit) async {
+    emit(AddReviewLoading(bakery: _bakery));
+
     final userID = await _userLocalStorageUseCase.getUserId();
     final starRate = state.rate;
     final imageFile = state.imageFile;
@@ -61,5 +63,7 @@ class AddReviewBloc extends Bloc<AddReviewEvent, AddReviewState> {
         content: content,
         image: imageFile!,
     );
+
+    emit(AddReviewComplete(bakery: _bakery));
   }
 }

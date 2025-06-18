@@ -15,6 +15,14 @@ class AddReviewState extends Equatable {
   List<Object?> get props => [bakery, rate, imageFile];
 }
 
+class AddReviewLoading extends AddReviewState {
+  const AddReviewLoading({required super.bakery});
+}
+
+class AddReviewComplete extends AddReviewState {
+  const AddReviewComplete({required super.bakery});
+}
+
 extension AddReviewCopy on AddReviewState {
   AddReviewState copyWith(
       {

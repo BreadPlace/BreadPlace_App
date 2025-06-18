@@ -7,8 +7,10 @@ import 'package:bread_place/ui/common_widgets/common_breadplace_title_view.dart'
 import 'package:bread_place/ui/common_widgets/common_left_text_view.dart';
 import 'package:bread_place/ui/common_widgets/primary_button.dart';
 import 'package:bread_place/ui/review/bloc/add_review_bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class AddReviewScreen extends StatefulWidget {
   const AddReviewScreen({super.key});
@@ -69,12 +71,11 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
   void _onSavedButtonTapped() {
     final isValid = formKey.currentState!.validate();
 
-    if(isValid) {
+    if (isValid) {
       formKey.currentState!.save();
-      
-      context.read<AddReviewBloc>().add(SaveReview(
-          recommendBread: recommendBread,
-          content: content)
+
+      context.read<AddReviewBloc>().add(
+        SaveReview(recommendBread: recommendBread, content: content),
       );
     }
   }
@@ -86,68 +87,82 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: BlocBuilder<AddReviewBloc, AddReviewState>(
-          builder: (context, state) {
-            if (state is AddReviewState) {
-              return Form(
-                key: formKey,
-                child: Column(
-                  children: [
-                    /// 커스텀 타이틀
-                    BreadPlaceTitleView(title: title),
+        child: BlocListener<AddReviewBloc, AddReviewState>(
+          listener: (context, state) {
+            if (state is AddReviewComplete) {
+              context.pop();
+            }
+          },
+          child: BlocBuilder<AddReviewBloc, AddReviewState>(
+            builder: (context, state) {
+              if (state is AddReviewLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppConstants.horizontalPadding,
-                        ).copyWith(bottom: 32),
-                        child: Column(
-                          children: [
-                            /// 별점 뷰
-                            _StarRateView(
-                              star: state.rate,
-                              onStarTapped: _onStarTapped,
-                            ),
-                            SizedBox(height: 12),
+              if (state is AddReviewState) {
+                return Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      /// 커스텀 타이틀
+                      BreadPlaceTitleView(
+                        title: title,
+                        leadingIcon: CupertinoIcons.chevron_left,
+                        onLeadingTap: context.pop,
+                      ),
 
-                            /// 사진 추가 뷰
-                            _AddPhotoView(
-                              imageFile: state.imageFile,
-                              addPhotoTapped: _onAddImageButtomTapped,
-                            ),
-                            SizedBox(height: 24),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppConstants.horizontalPadding,
+                          ).copyWith(bottom: 32),
+                          child: Column(
+                            children: [
+                              /// 별점 뷰
+                              _StarRateView(
+                                star: state.rate,
+                                onStarTapped: _onStarTapped,
+                              ),
+                              SizedBox(height: 12),
 
-                            /// 추천하는 빵 뷰
-                            _RecommendBreadView(
-                              onSaved: _onRecommendBreadSaved,
-                              validator: _onRecommendBreadValidate,
-                            ),
-                            SizedBox(height: 24),
+                              /// 사진 추가 뷰
+                              _AddPhotoView(
+                                imageFile: state.imageFile,
+                                addPhotoTapped: _onAddImageButtomTapped,
+                              ),
+                              SizedBox(height: 24),
 
-                            /// 리뷰 내용 뷰
-                            _ReviewContentView(
-                              onSaved: _onContentSaved,
-                              validator: _onContentValidate,
-                            ),
-                            SizedBox(height: 44),
+                              /// 추천하는 빵 뷰
+                              _RecommendBreadView(
+                                onSaved: _onRecommendBreadSaved,
+                                validator: _onRecommendBreadValidate,
+                              ),
+                              SizedBox(height: 24),
 
-                            /// 저장 버튼
-                            PrimaryButton(
-                              text: '리뷰 남기기',
-                              horiaontalPadding: 0,
-                              onPressed: _onSavedButtonTapped,
-                            ),
-                          ],
+                              /// 리뷰 내용 뷰
+                              _ReviewContentView(
+                                onSaved: _onContentSaved,
+                                validator: _onContentValidate,
+                              ),
+                              SizedBox(height: 44),
+
+                              /// 저장 버튼
+                              PrimaryButton(
+                                text: '리뷰 남기기',
+                                horiaontalPadding: 0,
+                                onPressed: _onSavedButtonTapped,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return const Center(child: CircularProgressIndicator());
-          },
+                    ],
+                  ),
+                );
+              }
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
         ),
       ),
     );
