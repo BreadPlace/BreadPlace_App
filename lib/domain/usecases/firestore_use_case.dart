@@ -12,14 +12,16 @@ class FirestoreUseCase {
   /// 베이커리 리뷰 업로드
   Future<void> uploadBakeryReview({
     required String userID,
+    required String userNickName,
     required Bakery bakery,
     required int starRate,
     required String recommendBread,
     required String content,
-    required File image,
+    required File? image,
   }) async {
     await _repository.uploadBakeryReview(
         userID,
+        userNickName,
         bakery,
         starRate,
         recommendBread,

@@ -7,10 +7,11 @@ abstract class FirestoreRepository {
   Future<UserEntity?> fetchUserDataByUid(String uid);
   Future<void> uploadBakeryReview(
       String userID,
+      String userNickName,
       Bakery bakery,
       int starRate,
       String recommendBread,
       String content,
-      File image
+      File? image
   );
 }

@@ -13,31 +13,35 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
 
   @override
   Future<bool> saveUser(UserEntity user) async {
-     return await _service.saveUserId(user.toDto());
+    return await _service.saveUserId(user.toDto());
   }
 
   @override
   Future<UserEntity?> fetchUserDataByUid(String uid) async {
-      final userDto = await _service.fetchUserDataByUid(uid);
-      if(userDto != null) {
-        return userDto.toEntity();
-      }
-      return null;
+    final userDto = await _service.fetchUserDataByUid(uid);
+    if (userDto != null) {
+      return userDto.toEntity();
+    }
+    return null;
   }
 
-  Future<void> uploadBakeryReview(String userID,
-      Bakery bakery,
-      int starRate,
-      String recommendBread,
-      String content,
-      File image) async {
+  Future<void> uploadBakeryReview(
+    String userID,
+    String userNickName,
+    Bakery bakery,
+    int starRate,
+    String recommendBread,
+    String content,
+    File? image,
+  ) async {
     await _service.uploadBakeryReview(
-        userID,
-        bakery,
-        starRate,
-        recommendBread,
-        content,
-        image
+      userID,
+      userNickName,
+      bakery,
+      starRate,
+      recommendBread,
+      content,
+      image,
     );
   }
 }
