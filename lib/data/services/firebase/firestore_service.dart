@@ -20,7 +20,7 @@ class FirestoreService {
       }
 
       // 새로운 사용자 등록
-      await _db.collection('users').add(user.toJson());
+      await _db.collection('users').doc(user.uid).set(user.toJson());
       return true;
     } catch (e) {
       print("사용자 저장 중 오류: $e");
@@ -31,21 +31,17 @@ class FirestoreService {
   // 특정 uid를 가진 사용자를 조회
   Future<UserDto?> fetchUserDataByUid(String uid) async {
     try {
-      QuerySnapshot snapshot = await _db
-          .collection('users')
-          .where('uid', isEqualTo: uid)
-          .limit(1)
-          .get();
+      DocumentSnapshot snapshot = await _db.collection('users').doc(uid).get();
 
-      if (snapshot.docs.isEmpty) {
+      if (!snapshot.exists) {
+        print("파이어베이스에 등록되지 않은 uid 입니다: $uid");
         return null;
       }
 
-      final data = snapshot.docs.first.data() as Map<String, dynamic>;
-
+      final data = snapshot.data() as Map<String, dynamic>;
       return UserDto.fromJson(data);
     } catch (e) {
-      print("파이어베이스에 등록되지 않은 uid 입니다.. $e");
+      print("사용자 정보 조회 중 오류 발생 (UID: $uid): $e");
       return null;
     }
   }

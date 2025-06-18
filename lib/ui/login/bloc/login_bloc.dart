@@ -227,6 +227,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         nickname: resolveNickname,
       );
 
+      await _userLocalStorageRepo.saveUserNickname(resolveNickname); // 로컬 저장
       await _saveUserToServer(user); // 서버 저장
 
       // 상태 전환

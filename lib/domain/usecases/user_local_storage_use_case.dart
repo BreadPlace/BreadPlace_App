@@ -11,4 +11,10 @@ class UserLocalStorageUseCase {
     final userID = await _repository.getUserId();
     return userID;
   }
+
+  /// 유저 닉네임 가져오기
+  Future<String?> getUserNickname() async {
+    final userNickname = await _repository.getUserNickname();
+    return userNickname;
+  }
 }
