@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
+import 'package:bread_place/domain/usecases/firestore_use_case.dart';
+import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/ui/bakery_detail/bloc/bakery_detail_bloc.dart';
 import 'package:bread_place/ui/bakery_detail/view/bakery_detail_screen.dart';
 import 'package:bread_place/ui/like/view/like_screen_main.dart';
@@ -128,7 +130,11 @@ GoRouter router = GoRouter(
         final bakery = state.extra as Bakery;
 
         return BlocProvider(
-          create: (_) => AddReviewBloc(bakery),
+          create: (_) => AddReviewBloc(
+              firestoreUseCase: di<FirestoreUseCase>(),
+              userLocalStorageUseCase: di<UserLocalStorageUseCase>(),
+              bakery: bakery
+          ),
           child: const AddReviewScreen(),
         );
       },

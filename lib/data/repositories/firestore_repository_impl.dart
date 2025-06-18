@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:bread_place/data/dto/mapper/user_mapper.dart';
 import 'package:bread_place/data/services/firebase/firestore_service.dart';
+import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 
@@ -20,5 +23,21 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
         return userDto.toEntity();
       }
       return null;
+  }
+
+  Future<void> uploadBakeryReview(String userID,
+      Bakery bakery,
+      int starRate,
+      String recommendBread,
+      String content,
+      File image) async {
+    await _service.uploadBakeryReview(
+        userID,
+        bakery,
+        starRate,
+        recommendBread,
+        content,
+        image
+    );
   }
 }

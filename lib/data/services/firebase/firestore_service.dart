@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:bread_place/data/dto/response/firebase/user_dto.dart';
+import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db;
@@ -44,5 +48,45 @@ class FirestoreService {
       print("파이어베이스에 등록되지 않은 uid 입니다.. $e");
       return null;
     }
+  }
+
+  // 특정 uid를 가진 유저에 베이커리 리뷰 추가
+  Future<void> uploadBakeryReview(
+      String userID,
+      Bakery bakery,
+      int starRate,
+      String recommendBread,
+      String content,
+      File image
+  ) async {
+    const userNickName = '닉네임저장필요';
+
+    // Firebase Storage에 이미지 저장
+    final fileName = 'review_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final imageReference = FirebaseStorage.instance.ref('users/$userID/reviews/$fileName');
+    final uploadTask = await imageReference.putFile(image);
+    final imageUrl = await uploadTask.ref.getDownloadURL();
+
+    final reviewData = {
+      'writerId' : userID,
+      'writerNickName' : userNickName,
+      'targetId' : bakery.id,
+      'recommendBread' : recommendBread,
+      'reviewText' : content,
+      'rating' : starRate,
+      'imageUrl' : imageUrl,
+      'createdAt' : FieldValue.serverTimestamp()
+    };
+
+    // 리뷰 컬렉션에 리뷰 저장
+    final reviewReference = await FirebaseFirestore.instance
+        .collection('reviews')
+        .add(reviewData);
+
+    // User의 review 목록에 저장
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userID)
+        .update({'reviews' : FieldValue.arrayUnion([reviewReference.id])});
   }
 }
