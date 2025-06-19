@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bread_place/data/dto/response/firebase/liked_bakery_dto.dart';
 import 'package:bread_place/data/dto/response/firebase/user_dto.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -84,9 +85,79 @@ class FirestoreService {
         .add(reviewData);
 
     // User의 review 목록에 저장
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userID)
-        .update({'reviews' : FieldValue.arrayUnion([reviewReference.id])});
+    await FirebaseFirestore.instance.collection('users').doc(userID).update({
+      'reviews': FieldValue.arrayUnion([reviewReference.id]),
+    });
+  }
+
+  // 특정 uid를 가진 사용자의 liked_bakeries 가져오기
+  Future<List<LikedBakeryDto>> fetchLikedBakeries(String userId) async {
+    final snapshot = await _db.collection('users').doc(userId).collection(
+        'liked_bakeries')
+        .orderBy('updatedAt', descending: true)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      return [];
+    }
+
+    final results = snapshot.docs.map((doc) {
+      final data = doc.data();
+      return LikedBakeryDto.fromJson({
+        ...data,
+        'bakeryId': doc.id
+      });
+    }).toList();
+
+    return results;
+  }
+
+  // '좋아요' 누른 베이커리 상태 확인 후 토글
+  Future<void> updateLikeBakery(String userId, String bakeryId,
+      bool isNotify) async {
+    try {
+      bool? exist = await isLikedBakery(userId, bakeryId);
+
+      if (exist == null) {
+        print("좋아요 확인 불가");
+        return;
+      }
+
+      // 이미 좋아요 목록에 있는 경우, 삭제
+      if (exist) {
+        unLikeBakery(userId, bakeryId);
+        // 좋아요 목록에 없는 경우, 추가
+      } else if (!exist) {
+        likeBakery(userId, bakeryId, isNotify);
+      }
+    } catch (e) {
+      print("updateLikeBakery error $e");
+    }
+  }
+
+  // 특정 베이커리가 현재 사용자의 '좋아요' 목록에 있는지 확인
+  Future<bool?> isLikedBakery(String userId, String bakeryId) async {
+    try {
+      DocumentSnapshot snapshot =
+      await _db.collection('users').doc(userId).collection('liked_bakeries')
+          .doc(bakeryId)
+          .get();
+      return snapshot.exists;
+    } catch (e) {
+      print('isLikedBakery error $e');
+      return null;
+    }
+  }
+
+  Future<void> unLikeBakery(String userId, String bakeryId) async {
+    _db.collection('user').doc(userId)
+        .collection('liked_bakeries').doc(bakeryId)
+        .delete();
+  }
+
+  Future<void> likeBakery(String userId, String bakeryId, bool isNotify) async {
+    _db.collection('users').doc(userId)
+        .collection('liked_bakeries').doc(bakeryId)
+        .set({'updatedAt': Timestamp.now(), 'isNotify': isNotify});
   }
 }
