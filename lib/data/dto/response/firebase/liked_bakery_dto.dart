@@ -1,0 +1,19 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'liked_bakery_dto.g.dart';
+
+@JsonSerializable()
+class LikedBakeryDto {
+  final String bakeryId;
+  final bool isNotify;
+  final String updatedAt;
+
+  LikedBakeryDto({
+    required this.bakeryId,
+    required this.isNotify,
+    required this.updatedAt,
+  });
+
+  factory LikedBakeryDto.fromJson(Map<String, dynamic> json) => _$LikedBakeryDtoFromJson(json);
+  Map<String, dynamic> toJson() => _$LikedBakeryDtoToJson(this);
+}
