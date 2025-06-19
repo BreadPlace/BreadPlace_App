@@ -49,20 +49,24 @@ class FirestoreService {
   // 특정 uid를 가진 유저에 베이커리 리뷰 추가
   Future<void> uploadBakeryReview(
       String userID,
+      String userNickName,
       Bakery bakery,
       int starRate,
       String recommendBread,
       String content,
-      File image
+      File? image
   ) async {
-    const userNickName = '닉네임저장필요';
 
     // Firebase Storage에 이미지 저장
-    final fileName = 'review_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final imageReference = FirebaseStorage.instance.ref('users/$userID/reviews/$fileName');
-    final uploadTask = await imageReference.putFile(image);
-    final imageUrl = await uploadTask.ref.getDownloadURL();
+    String? imageUrl;
+    if (image != null) {
+      final fileName = 'review_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final imageReference = FirebaseStorage.instance.ref('users/$userID/reviews/$fileName');
+      final uploadTask = await imageReference.putFile(image);
+      imageUrl = await uploadTask.ref.getDownloadURL();
+    }
 
+    // 리뷰 객체 생성
     final reviewData = {
       'writerId' : userID,
       'writerNickName' : userNickName,
@@ -70,7 +74,7 @@ class FirestoreService {
       'recommendBread' : recommendBread,
       'reviewText' : content,
       'rating' : starRate,
-      'imageUrl' : imageUrl,
+      if (imageUrl != null) 'imageUrl' : imageUrl,
       'createdAt' : FieldValue.serverTimestamp()
     };
 

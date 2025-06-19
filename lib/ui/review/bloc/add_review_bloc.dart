@@ -47,21 +47,23 @@ class AddReviewBloc extends Bloc<AddReviewEvent, AddReviewState> {
   }
 
   Future<void> _onSaveReview(SaveReview event, Emitter<AddReviewState> emit) async {
-    emit(AddReviewLoading(bakery: _bakery));
-
     final userID = await _userLocalStorageUseCase.getUserId();
+    final userNickName = await _userLocalStorageUseCase.getUserNickname();
     final starRate = state.rate;
     final imageFile = state.imageFile;
     final recommendBread = event.recommendBread;
     final content = event.content;
 
+    emit(AddReviewLoading(bakery: _bakery));
+
     await _firestoreUseCase.uploadBakeryReview(
-        userID: userID!,
+        userID: userID ?? '유저 아이디 오류',
+        userNickName: userNickName ?? '유저 닉네임 오류',
         bakery: _bakery,
         starRate: starRate,
         recommendBread: recommendBread,
         content: content,
-        image: imageFile!,
+        image: imageFile,
     );
 
     emit(AddReviewComplete(bakery: _bakery));
