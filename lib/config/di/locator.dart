@@ -17,10 +17,12 @@ import 'package:bread_place/domain/repositories/kakao_search_repository.dart';
 import 'package:bread_place/domain/repositories/notification_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
 import 'package:bread_place/domain/usecases/firestore_use_case.dart';
+import 'package:bread_place/domain/usecases/liked_bakery_use_case.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -86,4 +88,5 @@ void initLocator() {
     di<FirestoreRepository>(),
     di<UserLocalStorageRepository>(),
   ));
+  di.registerFactory(() => LikeBloc(di<LikedBakeryUseCase>()));
 }
