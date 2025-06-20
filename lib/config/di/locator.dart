@@ -87,4 +87,5 @@ void initLocator() {
   di.registerLazySingleton<FirestoreUseCase>(() => FirestoreUseCase(repository: di<FirestoreRepository>()));
   di.registerLazySingleton<NotificationUseCase>(() => NotificationUseCase(di<NotificationRepository>()));
   di.registerLazySingleton<UserLocalStorageUseCase>(() => UserLocalStorageUseCase(repository: di<UserLocalStorageRepository>()));
+  di.registerLazySingleton(() => LikedBakeryUseCase(firestoreRepo: di<FirestoreRepository>(), userLocalStorage: di<UserLocalStorageRepository>()));
 }
