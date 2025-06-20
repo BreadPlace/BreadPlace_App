@@ -5,4 +5,5 @@ abstract class GooglePlaceRepository {
   Future<List<Bakery>> searchText(String query);
   Future<List<Bakery>> searchNearby(LatLng searchLocation);
   Future<String> getPlacePhotoUri(String photoName);
+  Future<Bakery> searchPlaceDetail(String placeId);
 }
