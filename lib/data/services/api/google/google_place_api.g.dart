@@ -112,9 +112,13 @@ class _GooglePlaceApi implements GooglePlaceApi {
   }
 
   @override
-  Future<BakeryDto> searchPlaceDetail({required String placeId}) async {
+  Future<BakeryDto> searchPlaceDetail({
+    required String placeId,
+    String fields =
+        'id,displayName,formattedAddress,location,viewport,plusCode,googleMapsUri,types,nationalPhoneNumber,photos',
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'fields': fields};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<BakeryDto>(

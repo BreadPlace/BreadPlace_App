@@ -37,5 +37,6 @@ abstract class GooglePlaceApi {
   @GET(GooglePlaceEndpoint.searchPlaceDetail)
   Future<BakeryDto> searchPlaceDetail({
     @Path('placeId') required String placeId,
+  @Query('fields') String fields = 'id,displayName,formattedAddress,location,viewport,plusCode,googleMapsUri,types,nationalPhoneNumber,photos'
   });
 }
