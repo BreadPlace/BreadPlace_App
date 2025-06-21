@@ -27,16 +27,17 @@ class BreadPlaceTitleView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Row(
         children: [
-          if (leadingIcon != null)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                onPressed: onLeadingTap,
-                icon: Icon(leadingIcon),
-                iconSize: 28,
-                color: AppColors.black,
-              ),
-            ),
+          leadingIcon != null
+              ? Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: onLeadingTap,
+                  icon: Icon(leadingIcon),
+                  iconSize: 28,
+                  color: AppColors.black,
+                ),
+              )
+              : SizedBox(width: 28),
 
           Expanded(
             child: Align(
@@ -63,18 +64,18 @@ class BreadPlaceTitleView extends StatelessWidget {
             ),
           ),
 
-          if (trailingIcon != null)
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                onPressed: onTrailingTap,
-                icon: Icon(trailingIcon),
-                iconSize: 28,
-                color: AppColors.black,
-              ),
-            ),
+          trailingIcon != null
+              ? Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  onPressed: onTrailingTap,
+                  icon: Icon(trailingIcon),
+                  iconSize: 28,
+                  color: AppColors.black,
+                ),
+              )
+              : const SizedBox(width: 28),
         ],
-        //    ),
       ),
     );
   }
