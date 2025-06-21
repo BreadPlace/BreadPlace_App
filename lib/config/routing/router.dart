@@ -1,3 +1,6 @@
+import 'package:bread_place/domain/usecases/liked_bakery_use_case.dart';
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
+import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -87,7 +90,11 @@ GoRouter router = GoRouter(
               path: Routes.like,
               pageBuilder:
                   (context, state) =>
-              const NoTransitionPage(child: LikeScreenMain()),
+              NoTransitionPage(
+                  child: BlocProvider.value(
+                    value: context.read<LikeBloc>(),
+                      child: const LikeScreenMain())
+              ),
             ),
           ],
         ),
@@ -112,8 +119,11 @@ GoRouter router = GoRouter(
       builder: (context, state) {
         final bakery = state.extra as Bakery;
 
-        return BlocProvider(
-          create: (_) => BakeryDetailBloc(bakery),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => BakeryDetailBloc(bakery)),
+            BlocProvider.value(value: context.read<LikeBloc>())
+          ],
           child: const BakeryDetailScreen(),
         );
       },

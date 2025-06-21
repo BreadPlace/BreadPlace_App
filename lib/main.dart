@@ -1,10 +1,11 @@
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
+import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:flutter/material.dart';
 
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/config/routing/router.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
-import 'data/services/local/user_local_storage.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,8 +25,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di<LoginBloc>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => di<LoginBloc>()),
+        BlocProvider(create: (_) => di<LikeBloc>()..add(FetchLikedBakeries())),
+      ],
       child: MaterialApp.router(
         title: 'BreadPlace',
         themeMode: ThemeMode.light,
