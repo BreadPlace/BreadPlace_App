@@ -8,19 +8,28 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class LikedBakeryContainer extends StatelessWidget {
   final Bakery bakery;
   final LatLng? userLocation;
+  final VoidCallback onTapContainer;
+  final VoidCallback onHeartPressed;
+  final VoidCallback onNotificationPressed;
+  final bool isNotified;
 
   const LikedBakeryContainer({
     super.key,
     required this.bakery,
     this.userLocation,
+    required this.onTapContainer,
+    required this.onHeartPressed,
+    required this.onNotificationPressed,
+    required this.isNotified,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: onTapContainer,
       child: Container(
-        padding: EdgeInsets.all(12),
+        height: 130,
+        padding: EdgeInsets.only(left: 18),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
@@ -29,26 +38,12 @@ class LikedBakeryContainer extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            // 가게 이미지를 담은 컨테이너
-            bakeryImageContainer(bakery.photoUri),
             // 가게 정보
             bakeryInfoText(bakery, userLocation),
-            // 버튼을 담은 컨테이너
-            _buttonContainer(),
+            _heartButton(),
+            _notificationButton()
           ],
         ),
-      ),
-    );
-  }
-
-
-  Widget _buttonContainer() {
-    return Flexible(
-      child: Row(
-        children: [
-          Expanded(child: _heartButton()),
-          Expanded(child: _notificationButton(false)),
-        ],
       ),
     );
   }
@@ -56,17 +51,16 @@ class LikedBakeryContainer extends StatelessWidget {
   //  좋아요 버튼
   Widget _heartButton() {
     return IconButton(
-      onPressed: () {},
+      onPressed: onHeartPressed,
       icon: const Icon(CupertinoIcons.heart_fill, color: AppColors.icon),
     );
   }
 
   // 알람 설정 버튼
-  Widget _notificationButton(bool allow) {
+  Widget _notificationButton() {
     return IconButton(
-      onPressed: () {},
-      icon:
-          allow
+      onPressed: onNotificationPressed,
+      icon: isNotified
               ? Icon(CupertinoIcons.bell_fill, color: AppColors.icon)
               : Icon(CupertinoIcons.bell_slash, color: AppColors.icon),
     );
