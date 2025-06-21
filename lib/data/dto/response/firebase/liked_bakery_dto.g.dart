@@ -11,6 +11,10 @@ LikedBakeryDto _$LikedBakeryDtoFromJson(Map<String, dynamic> json) =>
       bakeryId: json['bakeryId'] as String,
       isNotify: json['isNotify'] as bool,
       updatedAt: json['updatedAt'] as String,
+      displayName: json['displayName'] as String,
+      address: json['address'] as String?,
+      locationLat: json['locationLat'] as String?,
+      locationLong: json['locationLong'] as String?,
     );
 
 Map<String, dynamic> _$LikedBakeryDtoToJson(LikedBakeryDto instance) =>
@@ -18,4 +22,8 @@ Map<String, dynamic> _$LikedBakeryDtoToJson(LikedBakeryDto instance) =>
       'bakeryId': instance.bakeryId,
       'isNotify': instance.isNotify,
       'updatedAt': instance.updatedAt,
+      'displayName': instance.displayName,
+      'address': instance.address,
+      'locationLat': instance.locationLat,
+      'locationLong': instance.locationLong,
     };
