@@ -34,7 +34,7 @@ class BreadPlaceTitleView extends StatelessWidget {
                   onPressed: onLeadingTap,
                   icon: Icon(leadingIcon),
                   iconSize: 28,
-                  color: AppColors.black,
+                  color: AppColors.icon,
                 ),
               )
               : SizedBox(width: 28),
@@ -71,7 +71,7 @@ class BreadPlaceTitleView extends StatelessWidget {
                   onPressed: onTrailingTap,
                   icon: Icon(trailingIcon),
                   iconSize: 28,
-                  color: AppColors.black,
+                  color: AppColors.icon,
                 ),
               )
               : const SizedBox(width: 28),
