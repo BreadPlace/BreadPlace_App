@@ -7,12 +7,18 @@ abstract class SearchEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class SearchPlace extends SearchEvent {
+class SearchPlaceByText extends SearchEvent {
   final String keyword;
-  const SearchPlace({required this.keyword});
+  const SearchPlaceByText({required this.keyword});
 
   @override
   List<Object?> get props => [keyword];
 }
 
-class FetchResults extends SearchEvent { }
+class SearchPlaceById extends SearchEvent {
+  final String placeId;
+  const SearchPlaceById({required this.placeId});
+
+  @override
+  List<Object?> get props => [placeId];
+}

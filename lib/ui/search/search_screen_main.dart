@@ -27,7 +27,7 @@ class _SearchScreenMainState extends State<SearchScreenMain> {
   final AssetImage emptyImage = AssetImage('assets/images/image_donut.png');
 
   void onSubmitSearchKeyword(BuildContext context, String keyword) {
-    context.read<SearchBloc>().add(SearchPlace(keyword: keyword));
+    context.read<SearchBloc>().add(SearchPlaceByText(keyword: keyword));
   }
 
   void _onSelectBakery(Bakery bakery) {

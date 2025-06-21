@@ -7,11 +7,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final SearchBakeryUseCase _useCase;
 
   SearchBloc(this._useCase) : super(SearchInitial()) {
-    on<SearchPlace>(onSearchPlace);
+    on<SearchPlaceByText>(_onSearchPlaceByText);
+    on<SearchPlaceById>(_onSearchPlaceById);
   }
 
-  Future<void> onSearchPlace(
-    SearchPlace event,
+  Future<void> _onSearchPlaceByText(
+    SearchPlaceByText event,
     Emitter<SearchState> emit,
   ) async {
     emit(SearchLoading());
@@ -20,7 +21,23 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final results = await _useCase.searchPlace(event.keyword);
       emit(SearchSuccess(bakeries: results));
     } catch (e) {
-      emit(SearchFailure("검색 실패: ${e.toString()}"));
+      emit(SearchFailure("text 로 장소 검색 실패: ${e.toString()}"));
+    }
+  }
+
+  Future<void> _onSearchPlaceById(
+    SearchPlaceById event,
+    Emitter<SearchState> emit,
+  ) async {
+    emit(SearchLoading());
+
+    final result = await _useCase.searchPlaceById(event.placeId);
+
+    if (result == null) {
+      emit(SearchFailure("id로 장소 검색 실패"));
+    } else {
+
+      emit(SearchSuccess(bakeries: [result]));
     }
   }
 }
