@@ -1,9 +1,4 @@
-import 'package:bread_place/domain/usecases/liked_bakery_use_case.dart';
-import 'package:bread_place/ui/like/bloc/like_bloc.dart';
-import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
@@ -26,7 +21,10 @@ import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/login/view/login_screen_main.dart';
 import 'package:bread_place/utils/stream_to_listenable.dart';
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -91,9 +89,13 @@ GoRouter router = GoRouter(
               pageBuilder:
                   (context, state) =>
               NoTransitionPage(
-                  child: BlocProvider.value(
-                    value: context.read<LikeBloc>(),
-                      child: const LikeScreenMain())
+                  child: MultiBlocProvider(
+                    providers: [
+                      BlocProvider.value(value: context.read<LikeBloc>()),
+                      BlocProvider(create: (_) => di<SearchBloc>())
+                    ],
+                    child: const LikeScreenMain()),
+
               ),
             ),
           ],
