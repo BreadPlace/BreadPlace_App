@@ -29,7 +29,7 @@ class LikedBakeryContainer extends StatelessWidget {
       onTap: onTapContainer,
       child: Container(
         height: 130,
-        padding: EdgeInsets.only(left: 18),
+        padding: EdgeInsets.only(right: 6),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
