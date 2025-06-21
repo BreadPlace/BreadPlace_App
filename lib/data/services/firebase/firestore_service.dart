@@ -112,52 +112,16 @@ class FirestoreService {
     return results;
   }
 
-  // '좋아요' 누른 베이커리 상태 확인 후 토글
-  Future<void> updateLikeBakery(String userId, String bakeryId,
-      bool isNotify) async {
-    try {
-      bool? exist = await isLikedBakery(userId, bakeryId);
-
-      if (exist == null) {
-        print("좋아요 확인 불가");
-        return;
-      }
-
-      // 이미 좋아요 목록에 있는 경우, 삭제
-      if (exist) {
-        unLikeBakery(userId, bakeryId);
-        // 좋아요 목록에 없는 경우, 추가
-      } else if (!exist) {
-        likeBakery(userId, bakeryId, isNotify);
-      }
-    } catch (e) {
-      print("updateLikeBakery error $e");
-    }
-  }
-
-  // 특정 베이커리가 현재 사용자의 '좋아요' 목록에 있는지 확인
-  Future<bool?> isLikedBakery(String userId, String bakeryId) async {
-    try {
-      DocumentSnapshot snapshot =
-      await _db.collection('users').doc(userId).collection('liked_bakeries')
-          .doc(bakeryId)
-          .get();
-      return snapshot.exists;
-    } catch (e) {
-      print('isLikedBakery error $e');
-      return null;
-    }
-  }
-
-  Future<void> unLikeBakery(String userId, String bakeryId) async {
-    _db.collection('user').doc(userId)
+  Future<void> removeLikedBakery(String userId, String bakeryId) async {
+    await _db.collection('users').doc(userId)
         .collection('liked_bakeries').doc(bakeryId)
         .delete();
   }
 
-  Future<void> likeBakery(String userId, String bakeryId, bool isNotify) async {
-    _db.collection('users').doc(userId)
-        .collection('liked_bakeries').doc(bakeryId)
-        .set({'updatedAt': Timestamp.now(), 'isNotify': isNotify});
+  Future<void> addLikedBakery(String userId, LikedBakeryDto dto,
+      bool isNotify) async {
+    await _db.collection('users').doc(userId)
+        .collection('liked_bakeries').doc(dto.bakeryId)
+        .set(dto.toJson());
   }
 }
