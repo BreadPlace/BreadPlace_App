@@ -14,26 +14,34 @@ class CommonImageContainer extends StatelessWidget {
     required this.width,
     required this.height,
     this.boxColor = AppColors.grey,
-    super.key
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
+    final isValidUri = uri.trim().isNotEmpty;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: width,
+        height: height,
         color: boxColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ClipRect(
-        child: CachedNetworkImage(
-          fit: BoxFit.fill,
-          imageUrl: uri,
-          placeholder:
-              (_,_) => CircularProgressIndicator(color: AppColors.primary),
-          errorWidget: (_,_,_) => Icon(Icons.error),
-        ),
+        child:
+            isValidUri
+                ? CachedNetworkImage(
+                  fit: BoxFit.cover,
+                  imageUrl: uri,
+                  placeholder:
+                      (_, __) => Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                  errorWidget: (_, __, ___) => const Icon(Icons.error),
+                )
+                // 제공된 이미지가 없을 때
+                : Image.asset('assets/images/Croissant.png'),
       ),
     );
   }
