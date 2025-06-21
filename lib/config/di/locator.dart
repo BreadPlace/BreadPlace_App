@@ -8,6 +8,7 @@ import 'package:bread_place/data/services/api/google/google_place_dio_client.dar
 import 'package:bread_place/data/services/api/kakao/kakao_dio_client.dart';
 import 'package:bread_place/data/services/api/kakao/kakao_local_api.dart';
 import 'package:bread_place/data/services/firebase/firestore_service.dart';
+import 'package:bread_place/data/services/image/image_compress_service.dart';
 import 'package:bread_place/data/services/local/user_local_storage.dart';
 import 'package:bread_place/data/services/notification/local_notification_service.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
@@ -29,6 +30,9 @@ import 'package:get_it/get_it.dart';
 GetIt di = GetIt.instance;
 
 void initLocator() {
+  // Util Services
+  di.registerLazySingleton<ImageCompressService>(() => ImageCompressService());
+
   // Kakao_local
   di.registerLazySingleton<KakaoDioClient>(() => KakaoDioClient());
   di.registerLazySingleton<KakaoLocalApi>(() => KakaoLocalApi(di<KakaoDioClient>().dio));
@@ -43,7 +47,11 @@ void initLocator() {
 
   // FireStore
   di.registerLazySingleton<FirestoreService>(() => FirestoreService(FirebaseFirestore.instance));
-  di.registerLazySingleton<FirestoreRepository>(() => FirestoreRepositoryImpl(di<FirestoreService>()));
+  di.registerLazySingleton<FirestoreRepository>(() =>
+      FirestoreRepositoryImpl(
+        service: di<FirestoreService>(),
+        imageCompressService: di<ImageCompressService>(),
+      ));
   di.registerLazySingleton<FirestoreUseCase>(() => FirestoreUseCase(repository: di<FirestoreRepository>()));
   
   // local_notification
