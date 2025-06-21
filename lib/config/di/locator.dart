@@ -53,7 +53,6 @@ void initLocator() {
         service: di<FirestoreService>(),
         imageCompressService: di<ImageCompressService>(),
       ));
-  di.registerLazySingleton<FirestoreUseCase>(() => FirestoreUseCase(repository: di<FirestoreRepository>()));
 
   // local_notification
   di.registerLazySingleton<FlutterLocalNotificationsPlugin>(() => FlutterLocalNotificationsPlugin());
