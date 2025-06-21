@@ -27,52 +27,54 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.background,
-      child: SafeArea(
-        child: BlocBuilder<BakeryDetailBloc, BakeryDetailState>(
-          builder: (context, state) {
-            if (state is BakeryDetailInitial) {
-              final bakery = state.bakery;
-
-              return Column(
-                children: [
-                  // 커스텀 타이틀
-                  BreadPlaceTitleView(
-                    title: bakery.displayName,
-                    trailingIcon: CupertinoIcons.heart,
-                    onTrailingTap: _onHeartButtonTapped,
-                    leadingIcon: CupertinoIcons.chevron_left,
-                    onLeadingTap: _onDismissButtonTapped,
-                  ),
-
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          SizedBox(height: 24),
-
-                          // 베이커리 상세 뷰
-                          _BakeryDetailContentView(bakery: bakery),
-                          SizedBox(height: 24),
-
-                          // 리뷰 리스트 뷰
-                          _ReviewListView(
-                              bakery: bakery,
-                              onTrailingTap: _onAddReviewButtonTapped
-                          ),
-                        ],
+    return Scaffold(
+      body: Container(
+        color: AppColors.background,
+        child: SafeArea(
+          child: BlocBuilder<BakeryDetailBloc, BakeryDetailState>(
+            builder: (context, state) {
+              if (state is BakeryDetailInitial) {
+                final bakery = state.bakery;
+      
+                return Column(
+                  children: [
+                    // 커스텀 타이틀
+                    BreadPlaceTitleView(
+                      title: bakery.displayName,
+                      trailingIcon: CupertinoIcons.heart,
+                      onTrailingTap: _onHeartButtonTapped,
+                      leadingIcon: CupertinoIcons.chevron_left,
+                      onLeadingTap: _onDismissButtonTapped,
+                    ),
+      
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(height: 24),
+      
+                            // 베이커리 상세 뷰
+                            _BakeryDetailContentView(bakery: bakery),
+                            SizedBox(height: 24),
+      
+                            // 리뷰 리스트 뷰
+                            _ReviewListView(
+                                bakery: bakery,
+                                onTrailingTap: _onAddReviewButtonTapped
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-
-                  SizedBox(height: 28),
-                ],
-              );
-            }
-
-            return const Center(child: CircularProgressIndicator());
-          },
+      
+                    SizedBox(height: 28),
+                  ],
+                );
+              }
+      
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
         ),
       ),
     );
