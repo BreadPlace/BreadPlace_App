@@ -8,12 +8,14 @@ class SearchResultView extends StatefulWidget {
   final double? height;
   final int itemCount;
   final List<Bakery> results;
+  final void Function(Bakery) onSelectBakery;
 
   const SearchResultView({
     super.key,
     required this.itemCount,
     required this.results,
     this.height,
+    required this.onSelectBakery,
   });
 
   @override
@@ -47,7 +49,7 @@ class _SearchResultViewState extends State<SearchResultView> {
                 itemCount: widget.itemCount,
                 itemBuilder: (context, index) {
                   final bakery = widget.results[index];
-                  return CommonBakeryContainer(bakery: bakery);
+                  return CommonBakeryContainer(bakery: bakery, onTap: () => widget.onSelectBakery(bakery));
                 },
                 separatorBuilder:
                     (context, int index) => Divider(color: AppColors.grey),

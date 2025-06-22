@@ -10,7 +10,7 @@ extension BakeryDtoMapper on BakeryDto {
     return Bakery(
       id: id,
       types: types,
-      formattedAddress: formattedAddress ?? '',
+      formattedAddress: _cleanAddress(formattedAddress ?? ''),
       displayName: displayName?.text ?? '',
       languageCode: displayName?.languageCode ?? '',
       formattedPhoneNumber: formattedPhoneNumber ?? '',
@@ -21,6 +21,11 @@ extension BakeryDtoMapper on BakeryDto {
       photoId: photos?.first.name ?? "", // 사진 1장의 ID만 추출
       photoUri: ''
     );
+  }
+
+  // 주소 형식 가공
+  String _cleanAddress(String original) {
+    return original.replaceFirst(RegExp(r'^대한민국\s*'), '');
   }
 }
 

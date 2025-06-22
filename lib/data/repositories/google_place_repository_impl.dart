@@ -58,4 +58,10 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
 
     return photoUri;
   }
+
+  @override
+  Future<Bakery> searchPlaceDetail(String bakeryId) async {
+    final response = await _api.searchPlaceDetail(placeId: bakeryId);
+    return response.toEntity();
+  }
 }

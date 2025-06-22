@@ -1,5 +1,6 @@
 import 'package:bread_place/data/dto/request/google/search_nearby/search_nearby_request.dart';
 import 'package:bread_place/data/dto/request/google/text_search/text_search_request.dart';
+import 'package:bread_place/data/dto/response/google/place/bakery_dto.dart';
 import 'package:bread_place/data/dto/response/google/place/place_photo_response.dart';
 import 'package:bread_place/data/dto/response/google/place/text_search_response.dart';
 import 'google_place_endpoint.dart';
@@ -30,5 +31,12 @@ abstract class GooglePlaceApi {
     @Path('name') required String photoName,
     @Query('maxWidthPx') int maxWidthPx = 600,
     @Query('skipHttpRedirect') bool skipHttpRedirect = true, // true = Json 반환, false = byte 반환
+  });
+
+  /// placeID 로 세부정보 가져오기
+  @GET(GooglePlaceEndpoint.searchPlaceDetail)
+  Future<BakeryDto> searchPlaceDetail({
+    @Path('placeId') required String placeId,
+  @Query('fields') String fields = 'id,displayName,formattedAddress,location,viewport,plusCode,googleMapsUri,types,nationalPhoneNumber,photos'
   });
 }

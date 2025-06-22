@@ -1,4 +1,3 @@
-import 'package:bread_place/config/routing/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +8,10 @@ import 'package:bread_place/ui/bakery_detail/bloc/bakery_detail_bloc.dart';
 import 'package:bread_place/ui/common_widgets/common_breadplace_title_view.dart';
 import 'package:bread_place/ui/common_widgets/common_image_container.dart';
 import 'package:bread_place/ui/common_widgets/common_left_text_view.dart';
+import 'package:bread_place/config/routing/routes.dart';
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
+import 'package:bread_place/ui/like/bloc/like_event.dart';
+import 'package:bread_place/ui/like/bloc/like_state.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -25,6 +28,23 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
     context.push(Routes.addReview, extra: bakery);
   }
 
+  void _onHeartButtonTapped(Bakery bakery, bool isLiked) {
+    bool notifyByDefault = false;
+
+    isLiked
+        ? context.read<LikeBloc>().add(RemoveLike(bakery: bakery, isNotify: notifyByDefault))
+        : context.read<LikeBloc>().add(AddLike(bakery: bakery, isNotify: notifyByDefault));
+  }
+
+  // 현재 좋아요 상태인지 체크
+  bool _isBakeryLiked(LikeState state, String bakeryId) {
+    return state.bakeries.any((liked) => liked.bakery?.id == bakeryId);
+  }
+
+  void _onDismissButtonTapped() {
+    context.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,28 +55,33 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
             builder: (context, state) {
               if (state is BakeryDetailInitial) {
                 final bakery = state.bakery;
-      
+
                 return Column(
                   children: [
                     // 커스텀 타이틀
-                    BreadPlaceTitleView(
-                      title: bakery.displayName,
-                      trailingIcon: CupertinoIcons.heart,
-                      onTrailingTap: _onHeartButtonTapped,
-                      leadingIcon: CupertinoIcons.chevron_left,
-                      onLeadingTap: _onDismissButtonTapped,
+                    BlocSelector<LikeBloc, LikeState, bool>(
+                      selector: (state) => _isBakeryLiked(state, bakery.id),
+                      builder: (context, state) {
+                        return BreadPlaceTitleView(
+                          title: bakery.displayName,
+                          trailingIcon: state ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                          onTrailingTap: () => _onHeartButtonTapped(bakery, state),
+                          leadingIcon: CupertinoIcons.chevron_left,
+                          onLeadingTap: _onDismissButtonTapped,
+                        );
+                      },
                     ),
-      
+
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
                             SizedBox(height: 24),
-      
+
                             // 베이커리 상세 뷰
                             _BakeryDetailContentView(bakery: bakery),
                             SizedBox(height: 24),
-      
+
                             // 리뷰 리스트 뷰
                             _ReviewListView(
                                 bakery: bakery,
@@ -66,24 +91,18 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
                         ),
                       ),
                     ),
-      
+
                     SizedBox(height: 28),
                   ],
                 );
               }
-      
+
               return const Center(child: CircularProgressIndicator());
             },
           ),
         ),
       ),
     );
-  }
-
-  void _onHeartButtonTapped() {}
-
-  void _onDismissButtonTapped() {
-    context.pop();
   }
 }
 

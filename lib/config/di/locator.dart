@@ -17,10 +17,12 @@ import 'package:bread_place/domain/repositories/kakao_search_repository.dart';
 import 'package:bread_place/domain/repositories/notification_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
 import 'package:bread_place/domain/usecases/firestore_use_case.dart';
+import 'package:bread_place/domain/usecases/liked_bakery_use_case.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -43,7 +45,6 @@ void initLocator() {
   di.registerLazySingleton<GooglePlaceDioClient>(() => GooglePlaceDioClient());
   di.registerLazySingleton<GooglePlaceApi>(() => GooglePlaceApi(di<GooglePlaceDioClient>().dio));
   di.registerLazySingleton< GooglePlaceRepository>(() => GooglePlaceRepositoryImpl(googlePlaceApi: di<GooglePlaceApi>()));
-  di.registerLazySingleton<SearchBakeryUseCase>(() => SearchBakeryUseCase(repository: di<GooglePlaceRepository>()));
 
   // FireStore
   di.registerLazySingleton<FirestoreService>(() => FirestoreService(FirebaseFirestore.instance));
@@ -52,13 +53,11 @@ void initLocator() {
         service: di<FirestoreService>(),
         imageCompressService: di<ImageCompressService>(),
       ));
-  di.registerLazySingleton<FirestoreUseCase>(() => FirestoreUseCase(repository: di<FirestoreRepository>()));
-  
+
   // local_notification
   di.registerLazySingleton<FlutterLocalNotificationsPlugin>(() => FlutterLocalNotificationsPlugin());
   di.registerLazySingleton<LocalNotificationService>(() => LocalNotificationService(di<FlutterLocalNotificationsPlugin>()));
   di.registerLazySingleton<NotificationRepository>(() => NotificationRepositoryImpl(di<LocalNotificationService>()));
-  di.registerLazySingleton<NotificationUseCase>(() => NotificationUseCase(di<NotificationRepository>()));
 
   /// shared_preferences
   // service 등록
@@ -74,16 +73,18 @@ void initLocator() {
     return UserLocalStorageRepositoryImpl(service);
   });
 
-  di.registerLazySingleton<UserLocalStorageUseCase>(() =>
-      UserLocalStorageUseCase(repository: di<UserLocalStorageRepository>())
-  );
-
   /// Blocs
   // di.registerFactory(() => HomeBloc(di<KakaoSearchRepository>()));
   di.registerFactory(() => HomeBloc(di<GooglePlaceRepository>()));
   di.registerFactory(() => SearchBloc(di<SearchBakeryUseCase>()));
-  di.registerFactory(() => LoginBloc(
-    di<FirestoreRepository>(),
-    di<UserLocalStorageRepository>(),
-  ));
+  di.registerFactory(() => LoginBloc(di<FirestoreRepository>(), di<UserLocalStorageRepository>(),));
+  di.registerFactory(() => LikeBloc(di<LikedBakeryUseCase>()));
+
+
+  /// UseCase
+  di.registerLazySingleton<SearchBakeryUseCase>(() => SearchBakeryUseCase(repository: di<GooglePlaceRepository>()));
+  di.registerLazySingleton<FirestoreUseCase>(() => FirestoreUseCase(repository: di<FirestoreRepository>()));
+  di.registerLazySingleton<NotificationUseCase>(() => NotificationUseCase(di<NotificationRepository>()));
+  di.registerLazySingleton<UserLocalStorageUseCase>(() => UserLocalStorageUseCase(repository: di<UserLocalStorageRepository>()));
+  di.registerLazySingleton(() => LikedBakeryUseCase(firestoreRepo: di<FirestoreRepository>(), userLocalStorage: di<UserLocalStorageRepository>()));
 }

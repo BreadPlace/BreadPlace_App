@@ -24,9 +24,10 @@ class GooglePlaceDioClient {
         onRequest: (options, handler) {
           // Endpoint 에 따라 필요한 Header 추가
           if (options.path == GooglePlaceEndpoint.searchText ||
-              options.path == GooglePlaceEndpoint.searchNearby) {
+              options.path == GooglePlaceEndpoint.searchNearby)
+          {
             options.headers['X-Goog-FieldMask'] =
-            'places.displayName,places.formattedAddress,places.location,places.viewport,places.id,places.plusCode,places.googleMapsUri,places.types,places.photos,places.nationalPhoneNumber';
+                'places.displayName,places.formattedAddress,places.location,places.viewport,places.id,places.plusCode,places.googleMapsUri,places.types,places.photos,places.nationalPhoneNumber';
           }
 
           handler.next(options);

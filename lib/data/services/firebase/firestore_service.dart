@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bread_place/data/dto/response/firebase/liked_bakery_dto.dart';
 import 'package:bread_place/data/dto/response/firebase/user_dto.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -84,9 +85,43 @@ class FirestoreService {
         .add(reviewData);
 
     // User의 review 목록에 저장
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userID)
-        .update({'reviews' : FieldValue.arrayUnion([reviewReference.id])});
+    await FirebaseFirestore.instance.collection('users').doc(userID).update({
+      'reviews': FieldValue.arrayUnion([reviewReference.id]),
+    });
+  }
+
+  // 특정 uid를 가진 사용자의 liked_bakeries 가져오기
+  Future<List<LikedBakeryDto>> fetchLikedBakeries(String userId) async {
+    final snapshot = await _db.collection('users').doc(userId).collection(
+        'liked_bakeries')
+        .orderBy('updatedAt', descending: true)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      return [];
+    }
+
+    final results = snapshot.docs.map((doc) {
+      final data = doc.data();
+      return LikedBakeryDto.fromJson({
+        ...data,
+        'bakeryId': doc.id
+      });
+    }).toList();
+
+    return results;
+  }
+
+  Future<void> removeLikedBakery(String userId, String bakeryId) async {
+    await _db.collection('users').doc(userId)
+        .collection('liked_bakeries').doc(bakeryId)
+        .delete();
+  }
+
+  Future<void> addLikedBakery(String userId, LikedBakeryDto dto,
+      bool isNotify) async {
+    await _db.collection('users').doc(userId)
+        .collection('liked_bakeries').doc(dto.bakeryId)
+        .set(dto.toJson());
   }
 }

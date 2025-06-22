@@ -1,3 +1,5 @@
+import 'package:bread_place/config/routing/routes.dart';
+import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/common_search_bar.dart';
 import 'package:bread_place/ui/common_widgets/empty_result_view.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
@@ -6,6 +8,7 @@ import 'package:bread_place/ui/search/search_result_view.dart';
 import 'package:flutter/material.dart';
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'bloc/search_event.dart';
 
@@ -24,7 +27,11 @@ class _SearchScreenMainState extends State<SearchScreenMain> {
   final AssetImage emptyImage = AssetImage('assets/images/image_donut.png');
 
   void onSubmitSearchKeyword(BuildContext context, String keyword) {
-    context.read<SearchBloc>().add(SearchPlace(keyword: keyword));
+    context.read<SearchBloc>().add(SearchPlaceByText(keyword: keyword));
+  }
+
+  void _onSelectBakery(Bakery bakery) {
+    context.push(Routes.bakeryDetail, extra: bakery);
   }
 
   @override
@@ -74,6 +81,7 @@ class _SearchScreenMainState extends State<SearchScreenMain> {
                   return SearchResultView(
                     itemCount: state.bakeries.length,
                     results: state.bakeries,
+                    onSelectBakery: _onSelectBakery,
                   );
                 }
 

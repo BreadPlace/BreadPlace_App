@@ -7,6 +7,7 @@ class SearchBakeryUseCase {
   SearchBakeryUseCase({required GooglePlaceRepository repository})
     : _repository = repository;
 
+  /// 키워드, 텍스트 등으로 장소 검색
   Future<List<Bakery>> searchPlace(String text) async {
     List<Bakery> bakeryList = [];
 
@@ -31,5 +32,22 @@ class SearchBakeryUseCase {
     }
 
     return bakeryList;
+  }
+
+  /// 구글 PlaceId 와 일치하는 장소 검색
+  Future<Bakery?> searchPlaceById(String placeId) async {
+    try {
+      // 장소 정보 검색
+      final bakery = await _repository.searchPlaceDetail(placeId);
+
+      // photoUri 할당
+      final photoUri = await _repository.getPlacePhotoUri(bakery.photoId);
+      bakery.photoUri = photoUri;
+
+      return bakery;
+    } catch (e, trace) {
+      print("searchPlaceById 에러 $e, $trace");
+      return null;
+    }
   }
 }

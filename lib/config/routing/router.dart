@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
@@ -23,7 +21,10 @@ import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/login/view/login_screen_main.dart';
 import 'package:bread_place/utils/stream_to_listenable.dart';
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -87,7 +88,15 @@ GoRouter router = GoRouter(
               path: Routes.like,
               pageBuilder:
                   (context, state) =>
-              const NoTransitionPage(child: LikeScreenMain()),
+              NoTransitionPage(
+                  child: MultiBlocProvider(
+                    providers: [
+                      BlocProvider.value(value: context.read<LikeBloc>()),
+                      BlocProvider(create: (_) => di<SearchBloc>())
+                    ],
+                    child: const LikeScreenMain()),
+
+              ),
             ),
           ],
         ),
@@ -112,8 +121,11 @@ GoRouter router = GoRouter(
       builder: (context, state) {
         final bakery = state.extra as Bakery;
 
-        return BlocProvider(
-          create: (_) => BakeryDetailBloc(bakery),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => BakeryDetailBloc(bakery)),
+            BlocProvider.value(value: context.read<LikeBloc>())
+          ],
           child: const BakeryDetailScreen(),
         );
       },
