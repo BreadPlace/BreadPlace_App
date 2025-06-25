@@ -231,7 +231,7 @@ class _AddPhotoView extends StatelessWidget {
         ),
         child:
             imageFile != null
-                ? Image(image: FileImage(imageFile!), fit: BoxFit.fill)
+                ? Image(image: FileImage(imageFile!), fit: BoxFit.cover)
                 : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
