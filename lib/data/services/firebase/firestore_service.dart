@@ -88,6 +88,26 @@ class FirestoreService {
     await FirebaseFirestore.instance.collection('users').doc(userID).update({
       'reviews': FieldValue.arrayUnion([reviewReference.id]),
     });
+
+    // 베이커리 경로 참조
+    final bakeryReviewDocReference = FirebaseFirestore.instance
+        .collection('bakeryReviews')
+        .doc(bakery.id);
+
+    // 베이커리에 대한 문서가 존재하는지 확인
+    final snapShot = await bakeryReviewDocReference.get();
+
+    if(snapShot.exists) {
+      // 문서가 있을 경우 리뷰 ID 추가
+      await bakeryReviewDocReference.update({
+        'reviews': FieldValue.arrayUnion([reviewReference.id]),
+      });
+    } else {
+      // 문서가 없을 경우 문서 생성 후 리뷰 ID 배열 추가
+      await bakeryReviewDocReference.set({
+        'reviews': [reviewReference.id]
+      });
+    }
   }
 
   // 특정 uid를 가진 사용자의 liked_bakeries 가져오기
