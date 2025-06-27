@@ -1,13 +1,18 @@
 import 'dart:io';
 
+import 'package:bread_place/data/dto/mapper/bakery_review_mapper.dart';
 import 'package:bread_place/data/dto/mapper/liked_bakery_mapper.dart';
 import 'package:bread_place/data/dto/mapper/user_mapper.dart';
+import 'package:bread_place/data/dto/response/firebase/bakery_review_dto.dart';
 import 'package:bread_place/data/services/firebase/firestore_service.dart';
 import 'package:bread_place/data/services/image/image_compress_service.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
+import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
+import 'package:bread_place/domain/firebase_pagination_cursor.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreRepositoryImpl implements FirestoreRepository {
   final FirestoreService _service;
@@ -74,5 +79,29 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
   @override
   Future<void> removeLiked(String userId, String bakeryId) async {
     await _service.removeLikedBakery(userId, bakeryId);
+  }
+
+  @override
+  Future<({List<BakeryReviewEntity> reviews, FirebasePaginationCursor? lastDoc, bool isLast})> fetchBakeryReviews({
+    required Bakery bakery,
+    FirebasePaginationCursor? cursor
+  }) async {
+
+    // 페이징 객체로 변환
+    final lastDoc = cursor?.raw is DocumentSnapshot
+        ? cursor!.raw as DocumentSnapshot
+        : null;
+
+
+    final response = await _service.fetchBakeryReview(
+        bakeryId: bakery.id,
+        lastDoc: lastDoc
+    );
+
+    final reviewsDto = response.reviews;
+    final reviewEntity = reviewsDto.map((review) => review.toEntity()).toList();
+    final fetchedLastDoc = FirebasePaginationCursor(response.lastDoc);
+
+    return (reviews: reviewEntity, lastDoc: fetchedLastDoc, isLast: response.isLast);
   }
 }

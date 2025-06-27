@@ -1,3 +1,5 @@
+import 'package:bread_place/domain/entities/bakery_review_entity.dart';
+import 'package:bread_place/utils/iso_date_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +26,18 @@ class BakeryDetailScreen extends StatefulWidget {
 }
 
 class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      _fetchBakeryReviews();
+    }});
+  }
+
   void _onAddReviewButtonTapped(Bakery bakery) {
     context.push(Routes.addReview, extra: bakery);
   }
@@ -45,6 +59,10 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
     context.pop();
   }
 
+  void _fetchBakeryReviews() {
+    context.read<BakeryDetailBloc>().add(OnFetchReviews());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +73,7 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
             builder: (context, state) {
               if (state is BakeryDetailInitial) {
                 final bakery = state.bakery;
+                final reviews = state.reviews;
 
                 return Column(
                   children: [
@@ -74,6 +93,7 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
 
                     Expanded(
                       child: SingleChildScrollView(
+                        controller: _scrollController,
                         child: Column(
                           children: [
                             SizedBox(height: 24),
@@ -85,6 +105,7 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
                             // 리뷰 리스트 뷰
                             _ReviewListView(
                                 bakery: bakery,
+                                reviews: reviews,
                                 onTrailingTap: _onAddReviewButtonTapped
                             ),
                           ],
@@ -206,10 +227,12 @@ class _IconTextView extends StatelessWidget {
 
 class _ReviewListView extends StatelessWidget {
   final Bakery bakery;
+  final List<BakeryReviewEntity>? reviews;
   final void Function(Bakery) onTrailingTap;
 
   const _ReviewListView({
     required this.bakery,
+    required this.reviews,
     required this.onTrailingTap,
     super.key
   });
@@ -248,24 +271,26 @@ class _ReviewListView extends StatelessWidget {
             ),
             SizedBox(height: 12),
 
+            if ((reviews ?? []).isNotEmpty)
             Container(
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
+
               child: Column(
                 children: List.generate(
-                    3,
+                    reviews!.length,
                     (index) => Column(
                       children: [
-                        _ReviewContentView(horizontalPadding: horizontalPadding),
+                        _ReviewContentView(review: reviews![index], horizontalPadding: horizontalPadding),
                         // if (index < reviewList.length - 1)
                           const Divider(height: 1),
                       ],
                     ),
                 )
               ),
-            ),
+            )
           ],
         )
     );
@@ -273,9 +298,11 @@ class _ReviewListView extends StatelessWidget {
 }
 
 class _ReviewContentView extends StatelessWidget {
+  final BakeryReviewEntity review;
   final double horizontalPadding;
 
   const _ReviewContentView({
+    required this.review,
     required this.horizontalPadding,
     super.key
   });
@@ -297,15 +324,18 @@ class _ReviewContentView extends StatelessWidget {
         child: Column(
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '닉네임', style: AppTextStyles.pretendardBold.copyWith(
+                  review.writerNickName, style: AppTextStyles.pretendardBold.copyWith(
                   fontSize: 20,
                   color: AppColors.black,
                 )),
 
+                SizedBox(width: 10),
+
                 Text(
-                    '25.06.05', style: AppTextStyles.pretendardBold.copyWith(
+                    review.createdAt.isoStringToShortFormat(), style: AppTextStyles.pretendardBold.copyWith(
                   fontSize: 16,
                   color: AppColors.fontGrey,
                 )),
@@ -320,11 +350,11 @@ class _ReviewContentView extends StatelessWidget {
                   constraints: BoxConstraints(minWidth: screenWidth - (horizontalPadding * 4)),
                   child: Row(
                     children: List.generate(
-                        3,
+                        1,
                         (index) => Padding(
                             padding: const EdgeInsets.only(right: 8),
                           child: CommonImageContainer(
-                              uri: '',
+                              uri: review.imageUrl ?? '',
                               width: 160,
                               height: 160
                           )
@@ -335,11 +365,14 @@ class _ReviewContentView extends StatelessWidget {
               ),
             ),
 
-            Text('사장님 국내산 밀가루만 쓰셔요 맛잘알 최고~~~ 승미짱~~~!!! 긴 글자 테스트까지 아아아댈매ㅔㄴ러;매ㅑ러ㅐ미ㅑㅓ리ㅐㅁ러ㅐㅑㄹ',
-            style: AppTextStyles.pretendardSemiBold.copyWith(
-              fontSize: 16,
-              color: AppColors.black
-            )),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(review.reviewContent,
+              style: AppTextStyles.pretendardSemiBold.copyWith(
+                fontSize: 16,
+                color: AppColors.black
+              )),
+            ),
           ],
         ),
       ),

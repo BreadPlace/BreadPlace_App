@@ -123,8 +123,17 @@ GoRouter router = GoRouter(
 
         return MultiBlocProvider(
           providers: [
-            BlocProvider(create: (_) => BakeryDetailBloc(bakery)),
-            BlocProvider.value(value: context.read<LikeBloc>())
+            BlocProvider(
+              create: (_) {
+                final bloc = BakeryDetailBloc(
+                    firestoreUseCase: di<FirestoreUseCase>(),
+                    bakery: bakery
+                );
+
+                bloc.add(OnFetchReviews());
+
+                return bloc;
+              })
           ],
           child: const BakeryDetailScreen(),
         );
