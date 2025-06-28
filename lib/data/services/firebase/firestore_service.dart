@@ -87,7 +87,7 @@ class FirestoreService {
         .add(reviewData);
 
     // users의 reviews Collection에 리뷰 참조 정보 저장
-    await FirebaseFirestore.instance
+    await _db
         .collection('users')
         .doc(userID)
         .collection('reviews')
@@ -98,7 +98,7 @@ class FirestoreService {
     });
 
     // bakery의 reviews Collection에 리뷰 참조 정보 저장
-    await FirebaseFirestore.instance
+    await _db
         .collection('bakery')
         .doc(bakery.id)
         .collection('reviews')
