@@ -1,3 +1,6 @@
+import 'package:bread_place/domain/entities/bakery_review_entity.dart';
+import 'package:bread_place/domain/firebase_pagination_cursor.dart';
+import 'package:bread_place/domain/usecases/firestore_use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,5 +10,34 @@ part 'bakery_detail_event.dart';
 part 'bakery_detail_state.dart';
 
 class BakeryDetailBloc extends Bloc<BakeryDetailEvent, BakeryDetailState> {
-  BakeryDetailBloc(Bakery bakery) : super(BakeryDetailInitial(bakery: bakery));
+  final FirestoreUseCase _firestoreUseCase;
+  final Bakery _bakery;
+
+  BakeryDetailBloc({
+    required FirestoreUseCase firestoreUseCase,
+    required Bakery bakery,
+  })
+      : _firestoreUseCase = firestoreUseCase,
+        _bakery = bakery,
+        super(BakeryDetailInitial(bakery: bakery)) {
+      on<OnFetchReviews>(_getReviews);
+  }
+
+  Future<void> _getReviews(OnFetchReviews event, Emitter<BakeryDetailState> emit) async {
+    final currentState = state as BakeryDetailInitial;
+
+    if(currentState.isFetchingReviews || currentState.isLastReview) {
+      return;
+    }
+
+    emit(currentState.copyWith(isFetchingReviews: true));
+
+    final response = await _firestoreUseCase.getBakeryReviews(bakery: _bakery, cursor: currentState.cursor);
+
+    emit(currentState.copyWith(
+      reviews: [...(currentState.reviews ?? []), ...response.reviews],
+      cursor: response.lastDoc,
+      isFetchingReviews: false,
+    ));
+  }
 }

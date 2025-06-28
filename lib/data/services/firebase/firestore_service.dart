@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bread_place/data/dto/response/firebase/bakery_review_dto.dart';
 import 'package:bread_place/data/dto/response/firebase/liked_bakery_dto.dart';
 import 'package:bread_place/data/dto/response/firebase/user_dto.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
@@ -57,37 +58,98 @@ class FirestoreService {
       String content,
       File? image
   ) async {
+    final createdTime = DateTime.now().toIso8601String();
 
     // Firebase Storage에 이미지 저장
     String? imageUrl;
     if (image != null) {
-      final fileName = 'review_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final fileName = 'review_$createdTime.jpg';
       final imageReference = FirebaseStorage.instance.ref('users/$userID/reviews/$fileName');
       final uploadTask = await imageReference.putFile(image);
       imageUrl = await uploadTask.ref.getDownloadURL();
     }
 
-    // 리뷰 객체 생성
+    // 리뷰 Documentation 객체 생성
     final reviewData = {
       'writerId' : userID,
       'writerNickName' : userNickName,
-      'targetId' : bakery.id,
+      'bakeryId' : bakery.id,
       'recommendBread' : recommendBread,
       'reviewText' : content,
       'rating' : starRate,
       if (imageUrl != null) 'imageUrl' : imageUrl,
-      'createdAt' : FieldValue.serverTimestamp()
+      'createdAt' : createdTime
     };
 
-    // 리뷰 컬렉션에 리뷰 저장
+    // reviews Collection에 Documentation 객체 저장
     final reviewReference = await FirebaseFirestore.instance
         .collection('reviews')
         .add(reviewData);
 
-    // User의 review 목록에 저장
-    await FirebaseFirestore.instance.collection('users').doc(userID).update({
-      'reviews': FieldValue.arrayUnion([reviewReference.id]),
+    // users의 reviews Collection에 리뷰 참조 정보 저장
+    await _db
+        .collection('users')
+        .doc(userID)
+        .collection('reviews')
+        .doc(reviewReference.id)
+        .set({
+      'createdAt': createdTime,
+      'rating': starRate,
     });
+
+    // bakery의 reviews Collection에 리뷰 참조 정보 저장
+    await _db
+        .collection('bakery')
+        .doc(bakery.id)
+        .collection('reviews')
+        .doc(reviewReference.id)
+        .set({
+      'createdAt': createdTime,
+      'rating': starRate,
+    });
+  }
+
+  // 특정 베이커리의 리뷰 가져오기
+  Future<({List<BakeryReviewDto> reviews, DocumentSnapshot? lastDoc, bool isLast})> fetchBakeryReview({
+    required String bakeryId,
+    int limit = 10,
+    DocumentSnapshot? lastDoc,
+  }) async {
+    Query query = _db
+        .collection('bakery')
+        .doc(bakeryId)
+        .collection('reviews')
+        .orderBy('createdAt', descending: true)
+        .limit(limit);
+
+    // 페이징 대응
+    if (lastDoc != null) {
+      query = query.startAfterDocument(lastDoc);
+    }
+
+    // 베이커리의 ReviewID들 획득
+    final snapshot = await query.get();
+
+    if(snapshot.docs.isEmpty) {
+      return (reviews: <BakeryReviewDto>[], lastDoc: lastDoc, isLast: true);
+    }
+
+    // 베이커리의 ReviewID를 통해 리뷰 데이터 획득
+    final reviewDocs = await Future.wait(
+      snapshot.docs.map((doc) async {
+        final reviewId = doc.id;
+        final fullReview = await _db.collection('reviews').doc(reviewId).get();
+
+        if (!fullReview.exists) return null;
+
+        final data = fullReview.data()!;
+        return BakeryReviewDto.fromJson(data);
+      })
+    );
+
+    final lastDocTo = snapshot.docs.last;
+
+    return(reviews: reviewDocs.whereType<BakeryReviewDto>().toList(), lastDoc: lastDocTo, isLast: false);
   }
 
   // 특정 uid를 가진 사용자의 liked_bakeries 가져오기
