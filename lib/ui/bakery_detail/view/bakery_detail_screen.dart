@@ -60,7 +60,13 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
   }
 
   void _fetchBakeryReviews() {
-    context.read<BakeryDetailBloc>().add(OnFetchReviews());
+    final state = context.read<BakeryDetailBloc>().state;
+
+    if (state is BakeryDetailInitial) {
+      if (state.isLastReview || state.isFetchingReviews) return;
+
+      context.read<BakeryDetailBloc>().add(OnFetchReviews());
+    }
   }
 
   @override
