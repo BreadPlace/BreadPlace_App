@@ -148,15 +148,22 @@ GoRouter router = GoRouter(
     GoRoute(
       path: Routes.addReview,
       builder: (context, state) {
-        final bakery = state.extra as Bakery;
+        final map = state.extra as Map<String, dynamic>;
+        final bakeryDetailBloc = map['bloc'] as BakeryDetailBloc;
+        final bakery = map['bakery'] as Bakery;
 
-        return BlocProvider(
-          create: (_) => AddReviewBloc(
-              firestoreUseCase: di<FirestoreUseCase>(),
-              userLocalStorageUseCase: di<UserLocalStorageUseCase>(),
-              bakery: bakery
-          ),
-          child: const AddReviewScreen(),
+        return MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: bakeryDetailBloc),
+              BlocProvider(
+                  create: (_) => AddReviewBloc(
+                      firestoreUseCase: di<FirestoreUseCase>(),
+                      userLocalStorageUseCase: di<UserLocalStorageUseCase>(),
+                      bakery: bakery
+                  )
+              ),
+            ],
+            child: const AddReviewScreen(),
         );
       },
     ),
