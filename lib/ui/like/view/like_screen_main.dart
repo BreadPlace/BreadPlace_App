@@ -13,6 +13,7 @@ import 'package:bread_place/ui/search/bloc/search_state.dart';
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
+import 'package:flutter/services.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -118,10 +119,29 @@ class LikedListView extends StatelessWidget {
       );
     }
 
-    // 알림 버튼 클릑
-    void onNotifyButtonTapped() {
 
+    // 네이티브와 통신하기 위한 MethodChannel 생성
+    const platform = MethodChannel('com.bread_place.geofencing');
+
+    // 안드로이드 네이티브로 Geofence 시작 요청을 보냄
+    Future<void> addSingleGeofence() async {
+      try {
+        await platform.invokeMethod('addGeofence', {
+          'latitude': 37.0, // 위도
+          'longitude' : 127.0, // 경도
+          'radius': 100.0,
+          'identifier' : 'my_geofence'
+        });
+      } catch (e) {
+        print("지오펜싱 invoke Method 에러 e $e");
+      }
     }
+
+    /// 알림 버튼 클릑 시 작동
+    void onNotifyButtonTapped() async {
+      await addSingleGeofence();
+    }
+
 
     final likes = context.select((LikeBloc bloc) => bloc.state.bakeries);
 
