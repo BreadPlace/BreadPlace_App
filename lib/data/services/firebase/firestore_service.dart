@@ -119,7 +119,7 @@ class FirestoreService {
         .collection('bakery')
         .doc(bakeryId)
         .collection('reviews')
-        .orderBy('createdAt', descending: true)
+        .orderBy('createdAt', descending: false)
         .limit(limit);
 
     // 페이징 대응

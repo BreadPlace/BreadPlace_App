@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/config/constants/app_constants.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
+import 'package:bread_place/ui/bakery_detail/bloc/bakery_detail_bloc.dart';
 import 'package:bread_place/ui/common_widgets/common_breadplace_title_view.dart';
 import 'package:bread_place/ui/common_widgets/common_left_text_view.dart';
 import 'package:bread_place/ui/common_widgets/primary_button.dart';
@@ -90,6 +91,9 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
         child: BlocListener<AddReviewBloc, AddReviewState>(
           listener: (context, state) {
             if (state is AddReviewComplete) {
+              final bakeryBloc = context.read<BakeryDetailBloc>();
+              bakeryBloc.add(OnNewReview());
+
               context.pop();
             }
           },
