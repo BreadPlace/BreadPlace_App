@@ -5,3 +5,4 @@ sealed class BakeryDetailEvent {
 }
 
 class OnFetchReviews extends BakeryDetailEvent {}
+class OnNewReview extends BakeryDetailEvent {}

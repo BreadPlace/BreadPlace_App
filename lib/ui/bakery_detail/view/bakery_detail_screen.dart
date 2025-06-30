@@ -39,7 +39,15 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
   }
 
   void _onAddReviewButtonTapped(Bakery bakery) {
-    context.push(Routes.addReview, extra: bakery);
+    final bloc = context.read<BakeryDetailBloc>();
+
+    context.push(
+        Routes.addReview,
+        extra: {
+          'bakery': bakery,
+          'bloc': bloc,
+        }
+    );
   }
 
   void _onHeartButtonTapped(Bakery bakery, bool isLiked) {

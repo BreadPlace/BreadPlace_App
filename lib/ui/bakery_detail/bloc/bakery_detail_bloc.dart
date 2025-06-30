@@ -21,6 +21,7 @@ class BakeryDetailBloc extends Bloc<BakeryDetailEvent, BakeryDetailState> {
         _bakery = bakery,
         super(BakeryDetailInitial(bakery: bakery)) {
       on<OnFetchReviews>(_getReviews);
+      on<OnNewReview>(_OnNewReviewAdded);
   }
 
   Future<void> _getReviews(OnFetchReviews event, Emitter<BakeryDetailState> emit) async {
@@ -38,6 +39,14 @@ class BakeryDetailBloc extends Bloc<BakeryDetailEvent, BakeryDetailState> {
       reviews: [...(currentState.reviews ?? []), ...response.reviews],
       cursor: response.lastDoc,
       isFetchingReviews: false,
+      isLastReview: response.isLast,
     ));
+  }
+
+  Future<void> _OnNewReviewAdded(OnNewReview event, Emitter<BakeryDetailState> emit) async {
+    final currentState = state as BakeryDetailInitial;
+
+    emit(currentState.copyWith(isLastReview: false));
+    await _getReviews(OnFetchReviews(), emit);
   }
 }
