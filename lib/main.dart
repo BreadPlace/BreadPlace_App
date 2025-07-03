@@ -1,3 +1,5 @@
+import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
+import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +47,7 @@ Future<void> _initializeApp() async {
   _initKakaoSdk();
   await _initFirebase();
   _initLocalNotification();
+  _initGeofencing();
 }
 
 Future<void> _initDependencies() async {
@@ -67,4 +70,12 @@ Future<void> _initFirebase() async {
 Future<void> _initLocalNotification() async {
   final instance = di<NotificationUseCase>();
   await instance.initService();
+}
+
+Future<void> _initGeofencing() async {
+  final geofenceInstance = di<GeofencingUseCase>();
+  final localInstance = di<UserLocalStorageUseCase>();
+
+  final locations = await localInstance.getGeofencingLocations();
+  await geofenceInstance.setTestGeofencingLocations(locations);
 }
