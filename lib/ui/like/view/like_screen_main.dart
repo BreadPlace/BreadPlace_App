@@ -144,6 +144,16 @@ class LikedListView extends StatelessWidget {
       }
     }
 
+    // 지오펜스 중단 요청
+    Future<void> removeGeofencing() async {
+      try {
+        print("Geo 플러터에서 stopGeofencing 트리거");
+        await methodChannel.invokeMethod("removeGeofencing");
+      } catch (e) {
+        print("Geo 플러터 stopGeofencing invoke Method 에러 e $e");
+      }
+    }
+
     void onEnterGeofencing() {
       eventChannel.receiveBroadcastStream().listen((dynamic event) {
         print("지오펜스 진입: $event");

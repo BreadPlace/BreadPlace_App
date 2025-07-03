@@ -84,6 +84,19 @@ class MainActivity : FlutterActivity() {
                         }
                     }
 
+                    "removeGeofencing" -> {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            try {
+                                client.removeGeofences(geofencingPendingIntent).await()
+                                stopLocationForegroundService(this@MainActivity)
+                                runOnUiThread { result.success("Geofence 해제 완료") }
+                            } catch (e: Exception) {
+                                runOnUiThread { result.error("GEOFENCE_REMOVE_ERROR", e.message, null) }
+                            }
+                        }
+
+                    }
+
                     else -> result.notImplemented()
                 }
             }
