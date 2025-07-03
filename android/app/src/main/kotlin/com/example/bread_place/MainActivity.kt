@@ -4,12 +4,14 @@ package com.example.bread_place
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.EventChannel
 
 // Android 권한 및 시스템 관련
 import android.Manifest
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Build
+import android.util.Log
 
 // Android 위치 및 인텐트 관련
 import android.content.Context
@@ -18,63 +20,118 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+
+import com.example.bread_place.geofence.NotificationHelper
+import com.example.bread_place.geofence.GeofenceBroadcastReceiver
+import com.example.bread_place.geofence.GeofenceManager
+import com.example.bread_place.geofence.LocationForegroundService
+
 class MainActivity : FlutterActivity() {
+    companion object {
+        // Flutter로 이벤트를 전달하기 위해 사용하는 데이터 전송 인터페이스
+        var eventSink: EventChannel.EventSink? = null
+    }
+
     private lateinit var geofenceManager: GeofenceManager
+    private val METHOD_CHANNEL = "com.bread_place.geofencing/method"
+    private val EVENT_CHANNEL = "com.bread_place.geofencing/event"
 
-    // Flutter와 Android 간 통신을 위한 채널명
-    private val CHANNEL = "com.bread_place.geofencing"
 
-    // Flutter 엔진을 구성하고 MethodChannel을 설정합니다.
+    // Flutter 엔진 구성
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        // GeofenceManager 인스턴스 생성
+        // Geofence 감지 시, 포그라운드 서비스 실행하면 시스템 알림을 반드시 표시 해야함
+        NotificationHelper.createNotificationChannel(this)
         geofenceManager = GeofenceManager(this)
 
-        // Flutter와 Android 간 메서드 채널 설정
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+        setupMethodChannel(flutterEngine)
+        setupEventChannel(flutterEngine)
+    }
+
+    // MethodChannel 설정 (Flutter -> Android)
+    private fun setupMethodChannel(flutterEngine: FlutterEngine) {
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, METHOD_CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
-                    // Geofence 추가 메서드
-                    "addGeofence" -> {
+                    "setGeofencing" -> {
                         // Flutter에서 전달받은 파라미터들을 추출
-                        val latitude = call.argument<Double>("latitude") ?: run {
-                            result.error("INVALID_ARGUMENT", "latitude is required", null)
-                            return@setMethodCallHandler
-                        }
-                        val longitude = call.argument<Double>("longitude") ?: run {
-                            result.error("INVALID_ARGUMENT", "longitude is required", null)
-                            return@setMethodCallHandler
-                        }
-                        val radius = call.argument<Double>("radius")?.toFloat() ?: 100.0f
-                        val identifier = call.argument<String>("identifier") ?: run {
-                            result.error("INVALID_ARGUMENT", "identifier is required", null)
+                        val regionList = call.arguments as? List<*> ?: run {
+                            result.error("INVALID_ARGUMENT", "List<String> expected", null)
                             return@setMethodCallHandler
                         }
 
-                        // Location 객체 생성
-                        val location = Location("").apply {
-                            this.latitude = latitude
-                            this.longitude = longitude
+                        val locations = parseRegionStringsToLocations(regionList)
+                        if (locations.isEmpty()) {
+                            result.error("NO_VALID_LOCATIONS", "No valid lat/lon pairs found", null)
+                            return@setMethodCallHandler
                         }
 
-                        // Geofence를 목록에 추가
-                        geofenceManager.addGeofence(
-                            key = identifier,
-                            location = location,
-                            radiusInMeters = radius
-                        )
+                        // 각 위치에 대해 Geofence 등록
+                        locations.forEachIndexed { index, location ->
+                            val id = "$index"
+                            geofenceManager.addGeofence(
+                                key = id,
+                                location = location,
+                                radiusInMeters = 100f
+                            )
+                        }
 
-                        // 실제 시스템에 Geofence 등록
                         geofenceManager.registerGeofence()
+                        startLocationForegroundService(this)
 
-                        // Flutter로 성공 결과 반환
                         result.success("Geofence 등록 완료")
                     }
-
-                    // 구현되지 않은 메서드 처리
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    // EventChannel 설정 (Android -> Flutter)
+    private fun setupEventChannel(flutterEngine: FlutterEngine) {
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, EVENT_CHANNEL).setStreamHandler(
+            object : EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                    eventSink = events
+                }
+                override fun onCancel(arguments: Any?) {
+                    eventSink = null
+                }
+            }
+        )
+    }
+
+    // 문자열 리스트를 Location 객체 리스트로 변환하는 함수
+    private fun parseRegionStringsToLocations(regionList: List<*>): List<Location> {
+        val locations = mutableListOf<Location>()
+
+        for (region in regionList) {
+            val parts = (region as? String)?.split(",") ?: continue
+            if (parts.size != 2) continue
+
+            val latitude = parts[0].trim().toDoubleOrNull() ?: continue
+            val longitude = parts[1].trim().toDoubleOrNull() ?: continue
+
+            val location = Location("").apply {
+                this.latitude = latitude
+                this.longitude = longitude
+            }
+
+            locations.add(location)
+        }
+
+        return locations
+    }
+
+    // Foreground 서비스를 시작하는 함수
+    private fun startLocationForegroundService(context: Context) {
+        val serviceIntent = Intent(context, LocationForegroundService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent)
+        } else {
+            context.startService(serviceIntent)
+        }
     }
 }

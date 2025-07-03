@@ -1,4 +1,4 @@
-package com.example.bread_place
+package com.example.bread_place.geofence
 
 // Android 기본 시스템 관련
 import android.annotation.SuppressLint
@@ -24,68 +24,46 @@ import kotlinx.coroutines.tasks.await
  * Google Play Services Location API를 사용하여 지리적 영역 감지 기능을 제공합니다.
  */
 class GeofenceManager(private val context: Context) {
-    // Google Play Services의 Geofencing 클라이언트
     private val client = LocationServices.getGeofencingClient(context)
 
     companion object {
-        // PendingIntent를 위한 고유한 요청 코드
-        const val CUSTOM_REQUEST_CODE_GEOFENCE = 1001
         // 로그 태그
         private const val TAG = "GeofenceManager"
     }
 
-    // 현재 관리 중인 Geofence 객체들을 저장하는 맵
-    // Key: Geofence ID, Value: Geofence 객체
+    // 현재 관리 중인 Geofence 객체들을 저장하는 맵 (Key: Geofence ID, Value: Geofence 객체)
     private val geofenceList = mutableMapOf<String, Geofence>()
 
-    /**
-     * Geofence 이벤트(진입/이탈 등)가 발생했을 때 Android 시스템이 호출하는 PendingIntent
-     * 해당 인텐트는 GeofenceBroadcastReceiver를 통해 수신됩니다.
-     * 명시적 인텐트를 사용하여 보안성을 높입니다.
-     */
+
+    // Geofence 이벤트 발생시 Android 시스템이 호출하는 PendingIntent
     private val geofencingPendingIntent: PendingIntent by lazy {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
 
-        // Android 12 이상에서는 FLAG_IMMUTABLE 사용이 권장됩니다
-        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
-
         PendingIntent.getBroadcast(
             context,
-            CUSTOM_REQUEST_CODE_GEOFENCE,
+            0,
             intent,
-            flags
+            PendingIntent.FLAG_MUTABLE
         )
     }
 
     /**
      * Geofence 객체를 생성하여 geofenceList에 추가합니다.
      * 실제 시스템 등록은 registerGeofence()를 별도로 호출해야 합니다.
-     *
-     * @param key 고유 식별자 (Geofence ID)
-     * @param location 위치 정보 (위도/경도를 포함한 Location 객체)
-     * @param radiusInMeters 감지 반경 (미터 단위, 기본값 100m)
-     * @param expirationTimeInMillis 만료 시간 (밀리초 단위, 기본값 30분)
      */
     fun addGeofence(
         key: String,
         location: Location,
-        radiusInMeters: Float = 100.0f,
-        expirationTimeInMillis: Long = 30 * 60 * 1000, // 30분
+        radiusInMeters: Float = 100.0f, // 감지 반경, 기본값 100m
     ) {
         // Geofence 객체를 생성하여 리스트에 추가
-        geofenceList[key] = createGeofence(key, location, radiusInMeters, expirationTimeInMillis)
+        geofenceList[key] = createGeofence(key, location, radiusInMeters)
         Log.d(TAG, "Geofence 추가됨: ID=$key, 위치=(${location.latitude}, ${location.longitude}), 반경=${radiusInMeters}m")
     }
 
     /**
      * 등록된 Geofence를 geofenceList에서 제거합니다.
      * 실제 시스템에서 해제하려면 deregisterGeofence()를 호출해야 합니다.
-     *
-     * @param key 제거할 Geofence의 고유 식별자
      */
     fun removeGeofence(key: String) {
         geofenceList.remove(key)
@@ -107,7 +85,6 @@ class GeofenceManager(private val context: Context) {
             return
         }
 
-        // Google Play Services에 Geofence 등록 요청
         client.addGeofences(createGeofencingRequest(), geofencingPendingIntent)
             .addOnSuccessListener {
                 // 등록 성공 시 로그 출력
@@ -124,9 +101,6 @@ class GeofenceManager(private val context: Context) {
 
     /**
      * 시스템에 등록된 모든 Geofence를 해제하고 로컬 리스트도 초기화합니다.
-     * 코루틴을 사용하여 비동기적으로 실행됩니다.
-     *
-     * @return Result<Unit> 성공/실패 결과를 포함한 Result 객체
      */
     suspend fun deregisterGeofence() = kotlin.runCatching {
         // 시스템에서 모든 Geofence 제거
@@ -142,16 +116,10 @@ class GeofenceManager(private val context: Context) {
     /**
      * GeofencingRequest 객체를 생성합니다.
      * 이 객체는 Geofence 시스템에 전달되어 트리거 설정 및 실제 등록에 사용됩니다.
-     *
-     * @return GeofencingRequest 시스템에 전달할 요청 객체
      */
     private fun createGeofencingRequest(): GeofencingRequest {
         return GeofencingRequest.Builder().apply {
-            // 초기 트리거를 진입(ENTER)으로 설정
-            // 이는 Geofence가 등록된 직후 사용자가 이미 해당 영역 내에 있을 경우 즉시 트리거되도록 합니다
             setInitialTrigger(GEOFENCE_TRANSITION_ENTER)
-
-            // 현재 관리 중인 모든 Geofence를 요청에 추가
             addGeofences(geofenceList.values.toList())
         }.build()
     }
@@ -159,21 +127,16 @@ class GeofenceManager(private val context: Context) {
     /**
      * 실제 Geofence 객체를 생성합니다.
      * Google Play Services의 Geofence 클래스를 사용하여 지리적 영역을 정의합니다.
-     *
-     * @param key 고유 식별자
-     * @param location 중심점 위치
-     * @param radiusInMeters 감지 반경 (미터)
-     * @param expirationTimeInMillis 만료 시간 (밀리초)
      * @return Geofence 생성된 Geofence 객체
      */
     private fun createGeofence(
         key: String,
         location: Location,
         radiusInMeters: Float,
-        expirationTimeInMillis: Long,
+        expirationTimeInMillis: Long = Geofence.NEVER_EXPIRE,
     ): Geofence {
         return Geofence.Builder()
-            .setRequestId(key) // 고유 식별자 설정
+            .setRequestId(key)
             .setCircularRegion(
                 location.latitude,   // 중심점 위도
                 location.longitude,  // 중심점 경도
@@ -182,17 +145,13 @@ class GeofenceManager(private val context: Context) {
             .setExpirationDuration(expirationTimeInMillis) // 만료 시간 설정
             .setTransitionTypes(
                 // 감지할 이벤트 타입: 진입과 이탈 모두 감지
-                GEOFENCE_TRANSITION_ENTER or GEOFENCE_TRANSITION_EXIT
+                GEOFENCE_TRANSITION_ENTER or
+                        GEOFENCE_TRANSITION_EXIT
             )
             .build()
     }
 
-    /**
-     * 현재 등록된 Geofence 목록을 반환합니다.
-     * 디버깅이나 상태 확인 용도로 사용할 수 있습니다.
-     *
-     * @return Map<String, Geofence> 현재 관리 중인 Geofence 맵의 복사본
-     */
+
     fun getGeofenceList(): Map<String, Geofence> {
         return geofenceList.toMap() // 원본 수정을 방지하기 위해 복사본 반환
     }
