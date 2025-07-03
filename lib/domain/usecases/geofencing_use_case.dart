@@ -1,12 +1,9 @@
 import 'package:bread_place/domain/repositories/geofencing_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
-import 'package:flutter/services.dart';
 
 class GeofencingUseCase {
   final UserLocalStorageRepository _userLocalStorageRepository;
   final GeofencingRepository _geofencingRepository;
-
-  static const platform = MethodChannel('com.bread_place.geofencing');
 
   GeofencingUseCase({
     required UserLocalStorageRepository userLocalStorageRepository,
