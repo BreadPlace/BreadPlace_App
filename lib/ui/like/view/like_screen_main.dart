@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 class LikeScreenMain extends StatefulWidget {
@@ -121,25 +122,55 @@ class LikedListView extends StatelessWidget {
 
 
     // 네이티브와 통신하기 위한 MethodChannel 생성
-    const platform = MethodChannel('com.bread_place.geofencing');
+    const MethodChannel methodChannel = MethodChannel('com.bread_place.geofencing/method');
+    const EventChannel eventChannel = EventChannel('com.bread_place.geofencing/event');
 
     // 안드로이드 네이티브로 Geofence 시작 요청을 보냄
-    Future<void> addSingleGeofence() async {
+    Future<void> setGeofencing() async {
+        final regions = [
+          '36.328690, 127.427554',
+          '36.8065, 127.1522',
+          '37.55467884, 126.9706069',
+          '37.46333, 126.44000',
+        ];
+
       try {
-        await platform.invokeMethod('addGeofence', {
-          'latitude': 37.0, // 위도
-          'longitude' : 127.0, // 경도
-          'radius': 100.0,
-          'identifier' : 'my_geofence'
-        });
-      } catch (e) {
-        print("지오펜싱 invoke Method 에러 e $e");
+        print("Geo 플러터에서 setGeofencing 트리거");
+        await methodChannel.invokeMethod("setGeofencing", regions);
+      }
+      catch (e) {
+        print("Geo 플러터 setGeofencing invoke Method 에러 e $e");
+
+      }
+    }
+
+    void onEnterGeofencing() {
+      eventChannel.receiveBroadcastStream().listen((dynamic event) {
+        print("지오펜스 진입: $event");
+      }, onError: (error) {
+        print('지오펜스 이벤트 수신 오류: $error');
+      });
+    }
+
+    /// 임시로 권한 요청
+    Future<void> requestLocationPermissions() async {
+      final locationStatus = await Permission.location.request();
+      final fgServiceStatus = await Permission.locationAlways.request();
+
+      if (locationStatus.isGranted && fgServiceStatus.isGranted) {
+        print("위치 및 백그라운드 권한 허용됨");
+      } else {
+        print("권한 거부됨");
       }
     }
 
     /// 알림 버튼 클릑 시 작동
     void onNotifyButtonTapped() async {
-      await addSingleGeofence();
+      await requestLocationPermissions();
+      await setGeofencing();
+
+      await Future.delayed(Duration(seconds: 5));
+      onEnterGeofencing();
     }
 
 

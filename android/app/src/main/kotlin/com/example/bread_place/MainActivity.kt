@@ -31,7 +31,7 @@ import com.example.bread_place.geofence.LocationForegroundService
 class MainActivity : FlutterActivity() {
     companion object {
         // Flutter로 이벤트를 전달하기 위해 사용하는 데이터 전송 인터페이스
-        var eventSink: EventChannel.EventSink? = null
+        var onEnterGeofencing: EventChannel.EventSink? = null
     }
 
     private lateinit var geofenceManager: GeofenceManager
@@ -94,10 +94,10 @@ class MainActivity : FlutterActivity() {
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, EVENT_CHANNEL).setStreamHandler(
             object : EventChannel.StreamHandler {
                 override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-                    eventSink = events
+                    onEnterGeofencing = events
                 }
                 override fun onCancel(arguments: Any?) {
-                    eventSink = null
+                    onEnterGeofencing = null
                 }
             }
         )
