@@ -17,4 +17,28 @@ class UserLocalStorageUseCase {
     final userNickname = await _repository.getUserNickname();
     return userNickname;
   }
+
+  /// GeofencingLocations
+  Future<void> saveGeofencingLocations(List<String> locations) async {
+    return _repository.saveGeofencingLocations(locations);
+  }
+
+  Future<List<String>> getGeofencingLocations() async {
+    final locations = _repository.getGeofencingLocations();
+    return locations;
+  }
+
+  Future<void> removeGeofencingLocationAll() async {
+    return _repository.removeGeofencingLocationAll();
+  }
+
+  // Note: Index관리하기에 불편하면 사용하지 않고 삭제해도 좋을 것 같습니다.
+  Future<void> removeGeofencingLocation(String location) async {
+    return _repository.removeGeofencingLocation(location);
+  }
+
+  // Note: Index관리하기에 불편하면 사용하지 않고 삭제해도 좋을 것 같습니다.
+  Future<void> addGeofencingLocation(String location) async {
+    return _repository.addGeofencingLocation(location);
+  }
 }
