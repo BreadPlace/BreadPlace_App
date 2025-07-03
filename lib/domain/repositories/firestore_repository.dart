@@ -3,7 +3,7 @@ import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
-import 'package:bread_place/domain/firebase_pagination_cursor.dart';
+import 'package:bread_place/domain/entities/firebase_pagination_cursor.dart';
 
 abstract class FirestoreRepository {
   Future<bool> saveUser(UserEntity user);

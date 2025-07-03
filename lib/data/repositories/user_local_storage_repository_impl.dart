@@ -34,4 +34,30 @@ class UserLocalStorageRepositoryImpl implements UserLocalStorageRepository {
   Future<void> saveUserNickname(String userNickname) {
     return _service.saveUserNickname(userNickname);
   }
+
+  // Geofencing
+  @override
+  Future<void> saveGeofencingLocations(List<String> locations) {
+    return _service.saveGeofencingLocations(locations);
+  }
+
+  @override
+  Future<List<String>> getGeofencingLocations() {
+    return _service.getGeofencingLocations();
+  }
+
+  @override
+  Future<void> removeGeofencingLocationAll() {
+    return _service.removeGeofencingLocationAll();
+  }
+
+  @override
+  Future<void> removeGeofencingLocation(String location) {
+    return _service.removeGeofencingLocation(location);
+  }
+
+  @override
+  Future<void> addGeofencingLocation(String location) {
+    return _service.addGeofencingLocation(location);
+  }
 }

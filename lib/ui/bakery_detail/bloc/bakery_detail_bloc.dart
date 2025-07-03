@@ -1,5 +1,5 @@
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
-import 'package:bread_place/domain/firebase_pagination_cursor.dart';
+import 'package:bread_place/domain/entities/firebase_pagination_cursor.dart';
 import 'package:bread_place/domain/usecases/firestore_use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

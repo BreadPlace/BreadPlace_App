@@ -3,14 +3,13 @@ import 'dart:io';
 import 'package:bread_place/data/dto/mapper/bakery_review_mapper.dart';
 import 'package:bread_place/data/dto/mapper/liked_bakery_mapper.dart';
 import 'package:bread_place/data/dto/mapper/user_mapper.dart';
-import 'package:bread_place/data/dto/response/firebase/bakery_review_dto.dart';
 import 'package:bread_place/data/services/firebase/firestore_service.dart';
 import 'package:bread_place/data/services/image/image_compress_service.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
-import 'package:bread_place/domain/firebase_pagination_cursor.dart';
+import 'package:bread_place/domain/entities/firebase_pagination_cursor.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
