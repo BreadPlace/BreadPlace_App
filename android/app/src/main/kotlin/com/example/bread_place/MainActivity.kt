@@ -12,6 +12,9 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Build
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // Android 위치 및 인텐트 관련
 import android.content.Context
@@ -64,26 +67,23 @@ class MainActivity : FlutterActivity() {
                         }
 
                         val locations = parseRegionStringsToLocations(regionList)
+
                         if (locations.isEmpty()) {
                             result.error("NO_VALID_LOCATIONS", "No valid lat/lon pairs found", null)
                             return@setMethodCallHandler
                         }
 
-                        // 각 위치에 대해 Geofence 등록
-                        locations.forEachIndexed { index, location ->
-                            val id = "$index"
-                            geofenceManager.addGeofence(
-                                key = id,
-                                location = location,
-                                radiusInMeters = 100f
-                            )
+                        CoroutineScope(Dispatchers.IO).launch {
+                            try {
+                                geofenceManager.updateGeofences(locations)
+                                startLocationForegroundService(this@MainActivity)
+                                runOnUiThread { result.success("Geofence 등록 완료") }
+                            } catch (e: Exception) {
+                                runOnUiThread { result.error("GEOFENCE_ERROR", e.message, null) }
+                            }
                         }
-
-                        geofenceManager.registerGeofence()
-                        startLocationForegroundService(this)
-
-                        result.success("Geofence 등록 완료")
                     }
+
                     else -> result.notImplemented()
                 }
             }
@@ -133,5 +133,11 @@ class MainActivity : FlutterActivity() {
         } else {
             context.startService(serviceIntent)
         }
+    }
+
+    // Foreground 서비스를 중지하는 함수
+    private fun stopLocationForegroundService(context: Context) {
+        val serviceIntent = Intent(context, LocationForegroundService::class.java)
+        context.stopService(serviceIntent)
     }
 }
