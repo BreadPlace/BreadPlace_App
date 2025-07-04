@@ -178,8 +178,6 @@ class LikedListView extends StatelessWidget {
     void onNotifyButtonTapped() async {
       await requestLocationPermissions();
       await setGeofencing();
-
-      await Future.delayed(Duration(seconds: 5));
       onEnterGeofencing();
     }
 
