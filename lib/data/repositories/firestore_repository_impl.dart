@@ -103,4 +103,9 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
 
     return (reviews: reviewEntity, lastDoc: fetchedLastDoc, isLast: response.isLast);
   }
+
+  @override
+  Future<bool> toggleBakeryNotification(String userId, String bakeryId, bool isNotifying) {
+    return _service.toggleBakeryNotification(userId, bakeryId, isNotifying);
+  }
 }

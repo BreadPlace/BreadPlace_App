@@ -13,10 +13,12 @@ import 'package:bread_place/ui/search/bloc/search_state.dart';
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
+import 'package:flutter/services.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 class LikeScreenMain extends StatefulWidget {
@@ -118,10 +120,10 @@ class LikedListView extends StatelessWidget {
       );
     }
 
-    // 알림 버튼 클릑
-    void onNotifyButtonTapped() {
-
+    /// 알림 버튼 클릑 시 작동
+    void onNotifyButtonTapped() async {
     }
+
 
     final likes = context.select((LikeBloc bloc) => bloc.state.bakeries);
 

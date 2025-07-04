@@ -186,4 +186,25 @@ class FirestoreService {
         .collection('liked_bakeries').doc(dto.bakeryId)
         .set(dto.toJson());
   }
+
+  Future<bool> toggleBakeryNotification(
+    String userId,
+    String bakeryId,
+    bool currentNotifying,
+  ) async {
+    final DocumentReference bakeryDoc = _db
+        .collection('users')
+        .doc(userId)
+        .collection('liked_bakeries')
+        .doc(bakeryId);
+    final bool newNotifyingState = !currentNotifying;
+
+    try {
+      await bakeryDoc.update({'isNotify': newNotifyingState});
+      return true;
+    } catch (e) {
+      print("toggleBakeryNotification error : $e");
+      return false;
+    }
+  }
 }
