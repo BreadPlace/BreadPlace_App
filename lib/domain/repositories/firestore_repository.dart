@@ -24,4 +24,5 @@ abstract class FirestoreRepository {
   Future<void> addLiked(String userId, LikedBakeryEntity bakery, bool isNotify);
   Future<void> removeLiked(String userId, String bakeryId);
   Future<List<LikedBakeryEntity>> fetchLikedBakeries(String userId);
+  Future<bool> toggleBakeryNotification(String userId, String bakeryId, bool isNotifying);
 }
