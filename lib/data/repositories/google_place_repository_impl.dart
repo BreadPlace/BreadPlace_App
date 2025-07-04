@@ -48,6 +48,13 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
           return dto.toEntity();
         }).toList();
 
+    await Future.wait(
+      bakeries.map((bakery) async {
+        final photoUri = await getPlacePhotoUri(bakery.photoId);
+        bakery.photoUri = photoUri;
+      })
+    );
+
     return bakeries;
   }
 
