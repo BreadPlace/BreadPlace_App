@@ -81,6 +81,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           ),
         );
       } else {
+        // 기존 유저 -> 닉네임 저장
+        await _userLocalStorageRepo.saveUserNickname(userData.nickname);
+
         emit(
           Authenticated(
             uid: userData.uid,
@@ -133,6 +136,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             ),
           );
         } else {
+          // 기존 유저 -> 닉네임 저장
+          await _userLocalStorageRepo.saveUserNickname(userData.nickname);
+
           emit(
             Authenticated(
               uid: userData.uid,
