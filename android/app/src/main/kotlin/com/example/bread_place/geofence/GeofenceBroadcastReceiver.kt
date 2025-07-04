@@ -70,17 +70,4 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             }
         }
     }
-
-    // 알림 출력 메서드
-    private fun showNotification(context: Context, message: String, notificationId: Int) {
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle("위치 서비스 실행 중")
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-        with(NotificationManagerCompat.from(context)) {
-            notify(notificationId, builder.build())
-        }
-    }
 }
