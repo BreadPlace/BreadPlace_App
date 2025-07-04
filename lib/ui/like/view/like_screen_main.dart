@@ -120,65 +120,8 @@ class LikedListView extends StatelessWidget {
       );
     }
 
-
-    // 네이티브와 통신하기 위한 MethodChannel 생성
-    const MethodChannel methodChannel = MethodChannel('com.bread_place.geofencing/method');
-    const EventChannel eventChannel = EventChannel('com.bread_place.geofencing/event');
-
-    // 안드로이드 네이티브로 Geofence 시작 요청을 보냄
-    Future<void> setGeofencing() async {
-        final regions = [
-          '36.328690, 127.427554',
-          '36.8065, 127.1522',
-          '37.55467884, 126.9706069',
-          '37.46333, 126.44000',
-        ];
-
-      try {
-        print("Geo 플러터에서 setGeofencing 트리거");
-        await methodChannel.invokeMethod("setGeofencing", regions);
-      }
-      catch (e) {
-        print("Geo 플러터 setGeofencing invoke Method 에러 e $e");
-
-      }
-    }
-
-    // 지오펜스 중단 요청
-    Future<void> removeGeofencing() async {
-      try {
-        print("Geo 플러터에서 stopGeofencing 트리거");
-        await methodChannel.invokeMethod("removeGeofencing");
-      } catch (e) {
-        print("Geo 플러터 stopGeofencing invoke Method 에러 e $e");
-      }
-    }
-
-    void onEnterGeofencing() {
-      eventChannel.receiveBroadcastStream().listen((dynamic event) {
-        print("지오펜스 진입: $event");
-      }, onError: (error) {
-        print('지오펜스 이벤트 수신 오류: $error');
-      });
-    }
-
-    /// 임시로 권한 요청
-    Future<void> requestLocationPermissions() async {
-      final locationStatus = await Permission.location.request();
-      final fgServiceStatus = await Permission.locationAlways.request();
-
-      if (locationStatus.isGranted && fgServiceStatus.isGranted) {
-        print("위치 및 백그라운드 권한 허용됨");
-      } else {
-        print("권한 거부됨");
-      }
-    }
-
     /// 알림 버튼 클릑 시 작동
     void onNotifyButtonTapped() async {
-      await requestLocationPermissions();
-      await setGeofencing();
-      onEnterGeofencing();
     }
 
 
