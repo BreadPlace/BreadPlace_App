@@ -120,4 +120,14 @@ class GeofenceManager(private val context: Context) {
             )
             .build()
     }
+
+
+    suspend fun removeAllGeofences() {
+        try {
+            client.removeGeofences(geofencingPendingIntent).await()
+            Log.d(TAG, "Geofence 모두 해제 완료")
+        } catch (e: Exception) {
+            Log.e(TAG, "Geofence 해제 중 오류 발생: ${e.message}", e)
+        }
+    }
 }
