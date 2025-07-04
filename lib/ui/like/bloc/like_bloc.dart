@@ -17,7 +17,7 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
   Future<void> _onAddLike(AddLike event, Emitter emit) async {
 
     final liked = LikedBakeryEntity(
-        isNotify: event.isNotify,
+        isNotificationAllowed: event.isNotificationAllowed,
         updatedAt: DateTime.now().toIso8601String(),
         bakery: event.bakery);
 
@@ -26,7 +26,7 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
       final updatedList = List<LikedBakeryEntity>.from(state.bakeries)
         ..add(liked);
 
-      await _likedBakeryUseCase.addLike(liked, event.isNotify); // 파이어베이스에 저장
+      await _likedBakeryUseCase.addLike(liked, event.isNotificationAllowed); // 파이어베이스에 저장
 
       emit(state.copyWith(
         status: LikeStatus.success,
@@ -88,7 +88,7 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
 
     // bloc 상태 변경
     state.bakeries;
-    state.bakeries.first.isNotify;
+    state.bakeries.first.isNotificationAllowed;
     state.bakeries.first.bakery?.id;
 
 

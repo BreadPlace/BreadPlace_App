@@ -54,8 +54,8 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
     bool notifyByDefault = false;
 
     isLiked
-        ? context.read<LikeBloc>().add(RemoveLike(bakery: bakery, isNotify: notifyByDefault))
-        : context.read<LikeBloc>().add(AddLike(bakery: bakery, isNotify: notifyByDefault));
+        ? context.read<LikeBloc>().add(RemoveLike(bakery: bakery, isNotificationAllowed: notifyByDefault))
+        : context.read<LikeBloc>().add(AddLike(bakery: bakery, isNotificationAllowed: notifyByDefault));
   }
 
   // 현재 좋아요 상태인지 체크

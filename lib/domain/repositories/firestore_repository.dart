@@ -21,8 +21,8 @@ abstract class FirestoreRepository {
     required Bakery bakery,
     FirebasePaginationCursor? cursor
   });
-  Future<void> addLiked(String userId, LikedBakeryEntity bakery, bool isNotify);
+  Future<void> addLiked(String userId, LikedBakeryEntity bakery, bool isNotificationAllowed);
   Future<void> removeLiked(String userId, String bakeryId);
   Future<List<LikedBakeryEntity>> fetchLikedBakeries(String userId);
-  Future<bool> toggleBakeryNotification(String userId, String bakeryId, bool isNotifying);
+  Future<bool> toggleBakeryNotification(String userId, String bakeryId, bool isNotificationAllowed);
 }

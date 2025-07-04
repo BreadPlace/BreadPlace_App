@@ -1,4 +1,3 @@
-import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,12 +13,11 @@ import 'package:bread_place/ui/search/bloc/search_state.dart';
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
-import 'package:flutter/services.dart';
+import 'package:bread_place/config/constants/app_text_styles.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 
 class LikeScreenMain extends StatefulWidget {
@@ -84,7 +82,7 @@ Widget buildRemoveDialog(BuildContext context, Bakery bakery) {
   void onHeartButtonTapped(Bakery bakery) {
     bool notifyByDefault = false;
     context.read<LikeBloc>().add(
-      RemoveLike(bakery: bakery, isNotify: notifyByDefault),
+      RemoveLike(bakery: bakery, isNotificationAllowed: notifyByDefault),
     );
   }
 
@@ -110,7 +108,7 @@ class LikedListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final likes = context.select((LikeBloc bloc) => bloc.state.bakeries);
     final isNotifyCount = likes
-        .where((likedBakery) => likedBakery.isNotify)
+        .where((likedBakery) => likedBakery.isNotificationAllowed)
         .length;
 
     // 베이커리 클릭 시, 검색 트리거
@@ -180,7 +178,7 @@ class LikedListView extends StatelessWidget {
               itemBuilder: (context, index) {
                 final likedBakery = likes[index];
                 final bakery = likedBakery.bakery;
-                final notify = likedBakery.isNotify;
+                final notify = likedBakery.isNotificationAllowed;
 
                 if (bakery == null) return const SizedBox.shrink(); // null 방지
 

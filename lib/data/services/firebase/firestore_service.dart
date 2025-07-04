@@ -181,7 +181,7 @@ class FirestoreService {
   }
 
   Future<void> addLikedBakery(String userId, LikedBakeryDto dto,
-      bool isNotify) async {
+      bool isNotificationAllowed) async {
     await _db.collection('users').doc(userId)
         .collection('liked_bakeries').doc(dto.bakeryId)
         .set(dto.toJson());
@@ -190,17 +190,17 @@ class FirestoreService {
   Future<bool> toggleBakeryNotification(
     String userId,
     String bakeryId,
-    bool currentNotifying,
+    bool isNotificationAllowed,
   ) async {
     final DocumentReference bakeryDoc = _db
         .collection('users')
         .doc(userId)
         .collection('liked_bakeries')
         .doc(bakeryId);
-    final bool newNotifyingState = !currentNotifying;
+    final bool newState = !isNotificationAllowed;
 
     try {
-      await bakeryDoc.update({'isNotify': newNotifyingState});
+      await bakeryDoc.update({'isNotificationAllowed': newState});
       return true;
     } catch (e) {
       print("toggleBakeryNotification error : $e");

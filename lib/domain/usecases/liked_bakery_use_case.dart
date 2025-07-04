@@ -22,9 +22,9 @@ class LikedBakeryUseCase {
     }
   }
 
-  Future<void> addLike(LikedBakeryEntity likedBakery, bool isNotify) async {
+  Future<void> addLike(LikedBakeryEntity likedBakery, bool isNotificationAllowed) async {
     final userId = await getUserId();
-    await _firestoreRepo.addLiked(userId, likedBakery, isNotify);
+    await _firestoreRepo.addLiked(userId, likedBakery, isNotificationAllowed);
   }
 
   Future<void> removeLike(String bakeryId) async {
