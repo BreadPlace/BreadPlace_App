@@ -73,4 +73,27 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
       ));
     }
   }
+
+  // 해당 빵집에 대한 위치 알림 토글
+  // 서버 저장 + 지오펜스 저장 + 알림 설정
+  Future<void> _onAddNotification(ToggleNotification event, Emitter<LikeState> emit) async {
+    // [유저 아이디] + [서버에 저장된 isNotifying on/off 토글] + [지오펜스 등록] + [지오펜스 로컬 저장]을 유스케이스에서하고..
+    // await _likedBakeryUseCase.addNotification(event.bakery.id, event.isNotify);
+
+    // bloc 상태 변경
+    state.bakeries;
+    state.bakeries.first.isNotify;
+    state.bakeries.first.bakery?.id;
+
+
+    // 알람 바뀌었다고 안내 때리기
+    // 너무 자주 바꾸지 못하게 하기
+  }
+
+  // 해당 빵집에 대한 위치 알림 켜기
+  Future<void> _onRemoveNotification() async {
+
+  }
+
+
 }

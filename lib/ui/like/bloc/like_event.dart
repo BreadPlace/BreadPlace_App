@@ -27,3 +27,18 @@ class RemoveLike extends LikeEvent {
   @override
   List<Object?> get props => [bakery, isNotify];
 }
+
+class ToggleNotification extends LikeEvent {
+  final Bakery bakery;
+  final bool isNotify;
+
+  ToggleNotification({required this.bakery, required this.isNotify});
+}
+
+class AddGeofence extends LikeEvent {
+
+}
+
+class RemoveGeofence extends LikeEvent {
+
+}
