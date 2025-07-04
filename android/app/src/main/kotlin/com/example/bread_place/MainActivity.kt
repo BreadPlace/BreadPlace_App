@@ -59,7 +59,7 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, METHOD_CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
-                    "setGeofencing" -> {
+                    "setGeofencingLocation" -> {
                         // Flutter에서 전달받은 파라미터들을 추출
                         val regionList = call.arguments as? List<*> ?: run {
                             result.error("INVALID_ARGUMENT", "List<String> expected", null)
@@ -84,7 +84,7 @@ class MainActivity : FlutterActivity() {
                         }
                     }
 
-                    "removeGeofencing" -> {
+                    "stopGeofencingLocation" -> {
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
                                 geofenceManager.removeAllGeofences()
