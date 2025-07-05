@@ -84,7 +84,7 @@ void initLocator() {
   di.registerFactory(() => HomeBloc(di<GooglePlaceRepository>()));
   di.registerFactory(() => SearchBloc(di<SearchBakeryUseCase>()));
   di.registerFactory(() => LoginBloc(di<FirestoreRepository>(), di<UserLocalStorageRepository>(),));
-  di.registerFactory(() => LikeBloc(di<LikedBakeryUseCase>()));
+  di.registerFactory(() => LikeBloc(di<LikedBakeryUseCase>(), di<GeofencingUseCase>()));
 
 
   /// UseCase

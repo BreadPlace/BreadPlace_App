@@ -1,4 +1,6 @@
+import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
+import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
 import 'package:bread_place/domain/usecases/liked_bakery_use_case.dart';
 import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:bread_place/ui/like/bloc/like_state.dart';
@@ -6,11 +8,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LikeBloc extends Bloc<LikeEvent, LikeState> {
   final LikedBakeryUseCase _likedBakeryUseCase;
+  final GeofencingUseCase _geofencingUseCase;
 
-  LikeBloc(this._likedBakeryUseCase) : super(LikeState(status: LikeStatus.initial)) {
+  LikeBloc(this._likedBakeryUseCase, this._geofencingUseCase) : super(LikeState(status: LikeStatus.initial)) {
     on<FetchLikedBakeries>(_onFetchLikedBakeries);
     on<AddLike>(_onAddLike);
     on<RemoveLike>(_onRemoveLike);
+    on<ToggleNotification>(_onToggleNotification);
   }
 
   /// 좋아요 목록에 추가
@@ -52,7 +56,6 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     } catch(e) {
       print("onRemoveLike 삭제 중 에러 $e");
     }
-
   }
 
   /// 서버에 저장된 좋아요 목록 가져오기
@@ -63,15 +66,8 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
       if(likedBakeries.isEmpty) {
         emit(state.copyWith(status: LikeStatus.empty, bakeries: []));
       } else {
-
-
-
-
         emit(state.copyWith(status: LikeStatus.success, bakeries: likedBakeries));
       }
-
-
-
     } catch (e) {
       emit(state.copyWith(
         status: LikeStatus.error,
@@ -80,26 +76,43 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     }
   }
 
-  // 해당 빵집에 대한 위치 알림 토글
-  // 서버 저장 + 지오펜스 저장 + 알림 설정
-  Future<void> _onAddNotification(ToggleNotification event, Emitter<LikeState> emit) async {
-    // [유저 아이디] + [서버에 저장된 isNotifying on/off 토글] + [지오펜스 등록] + [지오펜스 로컬 저장]을 유스케이스에서하고..
-    // await _likedBakeryUseCase.addNotification(event.bakery.id, event.isNotify);
+  /// 해당 빵집 Notification 허용 여부 토글
+  Future<void> _onToggleNotification(ToggleNotification event,
+      Emitter<LikeState> emit) async {
+    Bakery bakery = event.bakery;
+    bool currentState = event.isNotificationAllowed;
+    final newState = !currentState;
 
-    // bloc 상태 변경
-    state.bakeries;
-    state.bakeries.first.isNotificationAllowed;
-    state.bakeries.first.bakery?.id;
+    String lat = bakery.location.latitude.toString();
+    String lng = bakery.location.longitude.toString();
+    String location = "$lat, $lng";
 
+    try {
+      await _likedBakeryUseCase.updateIsNotificationAllowed(bakery.id, newState);
+      await _geofencingUseCase.updateGeofenceLocation(location);
 
-    // 알람 바뀌었다고 안내 때리기
-    // 너무 자주 바꾸지 못하게 하기
+      final updateList = _updateIsAllowed(bakery, newState);
+
+      emit(state.copyWith(
+          bakeries: updateList,
+          status: LikeStatus.success));
+    } catch (e) {
+      emit(state.copyWith(
+          status: LikeStatus.error,
+          errorMessage: '지오펜스 또는 알림 허용 실패 $e'));
+    }
   }
 
-  // 해당 빵집에 대한 위치 알림 켜기
-  Future<void> _onRemoveNotification() async {
-
+  List<LikedBakeryEntity> _updateIsAllowed(Bakery bakery, bool isAllowed) {
+    return state.bakeries.map((liked) {
+      if (liked.bakery?.id == bakery.id) {
+        return LikedBakeryEntity(
+          isNotificationAllowed: isAllowed,
+          updatedAt: liked.updatedAt,
+          bakery: liked.bakery,
+        );
+      }
+      return liked;
+    }).toList();
   }
-
-
 }
