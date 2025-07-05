@@ -68,7 +68,7 @@ Widget heartButton(VoidCallback onPressed) {
 }
 
 // 알람 설정 버튼
-Widget notificationButton(VoidCallback onPressed, bool isNotified) {
+Widget bellButton(VoidCallback onPressed, bool isNotified) {
   return IconButton(
     onPressed: onPressed,
     icon: isNotified
@@ -124,8 +124,9 @@ class LikedListView extends StatelessWidget {
       );
     }
 
-    /// 알림 버튼 클릑 시 작동
-    void onNotifyButtonTapped() async {
+    /// 알림 버튼 클릭 시 작동
+    void onBellButtonPressed(Bakery bakery, bool isNotificationAllowed) async {
+      context.read<LikeBloc>().add(ToggleNotification(bakery: bakery, isNotificationAllowed: isNotificationAllowed));
       // TODO: UseCase로 20개 제한 코드를 옮겨야 합니다.
       if (isNotifyCount > 20) {
         return;
@@ -185,8 +186,8 @@ class LikedListView extends StatelessWidget {
                 return LikedBakeryContainer(
                   bakery: bakery,
                   onTapContainer: () => onBakeryContainerTapped(bakery),
-                  onHeartPressed: () => showRemoveDialog(context, bakery),
-                  onNotificationPressed: () => onNotifyButtonTapped(),
+                  onHeartButtonPressed: () => showRemoveDialog(context, bakery),
+                  onBellButtonPressed: () => onBellButtonPressed(bakery, notify),
                   isNotified: notify,
                 );
               },
@@ -203,8 +204,8 @@ class LikedBakeryContainer extends StatelessWidget {
   final Bakery bakery;
   final LatLng? userLocation;
   final VoidCallback onTapContainer;
-  final VoidCallback onHeartPressed;
-  final VoidCallback onNotificationPressed;
+  final VoidCallback onHeartButtonPressed;
+  final VoidCallback onBellButtonPressed;
   final bool isNotified;
 
   const LikedBakeryContainer({
@@ -212,8 +213,8 @@ class LikedBakeryContainer extends StatelessWidget {
     required this.bakery,
     this.userLocation,
     required this.onTapContainer,
-    required this.onHeartPressed,
-    required this.onNotificationPressed,
+    required this.onHeartButtonPressed,
+    required this.onBellButtonPressed,
     required this.isNotified,
   });
 
@@ -234,8 +235,8 @@ class LikedBakeryContainer extends StatelessWidget {
           children: [
             // 가게 정보
             bakeryInfoText(bakery, userLocation),
-            heartButton(onHeartPressed),
-            notificationButton(onNotificationPressed, isNotified)
+            heartButton(onHeartButtonPressed),
+            bellButton(onBellButtonPressed, isNotified)
           ],
         ),
       ),
