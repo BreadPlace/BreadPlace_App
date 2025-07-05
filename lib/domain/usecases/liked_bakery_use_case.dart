@@ -39,4 +39,11 @@ class LikedBakeryUseCase {
     final likedBakeries = await _firestoreRepo.fetchLikedBakeries(userId);
     return likedBakeries;
   }
+
+  /// 해당 베이커리의 알림 설정 여부를 토글하여 서버에 업데이트
+  Future<bool> updateIsNotificationAllowed(String bakeryId, bool newState) async {
+    final userId = await getUserId();
+    bool result = await _firestoreRepo.toggleBakeryNotification(userId, bakeryId, newState);
+    return result;
+  }
 }
