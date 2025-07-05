@@ -23,7 +23,7 @@ class GeofencingUseCase {
     }
 
     await _userLocalStorageRepository.saveGeofencingLocations(locations);
-    final savedLocations = await _userLocalStorageRepository.getGeofencingLocations();
+    final savedLocations = await _getLocalSavedLocations();
     await _geofencingRepository.setGeofencingLocations(savedLocations);
   }
 
@@ -47,5 +47,23 @@ class GeofencingUseCase {
     _geofencingRepository.onGeofencingEntered.listen((geofenceId) {
       print('🛰️ Geofencing entered: $geofenceId');
     });
+  }
+
+  Future<List<String>> _getLocalSavedLocations() async {
+    return await _userLocalStorageRepository.getGeofencingLocations();
+  }
+
+  Future<void> updateGeofenceLocation(String location) async {
+    final savedLocations = await _getLocalSavedLocations();
+    final isAlreadySaved = savedLocations.contains(location);
+    List<String> updatedLocations;
+
+    if (isAlreadySaved) {
+      updatedLocations = savedLocations.where((e) => e != location).toList();
+    } else {
+      updatedLocations = [...savedLocations, location];
+    }
+
+    await setGeofencingLocations(updatedLocations);
   }
 }
