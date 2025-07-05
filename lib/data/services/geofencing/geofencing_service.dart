@@ -38,10 +38,11 @@ class GeofencingService {
     geofencingEventChannel
       .receiveBroadcastStream()
       .listen((dynamic event){
-        if(event is Map && event['event'] == AppConstants.onEnterGeofenceEventName){
+        if(event is Map){
+          final eventType = event['event'] as String?;
           final regionId = event['regionId'] as String?;
 
-          if(regionId != null) {
+          if(eventType == 'onEnterGeofence' && regionId != null) {
             _geofencingEnteredController.add(regionId);
           }
         }
