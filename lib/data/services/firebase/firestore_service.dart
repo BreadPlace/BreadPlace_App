@@ -197,10 +197,9 @@ class FirestoreService {
         .doc(userId)
         .collection('liked_bakeries')
         .doc(bakeryId);
-    final bool newState = !isNotificationAllowed;
 
     try {
-      await bakeryDoc.update({'isNotificationAllowed': newState});
+      await bakeryDoc.update({'isNotificationAllowed': isNotificationAllowed});
       return true;
     } catch (e) {
       print("toggleBakeryNotification error : $e");
