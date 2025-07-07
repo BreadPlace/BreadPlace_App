@@ -173,7 +173,7 @@ class LikedListView extends StatelessWidget {
           ),
 
           Expanded(
-            child: ListView.builder(
+            child: ListView.separated(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
               itemCount: likes.length,
               itemBuilder: (context, index) {
@@ -190,7 +190,7 @@ class LikedListView extends StatelessWidget {
                   onBellButtonPressed: () => onBellButtonPressed(bakery, notify),
                   isNotified: notify,
                 );
-              },
+              }, separatorBuilder: (_, _) => const SizedBox(height: 4) // 여백
             ),
           ),
         ],
@@ -224,7 +224,7 @@ class LikedBakeryContainer extends StatelessWidget {
       onTap: onTapContainer,
       child: Container(
         height: 130,
-        padding: EdgeInsets.only(right: 6),
+        padding: EdgeInsets.fromLTRB(20,0,6,0),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
