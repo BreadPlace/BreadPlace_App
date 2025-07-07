@@ -7,7 +7,7 @@ import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 extension LikedBakeryDtoMapper on LikedBakeryDto {
   LikedBakeryEntity toEntity({Bakery? bakery}) {
     return LikedBakeryEntity(
-      isNotify: isNotify,
+      isNotificationAllowed: isNotificationAllowed,
       updatedAt: updatedAt,
       bakery: Bakery(
           id: bakeryId,
@@ -38,7 +38,7 @@ extension LikedBakeryEntityMapper on LikedBakeryEntity {
       locationLat: bakery?.location.latitude.toString() ?? '',
       locationLong: bakery?.location.longitude.toString() ?? '',
       bakeryId: bakery?.id ?? '',
-      isNotify: isNotify,
+      isNotificationAllowed: isNotificationAllowed,
       updatedAt: updatedAt,
       displayName: bakery?.displayName ?? '',
     );

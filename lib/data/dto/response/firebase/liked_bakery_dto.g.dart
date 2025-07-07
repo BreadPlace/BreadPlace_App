@@ -9,7 +9,7 @@ part of 'liked_bakery_dto.dart';
 LikedBakeryDto _$LikedBakeryDtoFromJson(Map<String, dynamic> json) =>
     LikedBakeryDto(
       bakeryId: json['bakeryId'] as String,
-      isNotify: json['isNotify'] as bool,
+      isNotificationAllowed: json['isNotificationAllowed'] as bool,
       updatedAt: json['updatedAt'] as String,
       displayName: json['displayName'] as String,
       address: json['address'] as String?,
@@ -20,7 +20,7 @@ LikedBakeryDto _$LikedBakeryDtoFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$LikedBakeryDtoToJson(LikedBakeryDto instance) =>
     <String, dynamic>{
       'bakeryId': instance.bakeryId,
-      'isNotify': instance.isNotify,
+      'isNotificationAllowed': instance.isNotificationAllowed,
       'updatedAt': instance.updatedAt,
       'displayName': instance.displayName,
       'address': instance.address,

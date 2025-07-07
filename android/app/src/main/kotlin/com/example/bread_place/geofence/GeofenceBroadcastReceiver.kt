@@ -60,7 +60,11 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 val geofences = geofencingEvent.triggeringGeofences ?: return
                 for (geofence in geofences) {
                     val id = geofence.requestId
-                    MainActivity.onEnterGeofencing?.success(id) // 플러터로 전송
+                    val event = mapOf(
+                        "event" to "onEnterGeofence",
+                        "regionId" to id
+                    )
+                    MainActivity.onEnterGeofencing?.success(event) // 플러터로 전송
                     Log.d(TAG, "Geofence 진입 $id")
                 }
             }

@@ -70,9 +70,9 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
   }
 
   @override
-  Future<void> addLiked(String userId, LikedBakeryEntity bakery, bool isNotify) async {
+  Future<void> addLiked(String userId, LikedBakeryEntity bakery, bool isNotificationAllowed) async {
     final dto = bakery.toDto();
-    await _service.addLikedBakery(userId, dto, isNotify);
+    await _service.addLikedBakery(userId, dto, isNotificationAllowed);
   }
 
   @override
@@ -105,7 +105,7 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
   }
 
   @override
-  Future<bool> toggleBakeryNotification(String userId, String bakeryId, bool isNotifying) {
-    return _service.toggleBakeryNotification(userId, bakeryId, isNotifying);
+  Future<bool> toggleBakeryNotification(String userId, String bakeryId, bool isNotificationAllowed) {
+    return _service.toggleBakeryNotification(userId, bakeryId, isNotificationAllowed);
   }
 }

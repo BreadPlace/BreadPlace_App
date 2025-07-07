@@ -60,42 +60,39 @@ Widget bakeryImageContainer(String photoUri) {
 Widget bakeryInfoText(Bakery bakery, LatLng? userLocation) {
   return Expanded(
     flex: 2,
-    child: Align(
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            bakery.displayName,
-            style: AppTextStyles.pretendardBold.copyWith(fontSize: 18),
-            overflow: TextOverflow.ellipsis,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          bakery.displayName,
+          style: AppTextStyles.pretendardBold.copyWith(fontSize: 18),
+          overflow: TextOverflow.ellipsis,
+        ),
+        SizedBox(height: 4),
+        Text(
+          bakery.formattedAddress,
+          style: AppTextStyles.pretendardRegular.copyWith(fontSize: 14),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+        ),
+        userLocation != null
+            ? Text(
+          "${bakery.distanceFromUser(userLocation)}KM",
+          style: AppTextStyles.pretendardBold.copyWith(
+            fontSize: 14,
+            color: AppColors.disabledGrey,
           ),
-          SizedBox(height: 4),
-          Text(
-            bakery.formattedAddress,
-            style: AppTextStyles.pretendardRegular.copyWith(fontSize: 14),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
+        )
+            : Text(
+          "사용자 위치 정보가 없습니다",
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.pretendardSemiBold.copyWith(
+            fontSize: 12,
+            color: AppColors.disabledGrey,
           ),
-          userLocation != null
-              ? Text(
-            "${bakery.distanceFromUser(userLocation)}KM",
-            style: AppTextStyles.pretendardBold.copyWith(
-              fontSize: 14,
-              color: AppColors.disabledGrey,
-            ),
-          )
-              : Text(
-            "사용자 위치 정보가 없습니다",
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.pretendardSemiBold.copyWith(
-              fontSize: 12,
-              color: AppColors.disabledGrey,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
 }

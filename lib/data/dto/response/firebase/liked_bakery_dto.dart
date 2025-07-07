@@ -5,7 +5,7 @@ part 'liked_bakery_dto.g.dart';
 @JsonSerializable()
 class LikedBakeryDto {
   final String bakeryId;
-  final bool isNotify;
+  final bool isNotificationAllowed;
   final String updatedAt;
   final String displayName;
   final String? address;
@@ -14,7 +14,7 @@ class LikedBakeryDto {
 
   LikedBakeryDto({
     required this.bakeryId,
-    required this.isNotify,
+    required this.isNotificationAllowed,
     required this.updatedAt,
     required this.displayName,
     required this.address,

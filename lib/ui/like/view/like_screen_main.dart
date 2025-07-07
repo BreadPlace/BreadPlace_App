@@ -1,4 +1,3 @@
-import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,12 +13,11 @@ import 'package:bread_place/ui/search/bloc/search_state.dart';
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
-import 'package:flutter/services.dart';
+import 'package:bread_place/config/constants/app_text_styles.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 
 class LikeScreenMain extends StatefulWidget {
@@ -70,7 +68,7 @@ Widget heartButton(VoidCallback onPressed) {
 }
 
 // 알람 설정 버튼
-Widget notificationButton(VoidCallback onPressed, bool isNotified) {
+Widget bellButton(VoidCallback onPressed, bool isNotified) {
   return IconButton(
     onPressed: onPressed,
     icon: isNotified
@@ -84,7 +82,7 @@ Widget buildRemoveDialog(BuildContext context, Bakery bakery) {
   void onHeartButtonTapped(Bakery bakery) {
     bool notifyByDefault = false;
     context.read<LikeBloc>().add(
-      RemoveLike(bakery: bakery, isNotify: notifyByDefault),
+      RemoveLike(bakery: bakery, isNotificationAllowed: notifyByDefault),
     );
   }
 
@@ -110,7 +108,7 @@ class LikedListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final likes = context.select((LikeBloc bloc) => bloc.state.bakeries);
     final isNotifyCount = likes
-        .where((likedBakery) => likedBakery.isNotify)
+        .where((likedBakery) => likedBakery.isNotificationAllowed)
         .length;
 
     // 베이커리 클릭 시, 검색 트리거
@@ -126,8 +124,9 @@ class LikedListView extends StatelessWidget {
       );
     }
 
-    /// 알림 버튼 클릑 시 작동
-    void onNotifyButtonTapped() async {
+    /// 알림 버튼 클릭 시 작동
+    void onBellButtonPressed(Bakery bakery, bool isNotificationAllowed) async {
+      context.read<LikeBloc>().add(ToggleNotification(bakery: bakery, isNotificationAllowed: isNotificationAllowed));
       // TODO: UseCase로 20개 제한 코드를 옮겨야 합니다.
       if (isNotifyCount > 20) {
         return;
@@ -174,24 +173,24 @@ class LikedListView extends StatelessWidget {
           ),
 
           Expanded(
-            child: ListView.builder(
+            child: ListView.separated(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
               itemCount: likes.length,
               itemBuilder: (context, index) {
                 final likedBakery = likes[index];
                 final bakery = likedBakery.bakery;
-                final notify = likedBakery.isNotify;
+                final notify = likedBakery.isNotificationAllowed;
 
                 if (bakery == null) return const SizedBox.shrink(); // null 방지
 
                 return LikedBakeryContainer(
                   bakery: bakery,
                   onTapContainer: () => onBakeryContainerTapped(bakery),
-                  onHeartPressed: () => showRemoveDialog(context, bakery),
-                  onNotificationPressed: () => onNotifyButtonTapped(),
+                  onHeartButtonPressed: () => showRemoveDialog(context, bakery),
+                  onBellButtonPressed: () => onBellButtonPressed(bakery, notify),
                   isNotified: notify,
                 );
-              },
+              }, separatorBuilder: (_, _) => const SizedBox(height: 4) // 여백
             ),
           ),
         ],
@@ -205,8 +204,8 @@ class LikedBakeryContainer extends StatelessWidget {
   final Bakery bakery;
   final LatLng? userLocation;
   final VoidCallback onTapContainer;
-  final VoidCallback onHeartPressed;
-  final VoidCallback onNotificationPressed;
+  final VoidCallback onHeartButtonPressed;
+  final VoidCallback onBellButtonPressed;
   final bool isNotified;
 
   const LikedBakeryContainer({
@@ -214,8 +213,8 @@ class LikedBakeryContainer extends StatelessWidget {
     required this.bakery,
     this.userLocation,
     required this.onTapContainer,
-    required this.onHeartPressed,
-    required this.onNotificationPressed,
+    required this.onHeartButtonPressed,
+    required this.onBellButtonPressed,
     required this.isNotified,
   });
 
@@ -225,7 +224,7 @@ class LikedBakeryContainer extends StatelessWidget {
       onTap: onTapContainer,
       child: Container(
         height: 130,
-        padding: EdgeInsets.only(right: 6),
+        padding: EdgeInsets.fromLTRB(20,0,6,0),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
@@ -236,8 +235,8 @@ class LikedBakeryContainer extends StatelessWidget {
           children: [
             // 가게 정보
             bakeryInfoText(bakery, userLocation),
-            heartButton(onHeartPressed),
-            notificationButton(onNotificationPressed, isNotified)
+            heartButton(onHeartButtonPressed),
+            bellButton(onBellButtonPressed, isNotified)
           ],
         ),
       ),

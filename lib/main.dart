@@ -77,5 +77,5 @@ Future<void> _initGeofencing() async {
   final localInstance = di<UserLocalStorageUseCase>();
 
   final locations = await localInstance.getGeofencingLocations();
-  await geofenceInstance.setTestGeofencingLocations(locations);
+  await geofenceInstance.setGeofencingLocations(locations);
 }
