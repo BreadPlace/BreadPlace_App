@@ -1,16 +1,21 @@
+import 'package:bread_place/domain/entities/notification_entity.dart';
 import 'package:bread_place/domain/repositories/geofencing_repository.dart';
+import 'package:bread_place/domain/repositories/notification_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
 
 class GeofencingUseCase {
   final UserLocalStorageRepository _userLocalStorageRepository;
   final GeofencingRepository _geofencingRepository;
+  final NotificationRepository _notificationRepository;
 
   GeofencingUseCase({
     required UserLocalStorageRepository userLocalStorageRepository,
-    required GeofencingRepository geofencingRepository
+    required GeofencingRepository geofencingRepository,
+    required NotificationRepository notificationRepository,
   })
       : _userLocalStorageRepository = userLocalStorageRepository,
-        _geofencingRepository = geofencingRepository;
+        _geofencingRepository = geofencingRepository,
+        _notificationRepository = notificationRepository;
 
   void init() {
     _listenGeofencingEntered();
@@ -43,9 +48,22 @@ class GeofencingUseCase {
     await _geofencingRepository.stopGeofencingLocations();
   }
 
-  void _listenGeofencingEntered() {
-    _geofencingRepository.onGeofencingEntered.listen((geofenceId) {
+  Future<void> _listenGeofencingEntered() async {
+    _geofencingRepository.onGeofencingEntered.listen((geofenceId) async {
       print('🛰️ Geofencing entered: $geofenceId');
+
+      int? id = int.tryParse(geofenceId);
+      if(id == null) {
+        print("geofenceId 없음, 저장되지 않은 빵집");
+        return;
+      }
+
+      final testNoti = NotificationEntity(
+          title: '가고싶던 빵집이 근처에 있어요!',
+          body: '냠냠 $geofenceId 에 진입',
+      );
+
+      _notificationRepository.showNotification(testNoti);
     });
   }
 

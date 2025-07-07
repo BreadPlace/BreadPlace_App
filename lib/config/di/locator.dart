@@ -131,6 +131,7 @@ void initLocator() {
     final usecase = GeofencingUseCase(
         userLocalStorageRepository: userLocalStorageRepository,
         geofencingRepository: geofencingRepository,
+        notificationRepository: di<NotificationRepository>()
     );
 
     usecase.init();
