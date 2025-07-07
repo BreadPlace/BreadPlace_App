@@ -61,7 +61,6 @@ Widget bakeryInfoText(Bakery bakery, LatLng? userLocation) {
   return Expanded(
     flex: 2,
     child: Column(
-      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
