@@ -28,6 +28,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: centerTitle,
       backgroundColor: AppColors.background,
+      surfaceTintColor: AppColors.background,
       leading: leading,
       actions: actions,
     );
