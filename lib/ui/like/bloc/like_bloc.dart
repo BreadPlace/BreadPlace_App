@@ -11,7 +11,6 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     on<FetchLikedBakeries>(_onFetchLikedBakeries);
     on<AddLike>(_onAddLike);
     on<RemoveLike>(_onRemoveLike);
-
   }
 
   /// 좋아요 목록에 추가
@@ -64,8 +63,15 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
       if(likedBakeries.isEmpty) {
         emit(state.copyWith(status: LikeStatus.empty, bakeries: []));
       } else {
+
+
+
+
         emit(state.copyWith(status: LikeStatus.success, bakeries: likedBakeries));
       }
+
+
+
     } catch (e) {
       emit(state.copyWith(
         status: LikeStatus.error,

@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -107,6 +108,11 @@ class LikedListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final likes = context.select((LikeBloc bloc) => bloc.state.bakeries);
+    final isNotifyCount = likes
+        .where((likedBakery) => likedBakery.isNotify)
+        .length;
+
     // 베이커리 클릭 시, 검색 트리거
     void onBakeryContainerTapped(Bakery bakery) {
       context.read<SearchBloc>().add(SearchPlaceById(placeId: bakery.id));
@@ -122,10 +128,11 @@ class LikedListView extends StatelessWidget {
 
     /// 알림 버튼 클릑 시 작동
     void onNotifyButtonTapped() async {
+      // TODO: UseCase로 20개 제한 코드를 옮겨야 합니다.
+      if (isNotifyCount > 20) {
+        return;
+      }
     }
-
-
-    final likes = context.select((LikeBloc bloc) => bloc.state.bakeries);
 
     return BlocListener<SearchBloc, SearchState>(
       listener: (context, state) {
@@ -137,24 +144,57 @@ class LikedListView extends StatelessWidget {
           SnackBar(content: Text('빵집 정보 없음'));
         }
       },
-      child: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-        itemCount: likes.length,
-        itemBuilder: (context, index) {
-          final likedBakery = likes[index];
-          final bakery = likedBakery.bakery;
-          final notify = likedBakery.isNotify;
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+            child: Container(
+              height: 60,
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderGrey, width: 2),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "알림을 등록한 빵집",
+                    style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 16),
+                  ),
 
-          if (bakery == null) return const SizedBox.shrink(); // null 방지
+                  Text(
+                    "$isNotifyCount/20개",
+                    style: AppTextStyles.pretendardBold.copyWith(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ),
 
-          return LikedBakeryContainer(
-            bakery: bakery,
-            onTapContainer: () => onBakeryContainerTapped(bakery),
-            onHeartPressed: () => showRemoveDialog(context, bakery),
-            onNotificationPressed: () => onNotifyButtonTapped(),
-            isNotified: notify,
-          );
-        },
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+              itemCount: likes.length,
+              itemBuilder: (context, index) {
+                final likedBakery = likes[index];
+                final bakery = likedBakery.bakery;
+                final notify = likedBakery.isNotify;
+
+                if (bakery == null) return const SizedBox.shrink(); // null 방지
+
+                return LikedBakeryContainer(
+                  bakery: bakery,
+                  onTapContainer: () => onBakeryContainerTapped(bakery),
+                  onHeartPressed: () => showRemoveDialog(context, bakery),
+                  onNotificationPressed: () => onNotifyButtonTapped(),
+                  isNotified: notify,
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
