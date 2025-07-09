@@ -1,17 +1,21 @@
+import 'package:bread_place/domain/entities/app_permission.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
+import 'package:bread_place/domain/repositories/permission_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
 
 class LikedBakeryUseCase {
   final FirestoreRepository _firestoreRepo;
   final UserLocalStorageRepository _userLocalStorage;
+  final PermissionRepository _permissionRepository;
 
   LikedBakeryUseCase({
     required FirestoreRepository firestoreRepo,
     required UserLocalStorageRepository userLocalStorage,
+    required PermissionRepository permissionRepo,
   }) : _firestoreRepo = firestoreRepo,
-       _userLocalStorage = userLocalStorage;
-
+       _userLocalStorage = userLocalStorage,
+       _permissionRepository = permissionRepo;
 
   Future<String> getUserId() async {
     final userId = await _userLocalStorage.getUserId();
@@ -47,10 +51,28 @@ class LikedBakeryUseCase {
     return likedBakeries;
   }
 
+  Future<void> _ensureRequiredPermissionsGranted() async {
+    await _permissionRepository.ensurePermissionGranted(
+      AppPermission.locationAlways,
+    );
+    await _permissionRepository.ensurePermissionGranted(
+      AppPermission.notification,
+    );
+  }
+
   /// 해당 베이커리의 알림 설정 여부를 토글하여 서버에 업데이트
-  Future<bool> updateIsNotificationAllowed(String bakeryId, bool newState) async {
+  Future<bool> updateIsNotificationAllowed(
+    String bakeryId,
+    bool newState,
+  ) async {
+    _ensureRequiredPermissionsGranted();
+
     final userId = await getUserId();
-    bool result = await _firestoreRepo.toggleBakeryNotification(userId, bakeryId, newState);
+    bool result = await _firestoreRepo.toggleBakeryNotification(
+      userId,
+      bakeryId,
+      newState,
+    );
     return result;
   }
 
