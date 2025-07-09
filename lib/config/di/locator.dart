@@ -6,6 +6,7 @@ import 'package:bread_place/data/repositories/kakao_search_repository_impl.dart'
 import 'package:bread_place/data/repositories/notification_repository_impl.dart';
 import 'package:bread_place/data/repositories/permission_repository_impl.dart';
 import 'package:bread_place/data/repositories/user_local_storage_repository_impl.dart';
+import 'package:bread_place/data/repositories/user_location_repository_impl.dart';
 import 'package:bread_place/data/services/api/google/google_place_api.dart';
 import 'package:bread_place/data/services/api/google/google_place_dio_client.dart';
 import 'package:bread_place/data/services/api/kakao/kakao_dio_client.dart';
@@ -15,6 +16,7 @@ import 'package:bread_place/data/services/geofencing/geofencing_service.dart';
 import 'package:bread_place/data/services/image/image_compress_service.dart';
 import 'package:bread_place/data/services/local/user_local_storage.dart';
 import 'package:bread_place/data/services/notification/local_notification_service.dart';
+import 'package:bread_place/data/services/userlocation/user_location_service.dart';
 import 'package:bread_place/data/services/permission/permission_service.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/domain/repositories/geofencing_repository.dart';
@@ -23,11 +25,13 @@ import 'package:bread_place/domain/repositories/kakao_search_repository.dart';
 import 'package:bread_place/domain/repositories/notification_repository.dart';
 import 'package:bread_place/domain/repositories/permission_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
+import 'package:bread_place/domain/repositories/user_location_repository.dart';
 import 'package:bread_place/domain/usecases/firestore_use_case.dart';
 import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
 import 'package:bread_place/domain/usecases/liked_bakery_use_case.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
+import 'package:bread_place/domain/usecases/user_location_use_case.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/ui/like/bloc/like_bloc.dart';
@@ -82,9 +86,30 @@ void initLocator() {
     return UserLocalStorageRepositoryImpl(service);
   });
 
+  /// UserLocation
+  // UserLocation - Service
+  di.registerSingletonAsync<UserLocationService>(() async {
+    final service = UserLocationService();
+    return service;
+  });
+
+  // UserLocation - Repository
+  di.registerSingletonAsync<UserLocationRepository>(() async {
+    final service = await di.getAsync<UserLocationService>();
+    return UserLocationRepositoryImpl(service);
+  });
+
+  // UserLocation - UseCase
+  di.registerLazySingleton<UserLocationUseCase>(()
+    => UserLocationUseCase(userLocationRepository: di<UserLocationRepository>())
+  );
+
   /// Blocs
   // di.registerFactory(() => HomeBloc(di<KakaoSearchRepository>()));
-  di.registerFactory(() => HomeBloc(di<GooglePlaceRepository>()));
+  di.registerFactory(() => HomeBloc(
+      di<GooglePlaceRepository>(),
+      di<UserLocationUseCase>(),
+  ));
   di.registerFactory(() => SearchBloc(di<SearchBakeryUseCase>()));
   di.registerFactory(() => LoginBloc(di<FirestoreRepository>(), di<UserLocalStorageRepository>(),));
   di.registerFactory(() => LikeBloc(di<LikedBakeryUseCase>(), di<GeofencingUseCase>()));
@@ -99,6 +124,7 @@ void initLocator() {
       LikedBakeryUseCase(firestoreRepo: di<FirestoreRepository>(),
           userLocalStorage: di<UserLocalStorageRepository>(),
           permissionRepo: di<PermissionRepository>()));
+
 
   /// GeofencingLocations
   di.registerSingleton<MethodChannel>(

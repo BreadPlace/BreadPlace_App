@@ -31,7 +31,7 @@ class HomeScreenMain extends StatefulWidget {
 }
 
 class _HomeScreenMainState extends State<HomeScreenMain> {
-  late final GoogleMapController mapController;
+  GoogleMapController? mapController;
 
   @override
   void initState() {
@@ -50,7 +50,8 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
 
   // 탐색 버튼이 눌렸을 때 이벤트
   void _onSearchLocationTapped() async {
-    final bounds = await mapController.getVisibleRegion();
+    if(mapController == null) { return; }
+    final bounds = await mapController!.getVisibleRegion();
     final center = getCenterLatLng(bounds);
     context.read<HomeBloc>().add(HomeSearchLocation(location: center));
   }
@@ -68,6 +69,10 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   // 지도 컨트롤러를 상위로 넘기는 함수
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    final state = context.read<HomeBloc>().state;
+    if(state.userLocation != null) {
+      _changeCameraPosition(state.userLocation!);
+    }
   }
 
   void _onMapMoved(CameraPosition position) {
@@ -75,7 +80,8 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   }
 
   void _onMapStopped() async {
-    final bounds = await mapController.getVisibleRegion();
+    if(mapController == null) { return; }
+    final bounds = await mapController!.getVisibleRegion();
     final center = getCenterLatLng(bounds);
 
     context.read<HomeBloc>().add(HomeMapStopped(lastPosition: center));
@@ -86,7 +92,8 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   }
 
   void _changeCameraPosition(LatLng to) {
-    mapController.animateCamera(CameraUpdate.newLatLng(to));
+    if(mapController == null) { return; }
+    mapController!.animateCamera(CameraUpdate.newLatLng(to));
   }
 
   @override

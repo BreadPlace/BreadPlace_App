@@ -1,4 +1,5 @@
 import 'package:bread_place/config/constants/app_constants.dart';
+import 'package:bread_place/domain/usecases/user_location_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:bread_place/domain/entities/bakery.dart';
@@ -8,30 +9,32 @@ import 'package:bread_place/config/constants/app_locations.dart';
 import 'package:bread_place/utils/calculate_distance.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:equatable/equatable.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final GooglePlaceRepository _repository;
+  final GooglePlaceRepository _googlePlaceRepository;
+  final UserLocationUseCase _userLocationUseCase;
 
-  HomeBloc(this._repository)
-    : super(
-        HomeScreenState(
-          userLocation: AppLocations.seoulStation,
-          recommendBakery: TempBakeryEntity.empty,
-          lastSearchLocation: null,
-          bakeryList: [],
-          markerTappedBakery: null,
-          mapCenter: null,
+  HomeBloc(
+      this._googlePlaceRepository,
+      this._userLocationUseCase
+  ) : super(
+    HomeScreenState(
+      userLocation: AppLocations.seoulStation,
+      recommendBakery: TempBakeryEntity.empty,
+      lastSearchLocation: null,
+      bakeryList: [],
+      markerTappedBakery: null,
+      mapCenter: null,
 
-          hasLocationPermission: false,
-          isFarFromLastSearch: true,
-          isMapMoving: false,
-        ),
-      ) {
+      hasLocationPermission: false,
+      isFarFromLastSearch: true,
+      isMapMoving: false,
+    ),
+  ) {
     on<HomeAppInitiate>(_onAppInitiate);
     on<HomeSearchLocation>(_onSearchLocation);
     on<HomeMarkerTapped>(_onMarkerTapped);
@@ -43,14 +46,35 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   /// 앱의 Initiate 시점 결과 반환
   Future<void> _onAppInitiate(
-    HomeAppInitiate event,
-    Emitter<HomeState> emit,
-  ) async {
-    // 권한 확인
-    final hasPermission = await _checkLocationPermission();
+      HomeAppInitiate event,
+      Emitter<HomeState> emit
+      ) async {
+    try {
+      // 권한이 있는 경우
+      final currentPosition = await _userLocationUseCase.getUserLocation();
 
-    // 권한이 없는 경우
-    if (!hasPermission) {
+      final currentLatLng = LatLng(
+        currentPosition.latitude,
+        currentPosition.longitude,
+      );
+
+      // 사용자 위치 주변 베이커리 검색
+      // final bakeryList = await _fetchNearby(
+      //   LatLng(currentPosition.latitude, currentPosition.longitude),
+      // );
+
+      emit(
+        (state as HomeScreenState).copyWith(
+          hasLocationPermission: true,
+          // bakeryList: bakeryList,
+          lastSearchLocation: currentLatLng,
+          userLocation: currentLatLng,
+          mapCenter: currentLatLng,
+        ),
+      );
+    } catch (error) {
+      // 권한이 없는 경우
+      // TODO: onPermossionDenied로 에러 세분화 -> 권한 요청 처리 등 필요
       emit(
         HomeScreenState(
           userLocation: AppLocations.seoulStation,
@@ -66,29 +90,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         ),
       );
     }
-
-    // 권한이 있는 경우
-    final currentPosition = await Geolocator.getCurrentPosition();
-
-    final currentLatLng = LatLng(
-      currentPosition.latitude,
-      currentPosition.longitude,
-    );
-
-    // 사용자 위치 주변 베이커리 검색
-    // final bakeryList = await _fetchNearby(
-    //   LatLng(currentPosition.latitude, currentPosition.longitude),
-    // );
-
-    emit(
-      (state as HomeScreenState).copyWith(
-        hasLocationPermission: true,
-        // bakeryList: bakeryList,
-        lastSearchLocation: currentLatLng,
-        userLocation: currentLatLng,
-        mapCenter: currentLatLng,
-      ),
-    );
   }
 
   /// 장소 검색
@@ -172,21 +173,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
-  /// 위치정보 권한 요청
-  Future<bool> _checkLocationPermission() async {
-    final isLocationEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!isLocationEnabled) return false;
-
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    return permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse;
-  }
-
   Future<List<Bakery>> _fetchNearby(
     LatLng location, {
     bool deduplicate = false,
@@ -195,7 +181,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final LatLng searchLocation = LatLng(location.latitude, location.longitude);
 
     // 사용자 위치 주변 검색
-    final result = await _repository.searchNearby(searchLocation);
+    final result = await _googlePlaceRepository.searchNearby(searchLocation);
 
     // 기존 데이터 중복 제거 로직
     if (deduplicate) {
