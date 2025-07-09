@@ -26,7 +26,10 @@ class LikedBakeryUseCase {
     }
   }
 
-  Future<void> addLike(LikedBakeryEntity likedBakery, bool isNotificationAllowed) async {
+  Future<void> addLike(
+    LikedBakeryEntity likedBakery,
+    bool isNotificationAllowed,
+  ) async {
     final userId = await getUserId();
     await _firestoreRepo.addLiked(userId, likedBakery, isNotificationAllowed);
   }
@@ -35,7 +38,6 @@ class LikedBakeryUseCase {
     final userId = await getUserId();
     await _firestoreRepo.removeLiked(userId, bakeryId);
   }
-
 
   /// 사용자가 좋아요를 누른 베이커리 목록을 조회
   Future<List<LikedBakeryEntity>> fetchLikedBakeriesWithDetails() async {
@@ -77,16 +79,21 @@ class LikedBakeryUseCase {
   }
 
   /// 알림 허용된 베이커리들의 위치 정보를 추출하여 문자열 리스트로 변환
-  List<String> _getAllowedBakeryLocations(List<LikedBakeryEntity> likedBakeries) {
+  List<String> _getAllowedBakeryLocations(
+    List<LikedBakeryEntity> likedBakeries,
+  ) {
     return likedBakeries
         .where((liked) => liked.isNotificationAllowed == true)
         .map((allowed) {
-      final lat = allowed.bakery?.location.latitude;
-      final lng = allowed.bakery?.location.longitude;
+          final lat = allowed.bakery?.location.latitude;
+          final lng = allowed.bakery?.location.longitude;
 
-      if (lat != null && lng != null) {
-        return "$lat, $lng";
-      } return null;
-    }).whereType<String>().toList(); // 위치 정보 null 인 베이커리는 제외하고 리턴
+          if (lat != null && lng != null) {
+            return "$lat, $lng";
+          }
+          return null;
+        })
+        .whereType<String>()
+        .toList(); // 위치 정보 null 인 베이커리는 제외하고 리턴
   }
 }
