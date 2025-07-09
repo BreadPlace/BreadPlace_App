@@ -4,6 +4,7 @@ import 'package:bread_place/data/repositories/geofencing_repository_impl.dart';
 import 'package:bread_place/data/repositories/google_place_repository_impl.dart';
 import 'package:bread_place/data/repositories/kakao_search_repository_impl.dart';
 import 'package:bread_place/data/repositories/notification_repository_impl.dart';
+import 'package:bread_place/data/repositories/permission_repository_impl.dart';
 import 'package:bread_place/data/repositories/user_local_storage_repository_impl.dart';
 import 'package:bread_place/data/repositories/user_location_repository_impl.dart';
 import 'package:bread_place/data/services/api/google/google_place_api.dart';
@@ -16,11 +17,13 @@ import 'package:bread_place/data/services/image/image_compress_service.dart';
 import 'package:bread_place/data/services/local/user_local_storage.dart';
 import 'package:bread_place/data/services/notification/local_notification_service.dart';
 import 'package:bread_place/data/services/userlocation/user_location_service.dart';
+import 'package:bread_place/data/services/permission/permission_service.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/domain/repositories/geofencing_repository.dart';
 import 'package:bread_place/domain/repositories/google_place_repository.dart';
 import 'package:bread_place/domain/repositories/kakao_search_repository.dart';
 import 'package:bread_place/domain/repositories/notification_repository.dart';
+import 'package:bread_place/domain/repositories/permission_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
 import 'package:bread_place/domain/repositories/user_location_repository.dart';
 import 'package:bread_place/domain/usecases/firestore_use_case.dart';
@@ -117,7 +120,10 @@ void initLocator() {
   di.registerLazySingleton<FirestoreUseCase>(() => FirestoreUseCase(repository: di<FirestoreRepository>()));
   di.registerLazySingleton<NotificationUseCase>(() => NotificationUseCase(di<NotificationRepository>()));
   di.registerLazySingleton<UserLocalStorageUseCase>(() => UserLocalStorageUseCase(repository: di<UserLocalStorageRepository>()));
-  di.registerLazySingleton(() => LikedBakeryUseCase(firestoreRepo: di<FirestoreRepository>(), userLocalStorage: di<UserLocalStorageRepository>()));
+  di.registerLazySingleton(() =>
+      LikedBakeryUseCase(firestoreRepo: di<FirestoreRepository>(),
+          userLocalStorage: di<UserLocalStorageRepository>(),
+          permissionRepo: di<PermissionRepository>()));
 
 
   /// GeofencingLocations
@@ -163,4 +169,8 @@ void initLocator() {
     usecase.init();
     return usecase;
   });
+
+  // permission_handler
+  di.registerLazySingleton<PermissionService>(() => PermissionService());
+  di.registerLazySingleton<PermissionRepository>(() => PermissionRepositoryImpl(di<PermissionService>()));
 }
