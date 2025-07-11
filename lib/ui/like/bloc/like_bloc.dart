@@ -14,7 +14,7 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     on<FetchLikedBakeries>(_onFetchLikedBakeries);
     on<AddLike>(_onAddLike);
     on<RemoveLike>(_onRemoveLike);
-    on<ToggleNotification>(_onToggleNotification);
+    on<ToggleNotification>(_onToggleNotificationAndUpdateGeofence);
   }
 
   /// 좋아요 목록에 추가
@@ -76,8 +76,8 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     }
   }
 
-  /// 해당 빵집 Notification 허용 여부 토글
-  Future<void> _onToggleNotification(ToggleNotification event,
+  /// 해당 빵집 Notification 허용 여부 토글 + 지오펜스 등록
+  Future<void> _onToggleNotificationAndUpdateGeofence(ToggleNotification event,
       Emitter<LikeState> emit) async {
     Bakery bakery = event.bakery;
     bool currentState = event.isNotificationAllowed;
