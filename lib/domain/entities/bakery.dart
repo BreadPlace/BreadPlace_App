@@ -75,3 +75,8 @@ extension BakeryDistanceExtension on Bakery {
     return double.parse(distanceInKm.toStringAsFixed(2));
   }
 }
+
+extension BakeryLocationFormatter on Bakery {
+  String get formattedLocationWithDetail =>
+      '$id|$displayName|${location.latitude}|${location.longitude}';
+}
