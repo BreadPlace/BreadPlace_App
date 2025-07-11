@@ -81,7 +81,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           ),
         );
       } else {
-        // 기존 유저 -> 닉네임 저장
+        // 기존 유저 -> 아이디, 닉네임 저장
+        await _userLocalStorageRepo.saveUserId(userData.uid);
         await _userLocalStorageRepo.saveUserNickname(userData.nickname);
 
         emit(
@@ -136,7 +137,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             ),
           );
         } else {
-          // 기존 유저 -> 닉네임 저장
+          // 기존 유저 -> 아이디, 닉네임 저장
+          await _userLocalStorageRepo.saveUserId(userData.uid);
           await _userLocalStorageRepo.saveUserNickname(userData.nickname);
 
           emit(
