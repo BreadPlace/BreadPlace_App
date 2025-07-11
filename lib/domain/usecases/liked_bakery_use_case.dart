@@ -1,4 +1,5 @@
 import 'package:bread_place/domain/entities/app_permission.dart';
+import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/domain/repositories/permission_repository.dart';
@@ -78,22 +79,21 @@ class LikedBakeryUseCase {
     return result;
   }
 
-  /// 알림 허용된 베이커리들의 위치 정보를 추출하여 문자열 리스트로 변환
+  /// 알림 허용된 베이커리들의 위치 정보, id 등을 추출하여 문자열 리스트로 변환
   List<String> _getAllowedBakeryLocations(
     List<LikedBakeryEntity> likedBakeries,
   ) {
     return likedBakeries
         .where((liked) => liked.isNotificationAllowed == true)
         .map((allowed) {
-          final lat = allowed.bakery?.location.latitude;
-          final lng = allowed.bakery?.location.longitude;
+          Bakery? bakery = allowed.bakery;
 
-          if (lat != null && lng != null) {
-            return "$lat, $lng";
+          if(bakery != null) {
+            final location = bakery.formattedLocationWithDetail;
+            return location;
           }
-          return null;
         })
         .whereType<String>()
-        .toList(); // 위치 정보 null 인 베이커리는 제외하고 리턴
+        .toList();
   }
 }
