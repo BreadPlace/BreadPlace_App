@@ -1,4 +1,5 @@
 import 'package:bread_place/config/constants/app_constants.dart';
+import 'package:bread_place/config/constants/app_permission_exception.dart';
 import 'package:bread_place/domain/usecases/user_location_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -73,22 +74,24 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         ),
       );
     } catch (error) {
-      // 권한이 없는 경우
-      // TODO: onPermossionDenied로 에러 세분화 -> 권한 요청 처리 등 필요
-      emit(
-        HomeScreenState(
-          userLocation: AppLocations.seoulStation,
-          recommendBakery: TempBakeryEntity.empty,
-          lastSearchLocation: null,
-          bakeryList: [],
-          markerTappedBakery: null,
-          mapCenter: null,
+      // TODO: 추후 에러 종류에 따라 분기처리 가능
+      print(error.toString());
+      if(error == AppPermissionDeniedException) {
+        emit(
+          HomeScreenState(
+            userLocation: AppLocations.seoulStation,
+            recommendBakery: TempBakeryEntity.empty,
+            lastSearchLocation: null,
+            bakeryList: [],
+            markerTappedBakery: null,
+            mapCenter: null,
 
-          hasLocationPermission: false,
-          isFarFromLastSearch: false,
-          isMapMoving: false,
-        ),
-      );
+            hasLocationPermission: false,
+            isFarFromLastSearch: false,
+            isMapMoving: false,
+          ),
+        );
+      }
     }
   }
 

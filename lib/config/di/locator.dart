@@ -101,7 +101,10 @@ void initLocator() {
 
   // UserLocation - UseCase
   di.registerLazySingleton<UserLocationUseCase>(()
-    => UserLocationUseCase(userLocationRepository: di<UserLocationRepository>())
+    => UserLocationUseCase(
+        userLocationRepository: di<UserLocationRepository>(),
+        permissionRepository: di<PermissionRepository>(),
+    )
   );
 
   /// Blocs
