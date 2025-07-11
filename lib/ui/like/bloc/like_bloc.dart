@@ -81,15 +81,12 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
       Emitter<LikeState> emit) async {
     Bakery bakery = event.bakery;
     bool currentState = event.isNotificationAllowed;
-    final newState = !currentState;
-
-    String lat = bakery.location.latitude.toString();
-    String lng = bakery.location.longitude.toString();
-    String location = "$lat, $lng";
+    bool newState = !currentState;
+    String location = event.bakery.formattedLocationWithDetail;
 
     try {
-      await _likedBakeryUseCase.updateIsNotificationAllowed(bakery.id, newState);
-      await _geofencingUseCase.updateGeofenceLocation(location);
+      await _updateNotificationStatus(bakery.id, newState);
+      await _updateGeofenceLocation(location);
 
       final updateList = _updateIsAllowed(bakery, newState);
 
@@ -114,5 +111,13 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
       }
       return liked;
     }).toList();
+  }
+
+  Future<void> _updateNotificationStatus(String bakeryId, bool newState) async {
+      await _likedBakeryUseCase.updateIsNotificationAllowed(bakeryId, newState);
+  }
+
+  Future<void> _updateGeofenceLocation(String formattedLocation) async {
+      await _geofencingUseCase.updateGeofenceLocation(formattedLocation);
   }
 }
