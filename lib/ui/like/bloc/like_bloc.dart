@@ -14,7 +14,7 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     on<FetchLikedBakeries>(_onFetchLikedBakeries);
     on<AddLike>(_onAddLike);
     on<RemoveLike>(_onRemoveLike);
-    on<ToggleNotification>(_onToggleNotification);
+    on<ToggleNotification>(_onToggleNotificationAndUpdateGeofence);
   }
 
   /// 좋아요 목록에 추가
@@ -76,20 +76,17 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     }
   }
 
-  /// 해당 빵집 Notification 허용 여부 토글
-  Future<void> _onToggleNotification(ToggleNotification event,
+  /// 해당 빵집 Notification 허용 여부 토글 + 지오펜스 등록
+  Future<void> _onToggleNotificationAndUpdateGeofence(ToggleNotification event,
       Emitter<LikeState> emit) async {
     Bakery bakery = event.bakery;
     bool currentState = event.isNotificationAllowed;
-    final newState = !currentState;
-
-    String lat = bakery.location.latitude.toString();
-    String lng = bakery.location.longitude.toString();
-    String location = "$lat, $lng";
+    bool newState = !currentState;
+    String location = event.bakery.formattedLocationWithDetail;
 
     try {
-      await _likedBakeryUseCase.updateIsNotificationAllowed(bakery.id, newState);
-      await _geofencingUseCase.updateGeofenceLocation(location);
+      await _updateNotificationStatus(bakery.id, newState);
+      await _updateGeofenceLocation(location);
 
       final updateList = _updateIsAllowed(bakery, newState);
 
@@ -114,5 +111,13 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
       }
       return liked;
     }).toList();
+  }
+
+  Future<void> _updateNotificationStatus(String bakeryId, bool newState) async {
+      await _likedBakeryUseCase.updateIsNotificationAllowed(bakeryId, newState);
+  }
+
+  Future<void> _updateGeofenceLocation(String formattedLocation) async {
+      await _geofencingUseCase.updateGeofenceLocation(formattedLocation);
   }
 }
