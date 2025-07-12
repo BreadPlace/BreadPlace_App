@@ -29,8 +29,37 @@ class Bakery {
     required this.photoUri,
     required this.photoId,
   });
-}
 
+  Bakery copyWith({
+    String? displayName,
+    String? languageCode,
+    String? formattedAddress,
+    String? formattedPhoneNumber,
+    Location? location,
+    Viewport? viewport,
+    String? id,
+    PlusCode? plusCode,
+    List<String>? types,
+    String? googleMapsUri,
+    String? photoUri,
+    String? photoId,
+  }) {
+    return Bakery(
+      displayName: displayName ?? this.displayName,
+      languageCode: languageCode ?? this.languageCode,
+      formattedAddress: formattedAddress ?? this.formattedAddress,
+      formattedPhoneNumber: formattedPhoneNumber ?? this.formattedPhoneNumber,
+      location: location ?? this.location,
+      viewport: viewport ?? this.viewport,
+      id: id ?? this.id,
+      plusCode: plusCode ?? this.plusCode,
+      types: types ?? this.types,
+      googleMapsUri: googleMapsUri ?? this.googleMapsUri,
+      photoUri: photoUri ?? this.photoUri,
+      photoId: photoId ?? this.photoId,
+    );
+  }
+}
 
 class Location {
   final double latitude;

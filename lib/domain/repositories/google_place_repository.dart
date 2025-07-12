@@ -1,9 +1,11 @@
 import 'package:bread_place/domain/entities/bakery.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 abstract class GooglePlaceRepository {
   Future<List<Bakery>> searchText(String query);
-  Future<List<Bakery>> searchNearby(LatLng searchLocation);
+  Future<List<Bakery>> searchNearBy({
+    required double latitude,
+    required double longitude
+  });
   Future<String> getPlacePhotoUri(String photoName);
   Future<Bakery> searchPlaceDetail(String placeId);
 }
