@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_social_platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -164,7 +165,7 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
       padding: const EdgeInsets.all(20.0),
       child: InkWell(
         onTap: () {
-          context.read<LoginBloc>().add(LoginWithKakaoRequested());
+          context.read<LoginBloc>().add(LoginRequested(platform: AppSocialPlatform.kakao));
         },
         child: Container(
           width: double.infinity,
@@ -192,7 +193,7 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
       child: InkWell(
         onTap: () {
-          context.read<LoginBloc>().add(LoginWithGoogleRequested());
+          context.read<LoginBloc>().add(LoginRequested(platform: AppSocialPlatform.google));
         },
         child: Container(
           width: double.infinity,

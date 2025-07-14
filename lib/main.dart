@@ -43,9 +43,9 @@ class MyApp extends StatelessWidget {
 
 Future<void> _initializeApp() async {
   await _initEnvFile();
-  await _initDependencies();
   _initKakaoSdk();
   await _initFirebase();
+  await _initDependencies();
   _initLocalNotification();
   _initGeofencing();
 }
