@@ -28,6 +28,11 @@ class LikeScreenMain extends StatefulWidget {
 }
 
 class _LikeScreenMainState extends State<LikeScreenMain> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<LikeBloc>().add(FetchLikedBakeries());
+  }
 
   @override
   Widget build(BuildContext context) {
