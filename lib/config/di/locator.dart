@@ -110,8 +110,8 @@ void initLocator() {
   /// Blocs
   // di.registerFactory(() => HomeBloc(di<KakaoSearchRepository>()));
   di.registerFactory(() => HomeBloc(
-      di<GooglePlaceRepository>(),
-      di<UserLocationUseCase>(),
+      searchBakeryUseCase: di<SearchBakeryUseCase>(),
+      userLocationUseCase: di<UserLocationUseCase>(),
   ));
   di.registerFactory(() => SearchBloc(di<SearchBakeryUseCase>()));
   di.registerFactory(() => LoginBloc(di<FirestoreRepository>(), di<UserLocalStorageRepository>(),));

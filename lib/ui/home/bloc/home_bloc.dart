@@ -1,11 +1,11 @@
 import 'package:bread_place/config/constants/app_constants.dart';
 import 'package:bread_place/config/constants/app_permission_exception.dart';
+import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/domain/usecases/user_location_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/temp_bakery_entity.dart';
-import 'package:bread_place/domain/repositories/google_place_repository.dart';
 import 'package:bread_place/config/constants/app_locations.dart';
 import 'package:bread_place/utils/calculate_distance.dart';
 
@@ -16,26 +16,29 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final GooglePlaceRepository _googlePlaceRepository;
+  final SearchBakeryUseCase _searchBakeryUseCase;
   final UserLocationUseCase _userLocationUseCase;
 
-  HomeBloc(
-      this._googlePlaceRepository,
-      this._userLocationUseCase
-  ) : super(
-    HomeScreenState(
-      userLocation: AppLocations.seoulStation,
-      recommendBakery: TempBakeryEntity.empty,
-      lastSearchLocation: null,
-      bakeryList: [],
-      markerTappedBakery: null,
-      mapCenter: null,
+  HomeBloc({
+    required SearchBakeryUseCase searchBakeryUseCase,
+    required UserLocationUseCase userLocationUseCase
+  })
+      : _searchBakeryUseCase = searchBakeryUseCase,
+        _userLocationUseCase = userLocationUseCase,
+        super(
+        HomeScreenState(
+          userLocation: AppLocations.seoulStation,
+          recommendBakery: TempBakeryEntity.empty,
+          lastSearchLocation: null,
+          bakeryList: [],
+          markerTappedBakery: null,
+          mapCenter: null,
 
-      hasLocationPermission: false,
-      isFarFromLastSearch: true,
-      isMapMoving: false,
-    ),
-  ) {
+          hasLocationPermission: false,
+          isFarFromLastSearch: true,
+          isMapMoving: false,
+        ),
+      ) {
     on<HomeAppInitiate>(_onAppInitiate);
     on<HomeSearchLocation>(_onSearchLocation);
     on<HomeMarkerTapped>(_onMarkerTapped);
@@ -108,7 +111,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       );
 
       // 사용자 위치 주변 검색
-      final result = await _fetchNearby(searchLocation, deduplicate: true);
+      final result = await _searchNearBy(searchLocation, deduplicate: true);
 
       // 상태 방출
       emit(
@@ -176,15 +179,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
-  Future<List<Bakery>> _fetchNearby(
+  Future<List<Bakery>> _searchNearBy(
     LatLng location, {
     bool deduplicate = false,
   }) async {
-    // 검색 위치
-    final LatLng searchLocation = LatLng(location.latitude, location.longitude);
-
     // 사용자 위치 주변 검색
-    final result = await _googlePlaceRepository.searchNearby(searchLocation);
+    final result = await _searchBakeryUseCase.searchNearBy(
+        latitude: location.latitude,
+        longitude: location.longitude
+    );
 
     // 기존 데이터 중복 제거 로직
     if (deduplicate) {
