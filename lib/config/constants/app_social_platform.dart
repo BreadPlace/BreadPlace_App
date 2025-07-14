@@ -1,0 +1,4 @@
+enum AppSocialPlatform {
+  kakao,
+  google,
+}
