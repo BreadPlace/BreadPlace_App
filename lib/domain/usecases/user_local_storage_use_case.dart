@@ -18,6 +18,11 @@ class UserLocalStorageUseCase {
     return userNickname;
   }
 
+  /// 유저 ID 삭제하기
+  Future<void> removeUserId() async {
+    _repository.removeUserId();
+  }
+
   /// GeofencingLocations
   Future<void> saveGeofencingLocations(List<String> locations) async {
     return _repository.saveGeofencingLocations(locations);

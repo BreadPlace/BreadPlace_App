@@ -1,6 +1,6 @@
 import 'package:bread_place/config/constants/app_constants.dart';
-import 'package:bread_place/config/constants/app_permission_exception.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
+import 'package:bread_place/config/constants/exception/app_permission_exception.dart';
 import 'package:bread_place/domain/usecases/user_location_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

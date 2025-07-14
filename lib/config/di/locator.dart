@@ -1,7 +1,9 @@
 import 'package:bread_place/config/constants/app_constants.dart';
 import 'package:bread_place/data/repositories/firestore_repository_impl.dart';
 import 'package:bread_place/data/repositories/geofencing_repository_impl.dart';
+import 'package:bread_place/data/repositories/google_login_repository_impl.dart';
 import 'package:bread_place/data/repositories/google_place_repository_impl.dart';
+import 'package:bread_place/data/repositories/kakao_login_repository_impl.dart';
 import 'package:bread_place/data/repositories/kakao_search_repository_impl.dart';
 import 'package:bread_place/data/repositories/notification_repository_impl.dart';
 import 'package:bread_place/data/repositories/permission_repository_impl.dart';
@@ -15,12 +17,16 @@ import 'package:bread_place/data/services/firebase/firestore_service.dart';
 import 'package:bread_place/data/services/geofencing/geofencing_service.dart';
 import 'package:bread_place/data/services/image/image_compress_service.dart';
 import 'package:bread_place/data/services/local/user_local_storage.dart';
+import 'package:bread_place/data/services/login/google_login_service.dart';
+import 'package:bread_place/data/services/login/kakao_login_service.dart';
 import 'package:bread_place/data/services/notification/local_notification_service.dart';
 import 'package:bread_place/data/services/userlocation/user_location_service.dart';
 import 'package:bread_place/data/services/permission/permission_service.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/domain/repositories/geofencing_repository.dart';
+import 'package:bread_place/domain/repositories/google_login_repository.dart';
 import 'package:bread_place/domain/repositories/google_place_repository.dart';
+import 'package:bread_place/domain/repositories/kakao_login_repository.dart';
 import 'package:bread_place/domain/repositories/kakao_search_repository.dart';
 import 'package:bread_place/domain/repositories/notification_repository.dart';
 import 'package:bread_place/domain/repositories/permission_repository.dart';
@@ -29,6 +35,7 @@ import 'package:bread_place/domain/repositories/user_location_repository.dart';
 import 'package:bread_place/domain/usecases/firestore_use_case.dart';
 import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
 import 'package:bread_place/domain/usecases/liked_bakery_use_case.dart';
+import 'package:bread_place/domain/usecases/login_use_case.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/domain/usecases/user_location_use_case.dart';
@@ -108,13 +115,17 @@ void initLocator() {
   );
 
   /// Blocs
-  // di.registerFactory(() => HomeBloc(di<KakaoSearchRepository>()));
   di.registerFactory(() => HomeBloc(
       searchBakeryUseCase: di<SearchBakeryUseCase>(),
       userLocationUseCase: di<UserLocationUseCase>(),
   ));
   di.registerFactory(() => SearchBloc(di<SearchBakeryUseCase>()));
-  di.registerFactory(() => LoginBloc(di<FirestoreRepository>(), di<UserLocalStorageRepository>(),));
+  di.registerFactory(() => LoginBloc(
+    di<FirestoreRepository>(),
+    di<UserLocalStorageRepository>(),
+    di<LoginUseCase>(),
+    di<UserLocalStorageUseCase>(),
+  ));
   di.registerFactory(() => LikeBloc(di<LikedBakeryUseCase>(), di<GeofencingUseCase>()));
 
 
@@ -124,10 +135,37 @@ void initLocator() {
   di.registerLazySingleton<NotificationUseCase>(() => NotificationUseCase(di<NotificationRepository>()));
   di.registerLazySingleton<UserLocalStorageUseCase>(() => UserLocalStorageUseCase(repository: di<UserLocalStorageRepository>()));
   di.registerLazySingleton(() =>
-      LikedBakeryUseCase(firestoreRepo: di<FirestoreRepository>(),
+      LikedBakeryUseCase(
+          firestoreRepo: di<FirestoreRepository>(),
           userLocalStorage: di<UserLocalStorageRepository>(),
           permissionRepo: di<PermissionRepository>()));
 
+
+  /// Login
+  // Login - loginService
+  di.registerLazySingleton<KakaoLoginService>(() => KakaoLoginService());
+  di.registerLazySingleton<GoogleLoginService>(() => GoogleLoginService());
+
+  // Login - Repository
+  di.registerSingletonAsync<KakaoLoginRepository>(() async {
+    final kakaoLoginService =  di<KakaoLoginService>();
+    return KakaoLoginRepositoryImpl(kakaoLoginService: kakaoLoginService);
+  });
+
+  di.registerSingletonAsync<GoogleLoginRepository>(() async {
+    final googleLoginService = di<GoogleLoginService>();
+    return GoogleLoginRepositoryImpl(googleLoginService: googleLoginService);
+  });
+
+  // Login - LoginUseCase
+  di.registerSingletonAsync<LoginUseCase>(() async {
+    return LoginUseCase(
+      firestoreRepository: di<FirestoreRepository>(),
+      userLocalStorageRepository: await di.getAsync<UserLocalStorageRepository>(),
+      kakaoLoginRepository: await di.getAsync<KakaoLoginRepository>(),
+      googleLoginReposiory: await di.getAsync<GoogleLoginRepository>(),
+    );
+  });
 
   /// GeofencingLocations
   di.registerSingleton<MethodChannel>(

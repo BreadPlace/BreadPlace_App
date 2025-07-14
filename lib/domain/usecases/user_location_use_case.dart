@@ -1,4 +1,4 @@
-import 'package:bread_place/config/constants/app_permission_exception.dart';
+import 'package:bread_place/config/constants/exception/app_permission_exception.dart';
 import 'package:bread_place/domain/entities/app_permission.dart';
 import 'package:bread_place/domain/repositories/permission_repository.dart';
 import 'package:bread_place/domain/repositories/user_location_repository.dart';

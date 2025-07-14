@@ -1,35 +1,43 @@
+import 'package:bread_place/config/constants/app_social_platform.dart';
+import 'package:bread_place/config/constants/exception/login_exception.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
+import 'package:bread_place/domain/usecases/login_use_case.dart';
+import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/utils/generate_timestamp_nickname.dart';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final FirestoreRepository _firestoreRepo;
   final UserLocalStorageRepository _userLocalStorageRepo;
+  final LoginUseCase _loginUseCase;
+  final UserLocalStorageUseCase _userLocalStorageUseCase;
 
-  LoginBloc(this._firestoreRepo, this._userLocalStorageRepo) : super(Unauthenticated()) {
+  LoginBloc(
+      this._firestoreRepo,
+      this._userLocalStorageRepo,
+      this._loginUseCase,
+      this._userLocalStorageUseCase
+  ): super(Unauthenticated()) {
     on<LoggedOut>(_onLoggedOut);
     on<CheckAuthStatus>(_onAuthStatusChecked);
-    on<LoginWithKakaoRequested>(_loginWithKakao);
-    on<LoginWithGoogleRequested>(_loginWithGoogle);
     on<LoginCanceled>(_onCanceledLogin);
     on<NicknameSubmitted>(_onNicknameSubmit);
+
+    on<LoginRequested>((event, emit) async {
+      await _login(event, emit);
+    });
   }
 
   // 로그아웃 처리
   Future<void> _onLoggedOut(LoggedOut event, Emitter<LoginState> emit) async {
     emit(AuthInProgress());
     try {
-      await _userLocalStorageRepo.removeUserId();
+      await _userLocalStorageUseCase.removeUserId();
       emit(Unauthenticated());
     } catch (e) {
       emit(LogoutFailure());
@@ -42,35 +50,33 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) async {
     emit(AuthInProgress());
-    String? cachedId = await _userLocalStorageRepo.getUserId();
+    String? cachedId = await _userLocalStorageUseCase.getUserId();
 
     (cachedId != null)
         ? emit(Authenticated(uid: cachedId, createdAt: ''))
         : emit(Unauthenticated());
   }
 
-  /// 카카오 로그인 로직
-  Future<void> _loginWithKakao(
-    LoginWithKakaoRequested event,
-    Emitter<LoginState> emit,
-  ) async {
+
+  /// 로그인 로직
+  Future<void> _login (
+      LoginRequested event,
+      Emitter<LoginState> emit,
+      ) async {
     try {
-      bool isKakaoTalkAvailable = await isKakaoTalkInstalled();
+      final String uid;
 
-      // 로그인 시도
-      isKakaoTalkAvailable
-          ? await _tryLoginWithKakaoTalk()
-          : await _tryLoginWithKakaoAccount();
+      switch(event.platform) {
+        case AppSocialPlatform.kakao:
+          uid = await _loginUseCase.loginWithKakaoAndGetUID();
+          break;
+        case AppSocialPlatform.google:
+          uid = await _loginUseCase.loginWithGoogleAndGetUID();
+          break;
+      }
 
-      // 로그인 성공 이후
-      final userInfo = await UserApi.instance.me();
-      final uid = userInfo.id.toString();
-
-      // 로컬 저장
-      await _userLocalStorageRepo.saveUserId(uid);
-
-      // 데이터가 없으면 신규유저
-      final userData = await _fetchUserDataByUid(uid);
+      // UID로 유저 데이터 가져오기(없으면 새로운 유저)
+      final userData = await _loginUseCase.getUserDataByUid(uid);
 
       // 신규 유저 -> 닉네임 입력받는 화면으로 이동
       if (userData == null) {
@@ -93,120 +99,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           ),
         );
       }
-    } on PlatformException catch (e) {
-      // 사용자가 로그인 취소한 경우
-      if (e.code == 'CANCELED') {
-        print('사용자 로그인 취소');
-      } else {
-        print('카카오 로그인 오류: $e');
-      }
+    } on LoginCanceldException {
       emit(LoginFailure());
-    } catch (e) {
-      print('알 수 없는 로그인 오류: $e');
+    } on LoginFailedException {
       emit(LoginFailure());
-    }
-  }
-
-  /// 구글 로그인 로직
-  Future<void> _loginWithGoogle(
-    LoginWithGoogleRequested event,
-    Emitter<LoginState> emit,
-  ) async {
-    try {
-      // 로그인 시도
-      await _tryLoginWithGoogle();
-
-      // 로그인 성공 이후
-      final uid = FirebaseAuth.instance.currentUser?.uid;
-
-      // UID가 없는 경우
-      if (uid == null) { return Future.error(Exception('구글 로그인 실패: UID가 null입니다.'));}
-      
-      // 로컬 저장
-      await _userLocalStorageRepo.saveUserId(uid);
-
-      // 데이터가 없으면 신규유저
-      final userData = await _fetchUserDataByUid(uid);
-
-      // 신규 유저 -> 닉네임 입력받는 화면으로 이동
-        if (userData == null) {
-          emit(
-            NicknameInputInProgress(
-              uid: uid,
-              createdAt: DateTime.now().toIso8601String(),
-            ),
-          );
-        } else {
-          // 기존 유저 -> 아이디, 닉네임 저장
-          await _userLocalStorageRepo.saveUserId(userData.uid);
-          await _userLocalStorageRepo.saveUserNickname(userData.nickname);
-
-          emit(
-            Authenticated(
-              uid: userData.uid,
-              createdAt: userData.createdAt,
-              nickname: userData.nickname,
-            ),
-          );
-        }
-      } on PlatformException catch (e) {
-        // 사용자가 로그인 취소한 경우
-        if (e.code == 'CANCELED') {
-          print('사용자 로그인 취소');
-        } else {
-          print('카카오 로그인 오류: $e');
-        }
-        emit(LoginFailure());
-    } catch (e) {
-      //   print('알 수 없는 로그인 오류: $e');
-      //   emit(LoginFailure());
-    }
-  }
-
-  // 카카오톡 앱으로 로그인 시도
-  Future<void> _tryLoginWithKakaoTalk() async {
-    final token = await UserApi.instance.loginWithKakaoTalk();
-    token.idToken;
-  }
-
-  // 카카오계정으로 로그인 시도
-  Future<void> _tryLoginWithKakaoAccount() async {
-    await UserApi.instance.loginWithKakaoAccount();
-  }
-
-  // 구글 로그인 시도
-  Future<void> _tryLoginWithGoogle() async {
-    // 가져올 데이터 Scope
-    const List<String> scopes = <String>[
-      'email',
-    ];
-
-    // Scope 적용
-    GoogleSignIn _googleSignIn = GoogleSignIn(
-      scopes: scopes,
-    );
-
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-    } catch (error) {
-      print(error);
-    }
-  }
-
-  Future<UserEntity?> _fetchUserDataByUid(String uid) async {
-    try {
-      final userData = await _firestoreRepo.fetchUserDataByUid(uid);
-      return userData;
-    } catch (e) {
-      print("_fetchUserData 에러 $e");
-      return null;
     }
   }
 
