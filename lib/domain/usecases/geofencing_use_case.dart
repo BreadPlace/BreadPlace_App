@@ -50,20 +50,14 @@ class GeofencingUseCase {
 
   Future<void> _listenGeofencingEntered() async {
     _geofencingRepository.onGeofencingEntered.listen((geofenceId) async {
-      print('🛰️ Geofencing entered: $geofenceId');
+      String displayName = await findBakeryNameByPlaceId(geofenceId);
 
-      int? id = int.tryParse(geofenceId);
-      if(id == null) {
-        print("geofenceId 없음, 저장되지 않은 빵집");
-        return;
-      }
-
-      final testNoti = NotificationEntity(
-          title: '가고싶던 빵집이 근처에 있어요!',
-          body: '냠냠 $geofenceId 에 진입',
+      final notificationEntity = NotificationEntity(
+        title: '가고싶던 빵집이 근처에 있어요!',
+        body: '$displayName 에 진입',
       );
 
-      _notificationRepository.showNotification(testNoti);
+      _notificationRepository.showNotification(notificationEntity);
     });
   }
 
@@ -83,5 +77,22 @@ class GeofencingUseCase {
     }
 
     await setGeofencingLocations(updatedLocations);
+  }
+
+  Future<String> findBakeryNameByPlaceId(String geofenceId) async {
+    final savedLocations = await _getLocalSavedLocations();
+
+    for (final location in savedLocations) {
+      final parts = location.split('|');
+      if (parts.length != 4) continue;
+
+      final id = parts[0];
+      final name = parts[1];
+
+      if (id == geofenceId) {
+        return name;
+      }
+    }
+    return '베이커리 이름 정보 없음';
   }
 }
