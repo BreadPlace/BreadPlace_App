@@ -45,13 +45,13 @@ class GeofenceManager(private val context: Context) {
 
 
     /**
-     * 현재 geofenceList에 있는 모든 Geofence를 시스템에 등록합니다.
+     * 전달받은 GeofenceLocationModel 목록을 기반으로 지오펜스를 등록합니다.
      *
      * 주의: 이 메서드는 위치 권한(ACCESS_FINE_LOCATION)이 필요합니다.
      * 권한이 없으면 SecurityException이 발생할 수 있습니다.
      */
     @SuppressLint("MissingPermission")
-    suspend fun updateGeofences(locations: List<Location>) {
+    suspend fun updateGeofences(locations: List<GeofenceLocationModel>) {
         try {
             // 기존 지오펜스 해제
             client.removeGeofences(geofencingPendingIntent).await()
@@ -63,8 +63,13 @@ class GeofenceManager(private val context: Context) {
             }
 
             // 새 Geofence 리스트 생성
-            val geofences = locations.mapIndexed { index, location ->
-                createGeofence(key = index.toString(), location = location, radiusInMeters = 100f)
+            val geofences = locations.map { model ->
+                createGeofence(
+                    key = model.placeId,
+                    latitude = model.latitude,
+                    longitude = model.longitude,
+                    radiusInMeters = 100f
+                )
             }
 
             // 새 Geofence 등록
@@ -95,32 +100,22 @@ class GeofenceManager(private val context: Context) {
     }
 
     /**
-     * 실제 Geofence 객체를 생성합니다.
-     * Google Play Services의 Geofence 클래스를 사용하여 지리적 영역을 정의합니다.
-     * @return Geofence 생성된 Geofence 객체
+     * 주어진 좌표로 Geofence 객체를 생성합니다.
      */
     private fun createGeofence(
         key: String,
-        location: Location,
+        latitude: Double,
+        longitude: Double,
         radiusInMeters: Float,
         expirationTimeInMillis: Long = Geofence.NEVER_EXPIRE,
     ): Geofence {
         return Geofence.Builder()
             .setRequestId(key)
-            .setCircularRegion(
-                location.latitude,   // 중심점 위도
-                location.longitude,  // 중심점 경도
-                radiusInMeters      // 반지름 (미터)
-            )
-            .setExpirationDuration(expirationTimeInMillis) // 만료 시간 설정
-            .setTransitionTypes(
-                // 감지할 이벤트 타입: 진입과 이탈 모두 감지
-                GEOFENCE_TRANSITION_ENTER or
-                        GEOFENCE_TRANSITION_EXIT
-            )
+            .setCircularRegion(latitude, longitude, radiusInMeters)
+            .setExpirationDuration(expirationTimeInMillis)
+            .setTransitionTypes(GEOFENCE_TRANSITION_ENTER or GEOFENCE_TRANSITION_EXIT)
             .build()
     }
-
 
     suspend fun removeAllGeofences() {
         try {
