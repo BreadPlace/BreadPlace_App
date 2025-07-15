@@ -30,6 +30,7 @@ import com.example.bread_place.geofence.NotificationHelper
 import com.example.bread_place.geofence.GeofenceBroadcastReceiver
 import com.example.bread_place.geofence.GeofenceManager
 import com.example.bread_place.geofence.LocationForegroundService
+import com.example.bread_place.geofence.GeofenceLocationModel
 
 class MainActivity : FlutterActivity() {
     companion object {
@@ -66,16 +67,16 @@ class MainActivity : FlutterActivity() {
                             return@setMethodCallHandler
                         }
 
-                        val locations = parseRegionStringsToLocations(regionList)
+                        val geofenceLocations = parseRegionStringsToGeofenceLocations(regionList)
 
-                        if (locations.isEmpty()) {
-                            result.error("NO_VALID_LOCATIONS", "No valid lat/lon pairs found", null)
+                        if (geofenceLocations.isEmpty()) {
+                            result.error("NO_VALID_LOCATIONS", "No valid geofence data found", null)
                             return@setMethodCallHandler
                         }
 
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
-                                geofenceManager.updateGeofences(locations)
+                                geofenceManager.updateGeofences(geofenceLocations)
                                 startLocationForegroundService(this@MainActivity)
                                 runOnUiThread { result.success("Geofence 등록 완료") }
                             } catch (e: Exception) {
@@ -91,7 +92,13 @@ class MainActivity : FlutterActivity() {
                                 stopLocationForegroundService(this@MainActivity)
                                 runOnUiThread { result.success("Geofence 해제 완료") }
                             } catch (e: Exception) {
-                                runOnUiThread { result.error("GEOFENCE_REMOVE_ERROR", e.message, null) }
+                                runOnUiThread {
+                                    result.error(
+                                        "GEOFENCE_REMOVE_ERROR",
+                                        e.message,
+                                        null
+                                    )
+                                }
                             }
                         }
                     }
@@ -115,26 +122,31 @@ class MainActivity : FlutterActivity() {
         )
     }
 
-    // 문자열 리스트를 Location 객체 리스트로 변환하는 함수
-    private fun parseRegionStringsToLocations(regionList: List<*>): List<Location> {
-        val locations = mutableListOf<Location>()
+    // 문자열 리스트를 GeofenceLocationModel 리스트로 변환하는 함수
+    private fun parseRegionStringsToGeofenceLocations(regionList: List<*>): List<GeofenceLocationModel> {
+        val geofenceLocations = mutableListOf<GeofenceLocationModel>()
 
         for (region in regionList) {
-            val parts = (region as? String)?.split(",") ?: continue
-            if (parts.size != 2) continue
+            val regionStr = region as? String ?: continue
+            val parts = regionStr.split("|")
 
-            val latitude = parts[0].trim().toDoubleOrNull() ?: continue
-            val longitude = parts[1].trim().toDoubleOrNull() ?: continue
+            if (parts.size != 4) continue
 
-            val location = Location("").apply {
-                this.latitude = latitude
-                this.longitude = longitude
-            }
+            val placeId = parts[0]
+            val name = parts[1]
+            val latitude = parts[2].toDoubleOrNull() ?: continue
+            val longitude = parts[3].toDoubleOrNull() ?: continue
 
-            locations.add(location)
+            geofenceLocations.add(
+                GeofenceLocationModel(
+                    placeId = placeId,
+                    name = name,
+                    latitude = latitude,
+                    longitude = longitude
+                )
+            )
         }
-
-        return locations
+        return geofenceLocations
     }
 
     // Foreground 서비스를 시작하는 함수
