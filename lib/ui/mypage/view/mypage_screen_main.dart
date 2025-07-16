@@ -34,7 +34,7 @@ class MypageScreenMain extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
 
-                    _userMenuList(),
+                    _userMenuList(context),
                     SizedBox(height: 10),
 
                     _appMenuList(),
@@ -112,15 +112,21 @@ class MypageScreenMain extends StatelessWidget {
     );
   }
 
-  Widget _userMenuList() {
+  Widget _userMenuList(BuildContext context) {
     return _borderContainer(
       Column(
         children: [
           MypageMenuItem(
+            onTap: () {
+              context.push(Routes.editNickName);
+            },
             text: '닉네임 변경',
             widget: Icon(Icons.edit, color: AppColors.sub),
           ),
           MypageMenuItem(
+            onTap: () {
+              /// TODO : My Review 화면으로 이동
+            },
             text: '내가 쓴 리뷰 보기',
             widget: Icon(Icons.library_books, color: AppColors.sub),
           ),
