@@ -51,9 +51,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   ) async {
     emit(AuthInProgress());
     String? cachedId = await _userLocalStorageUseCase.getUserId();
+    String? cachedNickname = await _userLocalStorageUseCase.getUserNickname();
 
     (cachedId != null)
-        ? emit(Authenticated(uid: cachedId, createdAt: ''))
+        ? emit(Authenticated(uid: cachedId, nickname: cachedNickname, createdAt: '',))
         : emit(Unauthenticated());
   }
 

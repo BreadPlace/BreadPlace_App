@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
+import 'package:bread_place/config/routing/routes.dart';
+import 'package:bread_place/ui/login/bloc/login_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class MypageScreenMain extends StatelessWidget {
   const MypageScreenMain({super.key});
@@ -15,26 +21,68 @@ class MypageScreenMain extends StatelessWidget {
         clipBehavior: Clip.none,
         child: SizedBox(
           height: 800,
-          child: Column(
-            children: [
-              _loginUserInfoView(),
-              SizedBox(height: 10),
+          child: BlocBuilder<LoginBloc, LoginState>(
+            builder: (context, state) {
+              if (state is Authenticated) {
+                // 로그인 된 경우
+                return Column(
+                  children: [
+                    _loginUserInfoView(
+                        name: state.nickname ?? '저장된 닉네임이 없습니다',
+                        // TODO : 리뷰 개수 불러와서 적용해야 함
+                        reviewCnt: null
+                    ),
+                    SizedBox(height: 10),
 
-              _userMenuList(),
-              SizedBox(height: 10),
+                    _userMenuList(),
+                    SizedBox(height: 10),
 
-              _appMenuList(),
-              SizedBox(height: 10),
+                    _appMenuList(),
+                    SizedBox(height: 10),
 
-              _accountMenuList(),
-            ],
+                    _accountMenuList(),
+                  ],
+                );
+              } else {
+                // 로그인 되지 않은 경우
+                return Column(
+                  children: [
+                    _loginRequiredInfoView(context),
+                    SizedBox(height: 10),
+
+                    _appMenuList(),
+                    SizedBox(height: 10),
+                  ],
+                );
+              }
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _loginUserInfoView() {
+  Widget _loginRequiredInfoView(BuildContext context) {
+    return _borderContainer(
+        InkWell(
+          onTap: () {
+            context.go(Routes.login);
+          },
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Text(
+              '로그인 하러 가기',
+              style: AppTextStyles.bmJua.copyWith(fontSize: 24),
+              textAlign: TextAlign.center,),
+          ),
+        )
+    );
+  }
+
+  Widget _loginUserInfoView({
+    required String name,
+    required int? reviewCnt
+  }) {
     return _borderContainer(
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
@@ -46,13 +94,12 @@ class MypageScreenMain extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '빵플레이스 유저123',
+                  name,
                   style: AppTextStyles.pretendardBold.copyWith(fontSize: 18),
                 ),
                 SizedBox(height: 8),
-                // _goReviewButton('46'),
                 Text(
-                  '작성한 리뷰: 46',
+                  '작성한 리뷰: ${reviewCnt ?? 0}',
                   style: AppTextStyles.pretendardRegular.copyWith(
                     color: AppColors.fontGrey,
                   ),
