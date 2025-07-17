@@ -10,6 +10,8 @@ import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/ui/common_widgets/secondary_button.dart';
 import 'package:bread_place/utils/generate_timestamp_nickname.dart';
+import 'package:bread_place/ui/common_widgets/common_snack_bar.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -33,7 +35,6 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
 
   void _saveNickname() {
     context.read<LoginBloc>().add(NicknameSubmitted(_controller.text));
-    context.pop();
   }
 
   void _showCancelDialogIfNeeded(BuildContext context) {
@@ -55,6 +56,16 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
   void _checkLoginStatusAndDispose() {
     context.read<LoginBloc>().add(CheckAuthStatus());
     context.pop();
+  }
+
+  void _showSuccessMessage() {
+    CommonSnackBar.showSuccess(context, '닉네임이 성공적으로 변경되었습니다');
+    Future.delayed(Duration(seconds: 1));
+    context.pop();
+  }
+
+  void _showFailureMessage() {
+    CommonSnackBar.showError(context, '닉네임 변경에 실패했습니다');
   }
 
   Widget _buildCancelDialog(BuildContext context) {
@@ -88,32 +99,46 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
             ),
             title: '닉네임 등록',
           ),
-          body: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                // 텍스트 필드
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 30, 20, 30),
-                  child: SizedBox(child: _inputTextField()),
-                ),
+          body: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: BlocListener<LoginBloc, LoginState>(
+                listener: (context, state) {
+                  if (state is NicknameEdited) {
+                    _showSuccessMessage();
 
-                PrimaryButton(
-                  text: '저장',
-                  onPressed: () {
-                    _saveNickname();
-                  },
-                ),
+                  } else if (state is NicknameEditFailure) {
+                    _showFailureMessage();
+                  }
+                },
+                child: Column(
+                  children: [
+                    // 텍스트 필드
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 30, 20, 30),
+                      child: SizedBox(child: _inputTextField()),
+                    ),
 
-                SizedBox(height: 20),
+                    PrimaryButton(
+                      text: '저장',
+                      onPressed: () {
+                        _saveNickname();
+                      },
+                    ),
 
-                SecondaryButton(
-                  text: '랜덤 닉네임 생성',
-                  onPressed: () {
-                    _getRandomNickname();
-                  },
+                    SizedBox(height: 20),
+
+                    SecondaryButton(
+                      text: '랜덤 닉네임 생성',
+                      onPressed: () {
+                        _getRandomNickname();
+                      },
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

@@ -82,7 +82,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (userData == null) {
         emit(NicknameEditing(
             uid: uid,
-            createdAt: DateTime.now().toIso8601String())
+            createdAt: DateTime.now().toIso8601String(),
+            isNewUser: true)
         );
       } else {
         // 기존 유저 -> 아이디, 닉네임 저장
@@ -104,43 +105,44 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
   }
 
-  Future<void> _saveUserToServer(UserEntity user) async {
-    try {
-      await _firestoreRepo.saveUser(user); // 파이어베이스 저장
-    } catch (e) {
-      print("_saveUserId 에러 $e");
-    }
-  }
-
   // 닉네임 입력이 끝나면, 유저 정보 저장
   Future<void> _onNicknameSubmit(NicknameSubmitted event, Emitter emit) async {
-    final currentState = state;
+    try {
+      final currentState = state;
 
-    if (currentState is NicknameEditing) {
-      String uid = currentState.uid;
-      String createdAt = currentState.createdAt;
-      String nickname = event.nickname.trim();
+      if (currentState is NicknameEditing) {
+        String uid = currentState.uid;
+        String createdAt = currentState.createdAt;
+        bool isNewUser = currentState.isNewUser;
+        String nickname = event.nickname.trim();
 
+        final UserEntity updatedNickname = UserEntity(
+            uid: uid,
+            createdAt: createdAt,
+            nickname: nickname
+        );
 
-      final UserEntity updatedNickname = UserEntity(
-          uid: uid,
-          createdAt: createdAt,
-          nickname: nickname
-      );
+        if(isNewUser) {
+          await _loginUseCase.saveNewUser(updatedNickname);
+        } else {
+          await _loginUseCase.updateUserNickname(uid, nickname);
+        }
 
-      await _userLocalStorageRepo.saveUserNickname(nickname);
-      await _saveUserToServer(updatedNickname);
+        emit(NicknameEdited());
 
-      emit(Authenticated(
-          uid: uid,
-          createdAt: createdAt,
-          nickname: nickname
-      ));
+        await _userLocalStorageUseCase.saveUidAndNickname(uid, nickname);
+        emit(Authenticated(uid: uid, createdAt: createdAt, nickname: nickname));
+      }
+
+    } catch(e) {
+      emit(NicknameEditFailure());
     }
+
   }
 
+  //
   void _onOpenNicknameEditScreen(OpenNicknameEditScreen event, Emitter emit) {
-    emit(NicknameEditing(uid: event.uid, createdAt: event.createdAt));
+    emit(NicknameEditing(uid: event.uid, createdAt: event.createdAt, isNewUser: false));
   }
 
   // 로그인 취소
