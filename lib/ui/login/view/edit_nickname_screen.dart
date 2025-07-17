@@ -8,7 +8,6 @@ import 'package:bread_place/ui/common_widgets/common_dialog.dart';
 import 'package:bread_place/ui/common_widgets/primary_button.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
-import 'package:bread_place/ui/common_widgets/secondary_button.dart';
 import 'package:bread_place/utils/generate_timestamp_nickname.dart';
 import 'package:bread_place/ui/common_widgets/common_snack_bar.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
@@ -25,19 +24,39 @@ class EditNicknameScreen extends StatefulWidget {
 
 class _EditNicknameScreenState extends State<EditNicknameScreen> {
   final TextEditingController _controller = TextEditingController();
+  bool _isInputValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_validateInput);
+  }
 
   @override
   void dispose() {
-    FocusScope.of(context).unfocus();
     _clearTextController();
     super.dispose();
   }
 
+  void _validateInput() {
+    setState(() {
+      _isInputValid = _controller.text.trim().isNotEmpty;
+    });
+  }
+
   void _saveNickname() {
+    _unfocusedKeyboard();
+
+    if (_controller.text.isEmpty) {
+     CommonSnackBar.showInfo(context, '1글자 이상 입력해주세요');
+     return;
+    }
     context.read<LoginBloc>().add(NicknameSubmitted(_controller.text));
   }
 
   void _showCancelDialogIfNeeded(BuildContext context) {
+    _unfocusedKeyboard();
+
     if (_controller.text.isNotEmpty) {
       showDialog(context: context, builder: (_) => _buildCancelDialog(context));
     } else {
@@ -50,7 +69,12 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
   }
 
   void _clearTextController() {
+    _controller.removeListener(_validateInput);
     _controller.clear();
+  }
+
+  void _unfocusedKeyboard() {
+    FocusScope.of(context).unfocus();
   }
 
   void _checkLoginStatusAndDispose() {
@@ -101,7 +125,7 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
           ),
           body: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () => _unfocusedKeyboard(),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: BlocListener<LoginBloc, LoginState>(
@@ -123,18 +147,17 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
 
                     PrimaryButton(
                       text: '저장',
-                      onPressed: () {
-                        _saveNickname();
-                      },
+                      onPressed: _isInputValid ? _saveNickname : null,
                     ),
 
                     SizedBox(height: 20),
 
-                    SecondaryButton(
+                    PrimaryButton(
                       text: '랜덤 닉네임 생성',
                       onPressed: () {
                         _getRandomNickname();
                       },
+                      backgroundColor: AppColors.icon,
                     ),
                   ],
                 ),
