@@ -75,8 +75,8 @@ class MypageScreenMain extends StatelessWidget {
   }
 
   Widget _loginRequiredInfoView(BuildContext context) {
-    return _borderContainer(
-        InkWell(
+    return BorderContainer(
+        child: InkWell(
           onTap: () {
             context.go(Routes.login);
           },
@@ -95,8 +95,8 @@ class MypageScreenMain extends StatelessWidget {
     required String name,
     required int? reviewCnt
   }) {
-    return _borderContainer(
-      Padding(
+    return BorderContainer(
+      child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -125,8 +125,8 @@ class MypageScreenMain extends StatelessWidget {
   }
 
   Widget _appMenuList() {
-    return _borderContainer(
-      Column(
+    return BorderContainer(
+      child: Column(
         children: [
           MypageMenuItem(
             text: '약관 및 정책',
@@ -170,8 +170,8 @@ class MypageScreenMain extends StatelessWidget {
   }
 
   Widget _accountMenuList() {
-    return _borderContainer(
-      Column(
+    return BorderContainer(
+      child: Column(
         children: [
           MypageMenuItem(
             text: '로그아웃',
@@ -185,8 +185,15 @@ class MypageScreenMain extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _borderContainer(Widget child) {
+class BorderContainer extends StatelessWidget {
+  final Widget child;
+
+  const BorderContainer({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: double.maxFinite,
       decoration: BoxDecoration(
@@ -260,8 +267,8 @@ class UserMenuList extends StatelessWidget {
       }
     }
 
-    return _borderContainer(
-      Column(
+    return BorderContainer(
+      child: Column(
         children: [
           MypageMenuItem(
             onTap: onNicknameEditTap,
