@@ -40,7 +40,7 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
     if (_controller.text.isNotEmpty) {
       showDialog(context: context, builder: (_) => _buildCancelDialog(context));
     } else {
-      context.pop(); // 입력이 없으면 그냥 뒤로 가기
+      _checkLoginStatusAndDispose();
     }
   }
 
@@ -52,6 +52,11 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
     _controller.clear();
   }
 
+  void _checkLoginStatusAndDispose() {
+    context.read<LoginBloc>().add(CheckAuthStatus());
+    context.pop();
+  }
+
   Widget _buildCancelDialog(BuildContext context) {
     return CommonDialog(
       title: '닉네임이 저장되지 않았습니다',
@@ -59,7 +64,7 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
       positiveButtonText: '나가기',
       onTapPositiveButton: () {
         context.pop();
-        context.pop();
+        _checkLoginStatusAndDispose();
       },
       negativeButtonText: '계속 작성',
       onTapNegativeButton: () {
