@@ -23,9 +23,10 @@ class RegionMonitoringService: NSObject {
         self.eventChannel.setStreamHandler(self)
     }
     
-    func startMonitoringRegions(coordinates: [CLLocationCoordinate2D]) {
-        for (index, coordinate) in coordinates.enumerated() {
-            let region = CLCircularRegion(center: coordinate, radius: 100, identifier: "\(index)")
+    func startMonitoringRegions(regionInfos: [RegionInfo]) {
+        for (index, regionInfo) in regionInfos.enumerated() {
+            let coordinate = CLLocationCoordinate2D(latitude: regionInfo.latitude, longitude: regionInfo.longitude)
+            let region = CLCircularRegion(center: coordinate, radius: 100, identifier: "\(regionInfo.id)")
             region.notifyOnEntry = true
             locationManager.startMonitoring(for: region)
         }
@@ -39,12 +40,14 @@ class RegionMonitoringService: NSObject {
 }
 
 extension RegionMonitoringService: CLLocationManagerDelegate {
+    // 해당 지역에 들어갔을 때 동작하는 함수
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         guard let eventSink = eventSink else { return }
         
         let identifier = region.identifier
         
         DispatchQueue.main.async {
+            // event 실행
             eventSink(["event": "onEnterGeofencing", "regionId": identifier])
         }
     }
