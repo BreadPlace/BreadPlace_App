@@ -1,4 +1,7 @@
+import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/common_widgets/secondary_button.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
+import 'package:bread_place/utils/generate_timestamp_nickname.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -41,6 +44,10 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
     }
   }
 
+  void _getRandomNickname() {
+    _controller.text = generateTimestampNickname();
+  }
+
   void _clearTextController() {
     _controller.clear();
   }
@@ -63,6 +70,7 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: AppColors.background,
       child: SafeArea(
         child: Scaffold(
           backgroundColor: AppColors.background,
@@ -94,10 +102,9 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
                 SizedBox(height: 20),
 
                 SecondaryButton(
-                  text: '나중에 변경',
+                  text: '랜덤 닉네임 생성',
                   onPressed: () {
-                    _clearTextController();
-                    _saveNickname();
+                    _getRandomNickname();
                   },
                 ),
               ],
@@ -109,19 +116,21 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
   }
 
   Widget _inputTextField() {
+    int maxLength = 25;
+
     return TextField(
       // 기본 밑줄 제거
       style: TextStyle(decorationThickness: 0),
       autofocus: true,
       controller: _controller,
-      maxLength: 20,
+      maxLength: maxLength,
       inputFormatters: [
         FilteringTextInputFormatter.allow(
           RegExp(r'[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]'), // 영어 대소문자, 숫자, 한글만 허용
         ),
       ],
       decoration: InputDecoration(
-        helperText: '영어 대소문자, 숫자, 한글만 입력 가능\n최대 20자',
+        helperText: '영어 대소문자, 숫자, 한글만 입력 가능\n최대 $maxLength자',
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.primary),
         ),
