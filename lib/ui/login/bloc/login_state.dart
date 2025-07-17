@@ -53,9 +53,14 @@ class NicknameEditing extends LoginState {
   final String uid;
   final String createdAt;
   final String? oldNickname;
+  final bool isNewUser;
 
-  NicknameEditing({required this.uid, required this.createdAt, this.oldNickname});
+  NicknameEditing({required this.uid, required this.createdAt, this.oldNickname, required this.isNewUser});
 
   @override
-  List<Object?> get props => [uid, createdAt, oldNickname];
+  List<Object?> get props => [uid, createdAt, oldNickname, isNewUser];
 }
+
+class NicknameEditFailure extends LoginState {}
+
+class NicknameEdited extends LoginState {}
