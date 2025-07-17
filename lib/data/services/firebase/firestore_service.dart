@@ -50,13 +50,13 @@ class FirestoreService {
 
   // 특정 uid를 가진 유저에 베이커리 리뷰 추가
   Future<void> uploadBakeryReview(
-      String userID,
-      String userNickName,
-      Bakery bakery,
-      int starRate,
-      String recommendBread,
-      String content,
-      File? image
+    String userID,
+    String userNickName,
+    Bakery bakery,
+    int starRate,
+    String recommendBread,
+    String content,
+    File? image,
   ) async {
     final createdTime = DateTime.now().toIso8601String();
 
@@ -64,21 +64,23 @@ class FirestoreService {
     String? imageUrl;
     if (image != null) {
       final fileName = 'review_$createdTime.jpg';
-      final imageReference = FirebaseStorage.instance.ref('users/$userID/reviews/$fileName');
+      final imageReference = FirebaseStorage.instance.ref(
+        'users/$userID/reviews/$fileName',
+      );
       final uploadTask = await imageReference.putFile(image);
       imageUrl = await uploadTask.ref.getDownloadURL();
     }
 
     // 리뷰 Documentation 객체 생성
     final reviewData = {
-      'writerId' : userID,
-      'writerNickName' : userNickName,
-      'bakeryId' : bakery.id,
-      'recommendBread' : recommendBread,
-      'reviewText' : content,
-      'rating' : starRate,
-      if (imageUrl != null) 'imageUrl' : imageUrl,
-      'createdAt' : createdTime
+      'writerId': userID,
+      'writerNickName': userNickName,
+      'bakeryId': bakery.id,
+      'recommendBread': recommendBread,
+      'reviewText': content,
+      'rating': starRate,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+      'createdAt': createdTime,
     };
 
     // reviews Collection에 Documentation 객체 저장
@@ -92,10 +94,7 @@ class FirestoreService {
         .doc(userID)
         .collection('reviews')
         .doc(reviewReference.id)
-        .set({
-      'createdAt': createdTime,
-      'rating': starRate,
-    });
+        .set({'createdAt': createdTime, 'rating': starRate});
 
     // bakery의 reviews Collection에 리뷰 참조 정보 저장
     await _db
@@ -103,14 +102,14 @@ class FirestoreService {
         .doc(bakery.id)
         .collection('reviews')
         .doc(reviewReference.id)
-        .set({
-      'createdAt': createdTime,
-      'rating': starRate,
-    });
+        .set({'createdAt': createdTime, 'rating': starRate});
   }
 
   // 특정 베이커리의 리뷰 가져오기
-  Future<({List<BakeryReviewDto> reviews, DocumentSnapshot? lastDoc, bool isLast})> fetchBakeryReview({
+  Future<
+    ({List<BakeryReviewDto> reviews, DocumentSnapshot? lastDoc, bool isLast})
+  >
+  fetchBakeryReview({
     required String bakeryId,
     int limit = 10,
     DocumentSnapshot? lastDoc,
@@ -130,7 +129,7 @@ class FirestoreService {
     // 베이커리의 ReviewID들 획득
     final snapshot = await query.get();
 
-    if(snapshot.docs.isEmpty) {
+    if (snapshot.docs.isEmpty) {
       return (reviews: <BakeryReviewDto>[], lastDoc: lastDoc, isLast: true);
     }
 
@@ -144,46 +143,60 @@ class FirestoreService {
 
         final data = fullReview.data()!;
         return BakeryReviewDto.fromJson(data);
-      })
+      }),
     );
 
     final lastDocTo = snapshot.docs.last;
 
-    return(reviews: reviewDocs.whereType<BakeryReviewDto>().toList(), lastDoc: lastDocTo, isLast: false);
+    return (
+      reviews: reviewDocs.whereType<BakeryReviewDto>().toList(),
+      lastDoc: lastDocTo,
+      isLast: false,
+    );
   }
 
   // 특정 uid를 가진 사용자의 liked_bakeries 가져오기
   Future<List<LikedBakeryDto>> fetchLikedBakeries(String userId) async {
-    final snapshot = await _db.collection('users').doc(userId).collection(
-        'liked_bakeries')
-        .orderBy('updatedAt', descending: true)
-        .get();
+    final snapshot =
+        await _db
+            .collection('users')
+            .doc(userId)
+            .collection('liked_bakeries')
+            .orderBy('updatedAt', descending: true)
+            .get();
 
     if (snapshot.docs.isEmpty) {
       return [];
     }
 
-    final results = snapshot.docs.map((doc) {
-      final data = doc.data();
-      return LikedBakeryDto.fromJson({
-        ...data,
-        'bakeryId': doc.id
-      });
-    }).toList();
+    final results =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          return LikedBakeryDto.fromJson({...data, 'bakeryId': doc.id});
+        }).toList();
 
     return results;
   }
 
   Future<void> removeLikedBakery(String userId, String bakeryId) async {
-    await _db.collection('users').doc(userId)
-        .collection('liked_bakeries').doc(bakeryId)
+    await _db
+        .collection('users')
+        .doc(userId)
+        .collection('liked_bakeries')
+        .doc(bakeryId)
         .delete();
   }
 
-  Future<void> addLikedBakery(String userId, LikedBakeryDto dto,
-      bool isNotificationAllowed) async {
-    await _db.collection('users').doc(userId)
-        .collection('liked_bakeries').doc(dto.bakeryId)
+  Future<void> addLikedBakery(
+    String userId,
+    LikedBakeryDto dto,
+    bool isNotificationAllowed,
+  ) async {
+    await _db
+        .collection('users')
+        .doc(userId)
+        .collection('liked_bakeries')
+        .doc(dto.bakeryId)
         .set(dto.toJson());
   }
 
@@ -205,5 +218,17 @@ class FirestoreService {
       print("toggleBakeryNotification error : $e");
       return false;
     }
+  }
+
+  Future<void> updateUserNicknameByUid({
+    required String uid,
+    required String nickname,
+  }) async {
+    final docRef = _db.collection('users').doc(uid);
+
+    await docRef.update({
+      'nickname': nickname,
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
   }
 }
