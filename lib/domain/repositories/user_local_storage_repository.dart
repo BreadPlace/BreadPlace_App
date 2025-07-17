@@ -5,6 +5,8 @@ abstract class UserLocalStorageRepository {
   Future<void> saveUserNickname(String userNickname);
   Future<String?> getUserNickname();
   Future<void> removeUserNickname();
+  Future<void> saveUserIdAndNickname(String userId, String userNickname);
+  Future<void> removeUserIdAndNickname();
 
   // GeofencingLocations
   Future<void>saveGeofencingLocations(List<String> locations);

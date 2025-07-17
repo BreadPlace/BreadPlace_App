@@ -23,6 +23,15 @@ class UserLocalStorageUseCase {
     _repository.removeUserId();
   }
 
+  /// Uid & Nickname
+  Future<void> saveUidAndNickname(String uid, String nickname) async {
+    _repository.saveUserIdAndNickname(uid, nickname);
+  }
+
+  Future<void> removeUidAndNickname() async {
+    _repository.removeUserIdAndNickname();
+  }
+
   /// GeofencingLocations
   Future<void> saveGeofencingLocations(List<String> locations) async {
     return _repository.saveGeofencingLocations(locations);
