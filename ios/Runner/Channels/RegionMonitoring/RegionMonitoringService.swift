@@ -19,12 +19,15 @@ class RegionMonitoringService: NSObject {
         super.init()
 
         locationManager.delegate = self
+        locationManager.allowsBackgroundLocationUpdates = true
+        locationManager.pausesLocationUpdatesAutomatically = false
         locationManager.requestAlwaysAuthorization()
+        
         self.eventChannel.setStreamHandler(self)
     }
     
     func startMonitoringRegions(regionInfos: [RegionInfo]) {
-        for (index, regionInfo) in regionInfos.enumerated() {
+        for regionInfo in regionInfos {
             let coordinate = CLLocationCoordinate2D(latitude: regionInfo.latitude, longitude: regionInfo.longitude)
             let region = CLCircularRegion(center: coordinate, radius: 100, identifier: "\(regionInfo.id)")
             region.notifyOnEntry = true
