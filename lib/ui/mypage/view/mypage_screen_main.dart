@@ -25,41 +25,52 @@ class MypageScreenMain extends StatelessWidget {
           child: BlocBuilder<LoginBloc, LoginState>(
             builder: (context, state) {
               if (state is Authenticated) {
-                // 로그인 된 경우
-                return Column(
-                  children: [
-                    _loginUserInfoView(
-                        name: state.nickname ?? '저장된 닉네임이 없습니다',
-                        // TODO : 리뷰 개수 불러와서 적용해야 함
-                        reviewCnt: null
-                    ),
-                    SizedBox(height: 10),
-
-                    _userMenuList(context),
-                    SizedBox(height: 10),
-
-                    _appMenuList(),
-                    SizedBox(height: 10),
-
-                    _accountMenuList(),
-                  ],
-                );
+                return _loginUserView(state);
+              } else if (state is Unauthenticated) {
+                return _guestUserView(context);
               } else {
-                // 로그인 되지 않은 경우
-                return Column(
-                  children: [
-                    _loginRequiredInfoView(context),
-                    SizedBox(height: 10),
-
-                    _appMenuList(),
-                    SizedBox(height: 10),
-                  ],
-                );
+                return _loadingView();
               }
             },
           ),
         ),
       ),
+    );
+  }
+
+  Widget _loadingView() {
+    return Center(
+      child: SizedBox(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _loginUserView(Authenticated state) {
+    return Column(
+      children: [
+        _loginUserInfoContainer(
+          name: state.nickname ?? '저장된 닉네임이 없습니다',
+          reviewCnt: null, // TODO: 리뷰 개수 연동 필요
+        ),
+        SizedBox(height: 10),
+        UserMenuList(),
+        SizedBox(height: 10),
+        _appMenuList(),
+        SizedBox(height: 10),
+        _accountMenuList(),
+      ],
+    );
+  }
+
+  Widget _guestUserView(BuildContext context) {
+    return Column(
+      children: [
+        _loginRequiredInfoView(context),
+        SizedBox(height: 10),
+        _appMenuList(),
+        SizedBox(height: 10),
+      ],
     );
   }
 
@@ -80,7 +91,7 @@ class MypageScreenMain extends StatelessWidget {
     );
   }
 
-  Widget _loginUserInfoView({
+  Widget _loginUserInfoContainer({
     required String name,
     required int? reviewCnt
   }) {
@@ -109,44 +120,6 @@ class MypageScreenMain extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _userMenuList(BuildContext context) {
-    void onNicknameEditTap(BuildContext context) {
-      final state = context.read<LoginBloc>().state;
-
-      if (state is Authenticated) {
-        context.read<LoginBloc>().add(
-          OpenNicknameEditScreen(
-            uid: state.uid,
-            createdAt: state.createdAt,
-            oldNickname: state.nickname,
-          ),
-        );
-        context.push(Routes.editNickName);
-      }
-    }
-
-    return _borderContainer(
-      Column(
-        children: [
-          MypageMenuItem(
-            onTap: () {
-              onNicknameEditTap(context);
-            },
-            text: '닉네임 변경',
-            widget: Icon(Icons.edit, color: AppColors.sub),
-          ),
-          MypageMenuItem(
-            onTap: () {
-              /// TODO : My Review 화면으로 이동
-            },
-            text: '내가 쓴 리뷰 보기',
-            widget: Icon(Icons.library_books, color: AppColors.sub),
-          ),
-        ],
       ),
     );
   }
@@ -228,7 +201,6 @@ class MypageScreenMain extends StatelessWidget {
   }
 }
 
-
 class MypageMenuItem extends StatelessWidget {
   final String text;
   final Widget? widget;
@@ -263,6 +235,47 @@ class MypageMenuItem extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class UserMenuList extends StatelessWidget {
+  const UserMenuList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.read<LoginBloc>().state;
+
+    void onNicknameEditTap() {
+      if (state is Authenticated) {
+        context.read<LoginBloc>().add(
+          OpenNicknameEditScreen(
+            uid: state.uid,
+            createdAt: state.createdAt,
+            oldNickname: state.nickname,
+          ),
+        );
+        context.push(Routes.editNickName);
+      }
+    }
+
+    return _borderContainer(
+      Column(
+        children: [
+          MypageMenuItem(
+            onTap: onNicknameEditTap,
+            text: '닉네임 변경',
+            widget: Icon(Icons.edit, color: AppColors.sub),
+          ),
+          MypageMenuItem(
+            onTap: () {
+              /// TODO : My Review 화면으로 이동
+            },
+            text: '내가 쓴 리뷰 보기',
+            widget: Icon(Icons.library_books, color: AppColors.sub),
+          ),
+        ],
       ),
     );
   }
