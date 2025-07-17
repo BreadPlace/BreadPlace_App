@@ -1,9 +1,6 @@
-import 'package:bread_place/config/routing/routes.dart';
-import 'package:bread_place/ui/common_widgets/secondary_button.dart';
-import 'package:bread_place/ui/login/bloc/login_state.dart';
-import 'package:bread_place/utils/generate_timestamp_nickname.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/ui/common_widgets/common_app_bar.dart';
@@ -11,7 +8,8 @@ import 'package:bread_place/ui/common_widgets/common_dialog.dart';
 import 'package:bread_place/ui/common_widgets/primary_button.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
-import 'package:flutter/services.dart';
+import 'package:bread_place/ui/common_widgets/secondary_button.dart';
+import 'package:bread_place/utils/generate_timestamp_nickname.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -28,12 +26,14 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
 
   @override
   void dispose() {
+    FocusScope.of(context).unfocus();
     _clearTextController();
     super.dispose();
   }
 
   void _saveNickname() {
     context.read<LoginBloc>().add(NicknameSubmitted(_controller.text));
+    context.pop();
   }
 
   void _showCancelDialogIfNeeded(BuildContext context) {
@@ -58,7 +58,8 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
       content: '작성한 닉네임이 사라집니다. 그래도 뒤로 가시겠습니까?',
       positiveButtonText: '나가기',
       onTapPositiveButton: () {
-        _saveNickname();
+        context.pop();
+        context.pop();
       },
       negativeButtonText: '계속 작성',
       onTapNegativeButton: () {
