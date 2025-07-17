@@ -6,6 +6,7 @@ import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
+import 'package:bread_place/ui/login/bloc/login_event.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -113,12 +114,27 @@ class MypageScreenMain extends StatelessWidget {
   }
 
   Widget _userMenuList(BuildContext context) {
+    void onNicknameEditTap(BuildContext context) {
+      final state = context.read<LoginBloc>().state;
+
+      if (state is Authenticated) {
+        context.read<LoginBloc>().add(
+          OpenNicknameEditScreen(
+            uid: state.uid,
+            createdAt: state.createdAt,
+            oldNickname: state.nickname,
+          ),
+        );
+        context.push(Routes.editNickName);
+      }
+    }
+
     return _borderContainer(
       Column(
         children: [
           MypageMenuItem(
             onTap: () {
-              context.push(Routes.editNickName);
+              onNicknameEditTap(context);
             },
             text: '닉네임 변경',
             widget: Icon(Icons.edit, color: AppColors.sub),
