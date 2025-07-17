@@ -54,11 +54,14 @@ class MypageScreenMain extends StatelessWidget {
           reviewCnt: null, // TODO: 리뷰 개수 연동 필요
         ),
         SizedBox(height: 10),
+
         UserMenuList(),
         SizedBox(height: 10),
+
         _appMenuList(),
         SizedBox(height: 10),
-        _accountMenuList(),
+
+        AccountMenuList(),
       ],
     );
   }
@@ -168,12 +171,20 @@ class MypageScreenMain extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _accountMenuList() {
+class AccountMenuList extends StatelessWidget {
+  const AccountMenuList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return BorderContainer(
       child: Column(
         children: [
           MypageMenuItem(
+            onTap: () {
+              context.read<LoginBloc>().add(LoggedOut());
+            },
             text: '로그아웃',
             widget: Icon(
               CupertinoIcons.square_arrow_right,
@@ -186,6 +197,7 @@ class MypageScreenMain extends StatelessWidget {
     );
   }
 }
+
 
 class BorderContainer extends StatelessWidget {
   final Widget child;
