@@ -139,7 +139,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
   }
 
-  Future<void> _onOpenNicknameEditScreen(OpenNicknameEditScreen event, Emitter emit) async {
+  void _onOpenNicknameEditScreen(OpenNicknameEditScreen event, Emitter emit) {
     emit(NicknameEditing(uid: event.uid, createdAt: event.createdAt));
   }
 
