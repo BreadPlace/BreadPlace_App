@@ -1,3 +1,4 @@
+import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -282,11 +283,7 @@ class _MapView extends StatelessWidget {
           changeCameraPosition(state.userLocation!);
         }
       },
-      child: BlocSelector<
-        HomeBloc,
-        HomeState,
-        (List<Bakery>, LatLng?, bool, bool, LatLng?)
-      >(
+      child: BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng?, bool, bool, LatLng?, bool)>(
         selector:
             (state) =>
                 state is HomeScreenState
@@ -296,14 +293,17 @@ class _MapView extends StatelessWidget {
                       state.isFarFromLastSearch,
                       state.isMapMoving,
                       state.mapCenter,
+                      state.isLoadingBakery
                     )
-                    : ([], AppLocations.seoulStation, true, false, null),
+                    : ([], AppLocations.seoulStation, true, false, null, false),
         builder: (context, data) {
           final nearbyBakeries = data.$1;
           final userLocation = data.$2;
           final isFarFromLastSearch = data.$3;
           final isMapMoving = data.$4;
           final mapCenter = data.$5;
+          final isLoadingBakery = data.$6;
+          final isSearchable = !isLoadingBakery && isFarFromLastSearch;
 
           final cameraPosition =
               userLocation != null
@@ -318,12 +318,12 @@ class _MapView extends StatelessWidget {
                 LeftTextView(
                   title: title,
                   trailingWidget: TextButton(
-                    onPressed: isFarFromLastSearch ? onTrailingTap : null,
+                    onPressed: isSearchable ? onTrailingTap : null,
                     style: TextButton.styleFrom(
                       backgroundColor:
-                          isFarFromLastSearch
-                              ? AppColors.white
-                              : AppColors.grey,
+                      isSearchable
+                          ? AppColors.white
+                          : AppColors.grey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -426,7 +426,7 @@ class _BakeryListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng, Bakery?)>(
+    return BlocSelector<HomeBloc, HomeState, (List<Bakery>, LatLng, Bakery?, bool)>(
       selector:
           (state) =>
               state is HomeScreenState
@@ -434,13 +434,15 @@ class _BakeryListView extends StatelessWidget {
                     state.bakeryList,
                     state.userLocation ?? AppLocations.seoulStation,
                     state.markerTappedBakery,
+                    state.isLoadingBakery,
                   )
-                  : ([], AppLocations.seoulStation, null),
+                  : ([], AppLocations.seoulStation, null, false),
 
       builder: (context, data) {
         final nearbyBackeies = data.$1;
         final userLocation = data.$2;
         final markerTappedBakery = data.$3;
+        final isLoadingBakery = data.$4;
 
         final bakeryListView = Container(
           height: 400,
@@ -448,8 +450,9 @@ class _BakeryListView extends StatelessWidget {
             color: AppColors.white,
             borderRadius: BorderRadius.circular(16),
           ),
-          child:
-              nearbyBackeies.isEmpty
+          child: isLoadingBakery == true
+              ? SpreadButterView()
+              : nearbyBackeies.isEmpty
                   ? EmptyResultView(
                     headLine: '검색결과',
                     message: '근처에 있는 빵집이 빵개입니다...',
