@@ -108,4 +108,9 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
   Future<bool> toggleBakeryNotification(String userId, String bakeryId, bool isNotificationAllowed) {
     return _service.toggleBakeryNotification(userId, bakeryId, isNotificationAllowed);
   }
+
+  @override
+  Future<void> updateUserNickname(String uid, String nickname) async {
+    await _service.updateUserNicknameByUid(uid: uid, nickname: nickname);
+  }
 }

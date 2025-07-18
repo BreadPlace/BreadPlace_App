@@ -50,4 +50,12 @@ class LoginUseCase {
       return null;
     }
   }
+
+  Future<void> updateUserNickname(String uid, String nickname) async {
+    await _firestoreRepository.updateUserNickname(uid, nickname);
+  }
+
+  Future<void> saveNewUser(UserEntity user) async {
+    await _firestoreRepository.saveUser(user);
+  }
 }

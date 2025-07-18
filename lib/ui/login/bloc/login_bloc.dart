@@ -7,7 +7,6 @@ import 'package:bread_place/domain/usecases/login_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
-import 'package:bread_place/utils/generate_timestamp_nickname.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
@@ -27,7 +26,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<CheckAuthStatus>(_onAuthStatusChecked);
     on<LoginCanceled>(_onCanceledLogin);
     on<NicknameSubmitted>(_onNicknameSubmit);
-
+    on<OpenNicknameEditScreen>(_onOpenNicknameEditScreen);
     on<LoginRequested>((event, emit) async {
       await _login(event, emit);
     });
@@ -51,9 +50,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   ) async {
     emit(AuthInProgress());
     String? cachedId = await _userLocalStorageUseCase.getUserId();
+    String? cachedNickname = await _userLocalStorageUseCase.getUserNickname();
 
     (cachedId != null)
-        ? emit(Authenticated(uid: cachedId, createdAt: ''))
+        ? emit(Authenticated(uid: cachedId, nickname: cachedNickname, createdAt: '',))
         : emit(Unauthenticated());
   }
 
@@ -80,11 +80,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       // 신규 유저 -> 닉네임 입력받는 화면으로 이동
       if (userData == null) {
-        emit(
-          NicknameInputInProgress(
+        emit(NicknameEditing(
             uid: uid,
             createdAt: DateTime.now().toIso8601String(),
-          ),
+            isNewUser: true)
         );
       } else {
         // 기존 유저 -> 아이디, 닉네임 저장
@@ -106,43 +105,44 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
   }
 
-  Future<void> _saveUserToServer(UserEntity user) async {
-    try {
-      await _firestoreRepo.saveUser(user); // 파이어베이스 저장
-    } catch (e) {
-      print("_saveUserId 에러 $e");
-    }
-  }
-
   // 닉네임 입력이 끝나면, 유저 정보 저장
   Future<void> _onNicknameSubmit(NicknameSubmitted event, Emitter emit) async {
-    final nickname = event.nickname.trim();
+    try {
+      final currentState = state;
 
-    // 나중에 입력하기 선택 시, 닉네임 랜덤 생성
-    final resolveNickname =
-        (nickname.isNotEmpty) ? nickname : generateTimestampNickname();
+      if (currentState is NicknameEditing) {
+        String uid = currentState.uid;
+        String createdAt = currentState.createdAt;
+        bool isNewUser = currentState.isNewUser;
+        String nickname = event.nickname.trim();
 
-    if (state is NicknameInputInProgress) {
-      final current = state as NicknameInputInProgress;
+        final UserEntity updatedNickname = UserEntity(
+            uid: uid,
+            createdAt: createdAt,
+            nickname: nickname
+        );
 
-      final UserEntity user = UserEntity(
-        uid: current.uid,
-        createdAt: current.createdAt,
-        nickname: resolveNickname,
-      );
+        if(isNewUser) {
+          await _loginUseCase.saveNewUser(updatedNickname);
+        } else {
+          await _loginUseCase.updateUserNickname(uid, nickname);
+        }
 
-      await _userLocalStorageRepo.saveUserNickname(resolveNickname); // 로컬 저장
-      await _saveUserToServer(user); // 서버 저장
+        emit(NicknameEdited());
 
-      // 상태 전환
-      emit(
-        Authenticated(
-          uid: user.uid,
-          createdAt: user.createdAt,
-          nickname: user.nickname,
-        ),
-      );
+        await _userLocalStorageUseCase.saveUidAndNickname(uid, nickname);
+        emit(Authenticated(uid: uid, createdAt: createdAt, nickname: nickname));
+      }
+
+    } catch(e) {
+      emit(NicknameEditFailure());
     }
+
+  }
+
+  //
+  void _onOpenNicknameEditScreen(OpenNicknameEditScreen event, Emitter emit) {
+    emit(NicknameEditing(uid: event.uid, createdAt: event.createdAt, isNewUser: false));
   }
 
   // 로그인 취소

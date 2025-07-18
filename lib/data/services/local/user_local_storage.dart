@@ -53,6 +53,19 @@ class UserLocalStorageService {
     await _prefs.reloadCache();
   }
 
+  /// ID & Nickname
+  Future<void> saveUserIdAndNickname(String userId, String userNickname) async {
+    await _prefs.setString(_userIdKey, userId);
+    await _prefs.setString(_userNicknameKey, userNickname);
+    await _prefs.reloadCache();
+  }
+
+  Future<void> removeUserIdAndNickname() async {
+    await _prefs.remove(_userIdKey);
+    await _prefs.remove(_userNicknameKey);
+    await _prefs.reloadCache();
+  }
+
   /// GeofencingLocations
   Future<void> saveGeofencingLocations(List<String> locations) async {
     await _prefs.setStringList(_geofencingLocationsKey, locations);

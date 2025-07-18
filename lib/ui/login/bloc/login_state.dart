@@ -48,19 +48,19 @@ class LoginFailure extends LoginState {}
 // 로그아웃 실패
 class LogoutFailure extends LoginState {}
 
-// 닉네임 입력을 기다리는 상태
-class NicknameInputInProgress extends LoginState {
+// 닉네임 수정 중인 상태
+class NicknameEditing extends LoginState {
   final String uid;
   final String createdAt;
+  final String? oldNickname;
+  final bool isNewUser;
 
-  NicknameInputInProgress({
-    required this.uid,
-    required this.createdAt,
-  });
+  NicknameEditing({required this.uid, required this.createdAt, this.oldNickname, required this.isNewUser});
 
   @override
-  List<Object?> get props => [uid, createdAt];
+  List<Object?> get props => [uid, createdAt, oldNickname, isNewUser];
 }
 
-// 닉네임 저장 완료된 상태
-class NicknameSaved extends LoginState {}
+class NicknameEditFailure extends LoginState {}
+
+class NicknameEdited extends LoginState {}

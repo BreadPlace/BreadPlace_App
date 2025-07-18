@@ -25,7 +25,7 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
         // 신규 유저 -> 닉네임 입력 화면으로 이동
-        if (state is NicknameInputInProgress) {
+        if (state is OpenNicknameEditScreen) {
           context.push(Routes.editNickName);
           // 그 외 상태 -> 홈으로 보내기
         } else {

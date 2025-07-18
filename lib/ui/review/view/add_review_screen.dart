@@ -153,7 +153,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                               /// 저장 버튼
                               PrimaryButton(
                                 text: '리뷰 남기기',
-                                horiaontalPadding: 0,
+                                horizontalPadding: 0,
                                 onPressed: _onSavedButtonTapped,
                               ),
                             ],
