@@ -7,6 +7,7 @@ abstract class LikeEvent extends Equatable {
 }
 
 class FetchLikedBakeries extends LikeEvent {}
+class ResetLikedBakeries extends LikeEvent {}
 
 class AddLike extends LikeEvent {
   final Bakery bakery;

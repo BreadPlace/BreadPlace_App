@@ -12,6 +12,7 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
 
   LikeBloc(this._likedBakeryUseCase, this._geofencingUseCase) : super(LikeState(status: LikeStatus.initial)) {
     on<FetchLikedBakeries>(_onFetchLikedBakeries);
+    on<ResetLikedBakeries>(_onResetLikedBakeries);
     on<AddLike>(_onAddLike);
     on<RemoveLike>(_onRemoveLike);
     on<ToggleNotification>(_onToggleNotificationAndUpdateGeofence);
@@ -119,5 +120,11 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
 
   Future<void> _updateGeofenceLocation(String formattedLocation) async {
       await _geofencingUseCase.updateGeofenceLocation(formattedLocation);
+  }
+
+  void _onResetLikedBakeries(ResetLikedBakeries event, Emitter emit) {
+    emit(state.copyWith(
+      bakeries: []
+    ));
   }
 }
