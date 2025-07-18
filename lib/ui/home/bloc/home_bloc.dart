@@ -37,6 +37,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           hasLocationPermission: false,
           isFarFromLastSearch: true,
           isMapMoving: false,
+          isLoadingBakery: false,
         ),
       ) {
     on<HomeAppInitiate>(_onAppInitiate);
@@ -92,6 +93,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             hasLocationPermission: false,
             isFarFromLastSearch: false,
             isMapMoving: false,
+            isLoadingBakery: false,
           ),
         );
       }
@@ -104,6 +106,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     try {
+      // 로딩 상태 방출
+      emit((state as HomeScreenState).copyWith(
+        isLoadingBakery: true
+      ));
+
       // 검색 위치
       final LatLng searchLocation = LatLng(
         event.location.latitude,
@@ -119,6 +126,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           hasLocationPermission: true,
           lastSearchLocation: searchLocation,
           bakeryList: result,
+          isFarFromLastSearch: false,
+          isLoadingBakery: false,
         ),
       );
     } catch (e, stack) {
