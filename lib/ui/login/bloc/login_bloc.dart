@@ -36,7 +36,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Future<void> _onLoggedOut(LoggedOut event, Emitter<LoginState> emit) async {
     emit(AuthInProgress());
     try {
-      await _userLocalStorageUseCase.removeUserId();
+      await _loginUseCase.logout();
       emit(Unauthenticated());
     } catch (e) {
       emit(LogoutFailure());
@@ -64,16 +64,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       Emitter<LoginState> emit,
       ) async {
     try {
-      final String uid;
-
-      switch(event.platform) {
-        case AppSocialPlatform.kakao:
-          uid = await _loginUseCase.loginWithKakaoAndGetUID();
-          break;
-        case AppSocialPlatform.google:
-          uid = await _loginUseCase.loginWithGoogleAndGetUID();
-          break;
-      }
+      // 로그인 성공 시 UID 가져오기
+      final uid = await _loginUseCase.loginAndGetUID(event.platform);
 
       // UID로 유저 데이터 가져오기(없으면 새로운 유저)
       final userData = await _loginUseCase.getUserDataByUid(uid);
