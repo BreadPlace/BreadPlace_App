@@ -26,8 +26,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<WithDraw>(_onWithDraw);
     on<CheckAuthStatus>(_onAuthStatusChecked);
     on<LoginCanceled>(_onCanceledLogin);
-    on<NicknameSubmitted>(_onNicknameSubmit);
-    on<OpenNicknameEditScreen>(_onOpenNicknameEditScreen);
     on<LoginRequested>((event, emit) async {
       await _login(event, emit);
     });
@@ -83,11 +81,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       // 신규 유저 -> 닉네임 입력받는 화면으로 이동
       if (userData == null) {
-        emit(NicknameEditing(
-            uid: uid,
-            createdAt: DateTime.now().toIso8601String(),
-            isNewUser: true)
-        );
+        emit(NewUserRequireNickname(
+          uid: uid
+        ));
       } else {
         // 기존 유저 -> 아이디, 닉네임 저장
         await _userLocalStorageRepo.saveUserId(userData.uid);
@@ -106,46 +102,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     } on LoginFailedException {
       emit(LoginFailure());
     }
-  }
-
-  // 닉네임 입력이 끝나면, 유저 정보 저장
-  Future<void> _onNicknameSubmit(NicknameSubmitted event, Emitter emit) async {
-    try {
-      final currentState = state;
-
-      if (currentState is NicknameEditing) {
-        String uid = currentState.uid;
-        String createdAt = currentState.createdAt;
-        bool isNewUser = currentState.isNewUser;
-        String nickname = event.nickname.trim();
-
-        final UserEntity updatedNickname = UserEntity(
-            uid: uid,
-            createdAt: createdAt,
-            nickname: nickname
-        );
-
-        if(isNewUser) {
-          await _loginUseCase.saveNewUser(updatedNickname);
-        } else {
-          await _loginUseCase.updateUserNickname(uid, nickname);
-        }
-
-        emit(NicknameEdited());
-
-        await _userLocalStorageUseCase.saveUidAndNickname(uid, nickname);
-        emit(Authenticated(uid: uid, createdAt: createdAt, nickname: nickname));
-      }
-
-    } catch(e) {
-      emit(NicknameEditFailure());
-    }
-
-  }
-
-  //
-  void _onOpenNicknameEditScreen(OpenNicknameEditScreen event, Emitter emit) {
-    emit(NicknameEditing(uid: event.uid, createdAt: event.createdAt, isNewUser: false));
   }
 
   // 로그인 취소
