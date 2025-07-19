@@ -48,19 +48,9 @@ class LoginFailure extends LoginState {}
 // 로그아웃 실패
 class LogoutFailure extends LoginState {}
 
-// 닉네임 수정 중인 상태
-class NicknameEditing extends LoginState {
+// 신규 유저라면 닉네임 등록 화면으로 이동
+class NewUserRequireNickname extends LoginState {
   final String uid;
-  final String createdAt;
-  final String? oldNickname;
-  final bool isNewUser;
 
-  NicknameEditing({required this.uid, required this.createdAt, this.oldNickname, required this.isNewUser});
-
-  @override
-  List<Object?> get props => [uid, createdAt, oldNickname, isNewUser];
+  NewUserRequireNickname({required this.uid});
 }
-
-class NicknameEditFailure extends LoginState {}
-
-class NicknameEdited extends LoginState {}
