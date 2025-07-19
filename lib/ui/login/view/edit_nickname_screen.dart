@@ -1,4 +1,3 @@
-import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +11,10 @@ import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/utils/generate_timestamp_nickname.dart';
 import 'package:bread_place/ui/common_widgets/common_snack_bar.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
+import 'package:bread_place/config/constants/app_text_styles.dart';
+import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
+import 'package:bread_place/ui/login/bloc/nickname_edit_event.dart';
+import 'package:bread_place/ui/login/bloc/nickname_edit_state.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -31,6 +34,7 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
   void initState() {
     super.initState();
     _controller.addListener(_validateInput);
+    _canChangeNickname();
   }
 
   @override
@@ -45,14 +49,25 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
     });
   }
 
+  void _canChangeNickname() {
+    final loginState = context.read<LoginBloc>().state;
+    // 기존 유저
+    if(loginState is Authenticated){
+      context.read<NicknameEditBloc>().add(CheckNicknameChangeAvailability(uid: loginState.uid, isNewUser: false));
+      // 신규 유저
+    } else if (loginState is NewUserRequireNickname) {
+      context.read<NicknameEditBloc>().add(CheckNicknameChangeAvailability(uid: loginState.uid, isNewUser: true));
+    }
+  }
+
   void _saveNickname() {
     _unfocusedKeyboard();
 
     if (_controller.text.isEmpty) {
-     CommonSnackBar.showInfo(context, '1글자 이상 입력해주세요');
-     return;
+      CommonSnackBar.showInfo(context, '1글자 이상 입력해주세요');
+      return;
     }
-    context.read<LoginBloc>().add(NicknameSubmitted(_controller.text));
+    context.read<NicknameEditBloc>().add(SubmitNickname(nickname: _controller.text));
   }
 
   void _showCancelDialogIfNeeded(BuildContext context) {
@@ -133,41 +148,53 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
             onTap: () => _unfocusedKeyboard(),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: BlocListener<LoginBloc, LoginState>(
+              child: BlocListener<NicknameEditBloc, NicknameEditState>(
                 listener: (context, state) {
-                  if (state is NicknameEdited) {
+                  if (state is NicknameEditSuccess) {
                     _showSuccessMessage();
-
+                    _checkLoginStatusAndDispose();
                   } else if (state is NicknameEditFailure) {
                     _showFailureMessage();
                   }
                 },
                 child: Column(
-                  children: [
-                    // 텍스트 필드
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
-                      child: SizedBox(child: _inputTextField()),
-                    ),
+                      children: [
+                        // 텍스트 필드
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
+                          child: SizedBox(child: _inputTextField()),
+                        ),
 
-                    _helperText(),
-                    SizedBox(height: 20),
+                        _helperText(),
+                        SizedBox(height: 20),
 
-                    PrimaryButton(
-                      text: '저장',
-                      onPressed: _isInputValid ? _saveNickname : null,
-                    ),
+                        BlocSelector<NicknameEditBloc, NicknameEditState, Duration?>(
+                            selector: (state) {
+                              if(state is NicknameChangeUnavailable) {
+                                return state.remainingTime;
+                              } else {
+                                return null;
+                              }
+                            },
+                          builder: (context, state) {
+                            return  _showRemainingTime(state);
+                          }),
 
-                    SizedBox(height: 10),
+                        PrimaryButton(
+                          text: '저장',
+                          onPressed: (_isInputValid) ? _saveNickname : null,
+                        ),
 
-                    PrimaryButton(
-                      text: '랜덤 닉네임 생성',
-                      onPressed: () {
-                        _getRandomNickname();
-                      },
-                      backgroundColor: AppColors.icon,
-                    ),
-                  ],
+                        SizedBox(height: 10),
+
+                        PrimaryButton(
+                          text: '랜덤 닉네임 생성',
+                          onPressed: () {
+                            _getRandomNickname();
+                          },
+                          backgroundColor: AppColors.icon,
+                        ),
+                      ],
                 ),
               ),
             ),
@@ -213,23 +240,46 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
         padding: const EdgeInsets.fromLTRB(26, 0, 20, 30),
         child: Text.rich(
           TextSpan(
-            text: '영어 대소문자, 숫자, 한글만 입력 가능'
-                '\n닉네임 변경은 최소 ',
-            style: AppTextStyles.pretendardRegular.copyWith(
-              fontSize: 14,
-            ),
+            text:
+                '영어 대소문자, 숫자, 한글만 입력 가능'
+                '\n닉네임은 ',
+            style: AppTextStyles.pretendardRegular.copyWith(fontSize: 14),
             children: [
               TextSpan(
-                text: '72시간 마다 1회',
+                text: '가입 시 1회 등록',
                 style: AppTextStyles.pretendardSemiBold.copyWith(
                   fontSize: 14,
                   color: AppColors.primary,
                 ),
               ),
+              TextSpan(text: '되며, 이후에는 '),
               TextSpan(
-                text: ' 가능합니다',
+                text: '72시간마다 1회',
+                style: AppTextStyles.pretendardSemiBold.copyWith(
+                  fontSize: 14,
+                  color: AppColors.primary,
+                ),
               ),
+              TextSpan(text: ' \n변경이 가능합니다.'),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _showRemainingTime(Duration? remainingTime) {
+    if(remainingTime == null) return SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 26.0, bottom: 20),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          '닉네임 변경 가능까지 ${remainingTime.inHours}시간 ${remainingTime.inMinutes.remainder(60)}분 남았습니다',
+          style: AppTextStyles.pretendardRegular.copyWith(
+            fontSize: 14,
+            color: AppColors.error,
           ),
         ),
       ),
