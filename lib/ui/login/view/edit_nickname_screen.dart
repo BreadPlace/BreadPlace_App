@@ -112,6 +112,10 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
     CommonSnackBar.showError(context, '닉네임 변경에 실패했습니다');
   }
 
+  void _showSignInMessage() {
+    CommonSnackBar.showSuccess(context, '회원가입에 성공 했습니다.');
+  }
+
   Widget _buildCancelDialog(BuildContext context) {
     return CommonDialog(
       title: '닉네임이 저장되지 않았습니다',
@@ -155,6 +159,9 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
                     _checkLoginStatusAndDispose();
                   } else if (state is NicknameEditFailure) {
                     _showFailureMessage();
+                  } else if (state is NicknameSavedAndSignedIn) {
+                    _showSignInMessage();
+                    _checkLoginStatusAndDispose();
                   }
                 },
                 child: Column(
