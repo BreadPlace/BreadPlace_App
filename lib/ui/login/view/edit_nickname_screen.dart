@@ -84,7 +84,6 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
 
   void _showSuccessMessage() {
     CommonSnackBar.showSuccess(context, '닉네임이 성공적으로 변경되었습니다');
-    Future.delayed(Duration(seconds: 1));
     context.pop();
   }
 
