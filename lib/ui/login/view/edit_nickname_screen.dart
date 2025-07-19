@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -145,16 +146,19 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
                   children: [
                     // 텍스트 필드
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 30, 20, 30),
+                      padding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
                       child: SizedBox(child: _inputTextField()),
                     ),
+
+                    _helperText(),
+                    SizedBox(height: 20),
 
                     PrimaryButton(
                       text: '저장',
                       onPressed: _isInputValid ? _saveNickname : null,
                     ),
 
-                    SizedBox(height: 20),
+                    SizedBox(height: 10),
 
                     PrimaryButton(
                       text: '랜덤 닉네임 생성',
@@ -188,7 +192,6 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
         ),
       ],
       decoration: InputDecoration(
-        helperText: '영어 대소문자, 숫자, 한글만 입력 가능\n최대 $maxLength자',
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.primary),
         ),
@@ -199,6 +202,36 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
           icon: Icon(CupertinoIcons.xmark_circle_fill),
         ),
         hintText: '사용하실 닉네임을 입력해주세요',
+      ),
+    );
+  }
+
+  Widget _helperText() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(26, 0, 20, 30),
+        child: Text.rich(
+          TextSpan(
+            text: '영어 대소문자, 숫자, 한글만 입력 가능'
+                '\n닉네임 변경은 최소 ',
+            style: AppTextStyles.pretendardRegular.copyWith(
+              fontSize: 14,
+            ),
+            children: [
+              TextSpan(
+                text: '72시간 마다 1회',
+                style: AppTextStyles.pretendardSemiBold.copyWith(
+                  fontSize: 14,
+                  color: AppColors.primary,
+                ),
+              ),
+              TextSpan(
+                text: ' 가능합니다',
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
