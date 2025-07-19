@@ -221,14 +221,13 @@ class FirestoreService {
   }
 
   Future<void> updateUserNicknameByUid({
-    required String uid,
-    required String nickname,
+    required UserDto user,
   }) async {
-    final docRef = _db.collection('users').doc(uid);
+    final docRef = _db.collection('users').doc(user.uid);
 
     await docRef.update({
-      'nickname': nickname,
-      'updatedAt': DateTime.now().toIso8601String(),
+      'nickname': user.nickname,
+      'updatedAt': user.updatedAt,
     });
   }
 }

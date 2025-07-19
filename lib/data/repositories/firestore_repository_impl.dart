@@ -110,7 +110,7 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
   }
 
   @override
-  Future<void> updateUserNickname(String uid, String nickname) async {
-    await _service.updateUserNicknameByUid(uid: uid, nickname: nickname);
+  Future<void> updateUserNickname(UserEntity user) async {
+    await _service.updateUserNicknameByUid(user: user.toDto());
   }
 }
