@@ -164,6 +164,7 @@ void initLocator() {
       userLocalStorageRepository: await di.getAsync<UserLocalStorageRepository>(),
       kakaoLoginRepository: await di.getAsync<KakaoLoginRepository>(),
       googleLoginReposiory: await di.getAsync<GoogleLoginRepository>(),
+      geofencingRepository: await di.getAsync<GeofencingRepository>(),
     );
   });
 

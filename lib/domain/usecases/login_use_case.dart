@@ -1,5 +1,8 @@
+import 'package:bread_place/config/constants/app_social_platform.dart';
+import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
+import 'package:bread_place/domain/repositories/geofencing_repository.dart';
 import 'package:bread_place/domain/repositories/google_login_repository.dart';
 import 'package:bread_place/domain/repositories/kakao_login_repository.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
@@ -9,36 +12,60 @@ class LoginUseCase {
   final UserLocalStorageRepository _userLocalStorageRepository;
   final KakaoLoginRepository _kakaoLoginRepository;
   final GoogleLoginRepository _googleLoginRepository;
+  final GeofencingRepository _geofencingRepository;
 
   LoginUseCase({
     required FirestoreRepository firestoreRepository,
     required UserLocalStorageRepository userLocalStorageRepository,
     required KakaoLoginRepository kakaoLoginRepository,
     required GoogleLoginRepository googleLoginReposiory,
+    required GeofencingRepository geofencingRepository,
   })
       : _firestoreRepository = firestoreRepository,
         _userLocalStorageRepository = userLocalStorageRepository,
         _kakaoLoginRepository = kakaoLoginRepository,
-        _googleLoginRepository = googleLoginReposiory;
+        _googleLoginRepository = googleLoginReposiory,
+        _geofencingRepository = geofencingRepository;
 
-  Future<String> loginWithKakaoAndGetUID() async {
-    // 로그인 & 성공 시 UID 가져오기
-    final uid = await _kakaoLoginRepository.loginWithKakaoAndGetUID();
+  Future<String> loginAndGetUID(AppSocialPlatform platform) async {
+    String uid;
+
+    switch(platform) {
+      case AppSocialPlatform.kakao:
+        uid = await _kakaoLoginRepository.loginWithKakaoAndGetUID();
+        break;
+      case AppSocialPlatform.google:
+        uid = await _googleLoginRepository.loginWithGoogleAndGetUID();
+        break;
+    }
 
     // 로컬 저장
     await _userLocalStorageRepository.saveUserId(uid);
+
+    // 알람을 허용한 베이커리 로컬, 지오펜스 재등록
+    final locations = (await _firestoreRepository.fetchLikedBakeries(uid))
+        .where((likedBakery) => likedBakery.isNotificationAllowed == true)
+        .toList()
+        .toGeofenceLocationString;
+
+    await _userLocalStorageRepository.saveGeofencingLocations(locations);
+    await _geofencingRepository.setGeofencingLocations(locations);
 
     return uid;
   }
 
-  Future<String> loginWithGoogleAndGetUID() async {
-    // 로그인 & 성공 시 UID 가져오기
-    final uid = await _googleLoginRepository.loginWithGoogleAndGetUID();
+  Future<void> logout() async {
+    // 로컬에 등록된 유저 UID 삭제하기
+    _userLocalStorageRepository.removeUserId();
 
-    // 로컬 저장
-    await _userLocalStorageRepository.saveUserId(uid);
+    // 로컬에 등록된 유저 닉네임 삭제하기
+    _userLocalStorageRepository.removeUserNickname();
 
-    return uid;
+    // 로컬에 등록된 로컬 지오펜스 삭제하기
+    _userLocalStorageRepository.removeGeofencingLocationAll();
+
+    // 네이티브에 등록된 지오펜스 삭제하기
+    _geofencingRepository.stopGeofencingLocations();
   }
 
   Future<UserEntity?> getUserDataByUid(String uid) async {
