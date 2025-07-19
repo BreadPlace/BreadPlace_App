@@ -34,7 +34,7 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
 
   @override
   void dispose() {
-    _clearTextController();
+    _removeTextControllerListener();
     super.dispose();
   }
 
@@ -69,6 +69,11 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
   }
 
   void _clearTextController() {
+    _controller.clear();
+    _validateInput();
+  }
+
+  void _removeTextControllerListener() {
     _controller.removeListener(_validateInput);
     _controller.clear();
   }
