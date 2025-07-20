@@ -14,63 +14,52 @@ class NicknameEditBloc extends Bloc<NicknameEditEvent, NicknameEditState> {
     on<SubmitNickname>(_onSubmitNickname);
   }
 
-
   Future<void> _onCheckNicknameChangeAvailability(
-    CheckNicknameChangeAvailability event,
-    Emitter<NicknameEditState> emit,
-  ) async {
-
-    if(event.isNewUser) {
-      emit(
-        NicknameChangeAvailable(
-          uid: event.uid,
-          isNewUser: true,
-          createdAt: DateTime.now().toIso8601String(),
-        ),
-      );
-      return;
-    }
-
-    final fetchedUserData = await _loginUseCase.getUserDataByUid(event.uid);
-
-    if (fetchedUserData == null) {
-      emit(NicknameDataFetchFailure());
-      return;
-    }
-
-    // 신규 유저 최초 1회 등록 시
-    if (fetchedUserData.updatedAt.isEmpty) {
-      emit(
-        NicknameChangeAvailable(
-          uid: event.uid,
-          isNewUser: true,
-          createdAt: fetchedUserData.createdAt,
-        ),
-      );
-      return;
-    }
-
+      CheckNicknameChangeAvailability event,
+      Emitter<NicknameEditState> emit,
+      ) async {
     try {
-      final updatedTime = DateTime.parse(fetchedUserData.updatedAt).toLocal();
-      final now = DateTime.now();
-      final diff = now.difference(updatedTime);
-
-      // 변경 후 72 시간 지남
-      if (diff.inHours >= 72) {
-        emit(
-          NicknameChangeAvailable(
-            uid: event.uid,
-            isNewUser: false,
-            createdAt: fetchedUserData.createdAt,
-            updatedAt: fetchedUserData.updatedAt,
-          ),
-        );
-      } else {
-        // 변경 후 72 시간 안지남
-        emit(NicknameChangeUnavailable(Duration(hours: 72) - diff));
-      }
-    } catch (_) {
+      final stateResult = await _evaluateNicknameChangeStatus(event.uid);
+      emit(stateResult);
+    } catch (e) {
       emit(NicknameChangeUnavailable(Duration(hours: 72)));
+    }
+  }
+
+  Future<NicknameEditState> _evaluateNicknameChangeStatus(String uid) async {
+    final userData = await _loginUseCase.getUserDataByUid(uid);
+
+    // 신규 유저 - 아직 DB에 존재하지 않음
+    if (userData == null) {
+      return NicknameChangeAvailable(
+        uid: uid,
+        isNewUser: true,
+        createdAt: DateTime.now().toIso8601String(),
+      );
+    }
+
+    // 기존 유저 - 가입할 때 닉네임 저장 이후 updatedAt 없음 → 최초 1회는 제한없이 변경 허용
+    if (userData.updatedAt.isEmpty) {
+      return NicknameChangeAvailable(
+        uid: uid,
+        isNewUser: false,
+        createdAt: userData.createdAt,
+      );
+    }
+
+    // 기존 유저 - 72시간 제한 검사
+    final updatedTime = DateTime.parse(userData.updatedAt).toLocal();
+    final diff = DateTime.now().difference(updatedTime);
+
+    if (diff.inHours >= 72) {
+      return NicknameChangeAvailable(
+        uid: uid,
+        isNewUser: false,
+        createdAt: userData.createdAt,
+        updatedAt: userData.updatedAt,
+      );
+    } else {
+      return NicknameChangeUnavailable(Duration(hours: 72) - diff);
     }
   }
 
