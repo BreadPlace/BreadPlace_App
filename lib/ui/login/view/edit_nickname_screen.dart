@@ -247,27 +247,26 @@ class _EditNicknameScreenState extends State<EditNicknameScreen> {
         padding: const EdgeInsets.fromLTRB(26, 0, 20, 30),
         child: Text.rich(
           TextSpan(
-            text:
-                '영어 대소문자, 숫자, 한글만 입력 가능'
+            text: '영어 대소문자, 숫자, 한글만 입력 가능'
                 '\n닉네임은 ',
             style: AppTextStyles.pretendardRegular.copyWith(fontSize: 14),
             children: [
               TextSpan(
-                text: '가입 시 1회 등록',
-                style: AppTextStyles.pretendardSemiBold.copyWith(
+                text: '가입 후 1회 자유롭게 변경',
+                style: AppTextStyles.pretendardRegular.copyWith(
                   fontSize: 14,
                   color: AppColors.primary,
                 ),
               ),
-              TextSpan(text: '되며, 이후에는 '),
+              TextSpan(text: '할 수 있습니다.\n단, '),
               TextSpan(
-                text: '72시간마다 1회',
-                style: AppTextStyles.pretendardSemiBold.copyWith(
+                text: '2회차 이후 72시간마다 1회',
+                style: AppTextStyles.pretendardRegular.copyWith(
                   fontSize: 14,
                   color: AppColors.primary,
                 ),
               ),
-              TextSpan(text: ' \n변경이 가능합니다.'),
+              TextSpan(text: ' 변경이 가능합니다.'),
             ],
           ),
         ),
