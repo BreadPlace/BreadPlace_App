@@ -48,7 +48,7 @@ class MypageScreenMain extends StatelessWidget {
 
   Widget _buildWithdrawDialog(BuildContext context){
     return CommonDialog(
-        content: '회원 정보가 삭제됩니다. 정말 탈퇴하시겠습니까?',
+        content: '회원 정보와 리뷰가 삭제됩니다. 정말 탈퇴하시겠습니까?',
         positiveButtonText: '탈퇴',
         negativeButtonText: '취소',
         onTapPositiveButton: (){
