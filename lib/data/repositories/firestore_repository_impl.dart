@@ -113,4 +113,9 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
   Future<void> updateUserNickname(UserEntity user) async {
     await _service.updateUserNicknameByUid(user: user.toDto());
   }
+
+  @override
+  Future<void> deleteAllUserInfo(String uid) async {
+    await _service.deleteAllUserInfo(uid: uid);
+  }
 }

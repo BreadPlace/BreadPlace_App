@@ -68,6 +68,23 @@ class LoginUseCase {
     _geofencingRepository.stopGeofencingLocations();
   }
 
+  Future<void> withDraw() async {
+    // 로컬에 등록된 유저 UID 가져오기
+    final uid = await _userLocalStorageRepository.getUserId();
+
+    print("uid:        $uid");
+
+    if(uid != null) {
+      // 서버의 모든 유저 데이터 삭제
+      await _firestoreRepository.deleteAllUserInfo(uid);
+
+      print("uid:        $uid");
+
+      // 로그아웃 진행(로컬 데이터 삭제)
+      await logout();
+    }
+  }
+
   Future<UserEntity?> getUserDataByUid(String uid) async {
     try {
       final userData = await _firestoreRepository.fetchUserDataByUid(uid);

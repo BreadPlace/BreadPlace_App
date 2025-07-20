@@ -230,4 +230,74 @@ class FirestoreService {
       'updatedAt': user.updatedAt,
     });
   }
+
+  Future<void> deleteAllUserInfo({
+    required String uid,
+  }) async {
+    final batch = _db.batch();
+
+    final reviewsReference = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('reviews')
+        .get();
+
+    for (final doc in reviewsReference.docs){
+      final reviewId = doc.id;
+
+      // 1. users/{uid}/reviews/{reviewId} 삭제
+      batch.delete(doc.reference);
+
+      // 2. reviews/{reviewId} 삭제
+      final reviewReference = _db
+          .collection('reviews')
+          .doc(reviewId);
+
+      batch.delete(reviewReference);
+
+      // 3. bakery/{bakeryId}/reviews/{reviewId} 삭제
+      final reviewDoc = await reviewReference.get();
+
+      if(reviewDoc.exists){
+        final data = reviewDoc.data();
+        final bakeryId = data?['bakeryId'];
+
+        if(bakeryId != null && bakeryId is String){
+          final bakeryReviewReference = _db
+              .collection('bakery')
+              .doc(bakeryId)
+              .collection('reviews')
+              .doc(reviewId);
+
+          batch.delete(bakeryReviewReference);
+        }
+
+        // 4. 리뷰 이미지 삭제
+        final imageUrl = data?['imageUrl'];
+
+        if(imageUrl != null && imageUrl is String){
+          final imageReference = FirebaseStorage.instance.refFromURL(imageUrl);
+          await imageReference.delete();
+        }
+      }
+    }
+
+    // 5. users/{uid}/liked_bakeries 삭제
+    final likedBakeriesReference = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('liked_bakeries')
+        .get();
+
+    for (final doc in likedBakeriesReference.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
+
+    // 6. (users/{uid}) 삭제
+    await _db.collection('users')
+        .doc(uid)
+        .delete();
+  }
 }
