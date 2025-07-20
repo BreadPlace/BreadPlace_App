@@ -1,3 +1,5 @@
+import 'package:bread_place/domain/usecases/login_use_case.dart';
+import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:bread_place/config/routing/routes.dart';
@@ -106,7 +108,10 @@ GoRouter router = GoRouter(
               path: Routes.mypage,
               pageBuilder:
                   (context, state) =>
-                      const NoTransitionPage(child: MypageScreenMain()),
+                  NoTransitionPage(
+                      child: BlocProvider(
+                          create: (_) => di<NicknameEditBloc>(),
+                          child: const MypageScreenMain())),
             ),
           ],
         ),
@@ -142,7 +147,11 @@ GoRouter router = GoRouter(
     GoRoute(
         path: Routes.editNickName,
         builder: (context, state) {
-          return EditNicknameScreen();
+          return BlocProvider(
+              create: (_) => NicknameEditBloc(
+                loginUseCase: di<LoginUseCase>()
+              ),
+              child: EditNicknameScreen());
         }
     ),
     GoRoute(
