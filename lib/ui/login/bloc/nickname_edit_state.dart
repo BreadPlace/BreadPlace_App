@@ -1,11 +1,6 @@
 abstract class NicknameEditState {}
 
-class NicknameEditInitial extends NicknameEditState {
-  String uid = '';
-  bool isNewUser = true;
-  String createdAt = '';
-  String? updatedAt = '';
-}
+class NicknameEditInitial extends NicknameEditState {}
 
 class NicknameChangeAvailable extends NicknameEditState {
   final String uid;
