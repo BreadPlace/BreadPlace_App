@@ -1,3 +1,4 @@
+import 'package:bread_place/ui/common_widgets/common_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,13 @@ import 'package:go_router/go_router.dart';
 
 class MypageScreenMain extends StatelessWidget {
   const MypageScreenMain({super.key});
+  
+  void _showWithdarwDialog(BuildContext context){
+    showDialog(
+        context: context,
+        builder: (_) => _buildWithdrawDialog(context)
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +33,7 @@ class MypageScreenMain extends StatelessWidget {
           child: BlocBuilder<LoginBloc, LoginState>(
             builder: (context, state) {
               if (state is Authenticated) {
-                return _loginUserView(state);
+                return _loginUserView(context, state);
               } else if (state is Unauthenticated) {
                 return _guestUserView(context);
               } else {
@@ -38,6 +46,21 @@ class MypageScreenMain extends StatelessWidget {
     );
   }
 
+  Widget _buildWithdrawDialog(BuildContext context){
+    return CommonDialog(
+        content: '회원 정보가 삭제됩니다. 정말 탈퇴하시겠습니까?',
+        positiveButtonText: '탈퇴',
+        negativeButtonText: '취소',
+        onTapPositiveButton: (){
+          context.read<LoginBloc>().add(WithDraw());
+          context.pop();
+        },
+      onTapNegativeButton: (){
+          context.pop();
+      },
+    );
+  }
+
   Widget _loadingView() {
     return Center(
       child: SizedBox(
@@ -46,7 +69,7 @@ class MypageScreenMain extends StatelessWidget {
     );
   }
 
-  Widget _loginUserView(Authenticated state) {
+  Widget _loginUserView(BuildContext context, Authenticated state) {
     return Column(
       children: [
         _loginUserInfoContainer(
@@ -61,7 +84,9 @@ class MypageScreenMain extends StatelessWidget {
         _appMenuList(),
         SizedBox(height: 10),
 
-        AccountMenuList(),
+        AccountMenuList(
+          onWithdrawButtonTapped: () => _showWithdarwDialog(context),
+        ),
       ],
     );
   }
@@ -174,7 +199,12 @@ class MypageScreenMain extends StatelessWidget {
 }
 
 class AccountMenuList extends StatelessWidget {
-  const AccountMenuList({super.key});
+  final VoidCallback onWithdrawButtonTapped;
+
+  const AccountMenuList({
+    required this.onWithdrawButtonTapped,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +221,14 @@ class AccountMenuList extends StatelessWidget {
               color: AppColors.fontGrey,
             ),
           ),
-          MypageMenuItem(text: '회원 탈퇴'),
+          MypageMenuItem(
+            onTap: onWithdrawButtonTapped,
+            text: '회원 탈퇴',
+            widget: Icon(
+              CupertinoIcons.square_arrow_right,
+              color: AppColors.fontGrey,
+            ),
+          ),
         ],
       ),
     );
