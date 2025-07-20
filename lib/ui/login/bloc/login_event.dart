@@ -7,6 +7,7 @@ sealed class LoginEvent extends Equatable {
 }
 
 class LoggedOut extends LoginEvent {}
+class WithDraw extends LoginEvent {}
 class CheckAuthStatus extends LoginEvent {}
 
 // 로그인 요청

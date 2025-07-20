@@ -23,6 +23,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       this._userLocalStorageUseCase
   ): super(Unauthenticated()) {
     on<LoggedOut>(_onLoggedOut);
+    on<WithDraw>(_onWithDraw);
     on<CheckAuthStatus>(_onAuthStatusChecked);
     on<LoginCanceled>(_onCanceledLogin);
     on<NicknameSubmitted>(_onNicknameSubmit);
@@ -37,6 +38,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(AuthInProgress());
     try {
       await _loginUseCase.logout();
+      emit(Unauthenticated());
+    } catch (e) {
+      emit(LogoutFailure());
+    }
+  }
+
+  Future<void> _onWithDraw(WithDraw event, Emitter<LoginState> emit) async {
+    emit(AuthInProgress());
+    try {
+      await _loginUseCase.withDraw();
       emit(Unauthenticated());
     } catch (e) {
       emit(LogoutFailure());
