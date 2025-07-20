@@ -301,17 +301,10 @@ class UserMenuList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.read<LoginBloc>().state;
-
     void onNicknameEditTap() {
+      final state = context.read<LoginBloc>().state;
+
       if (state is Authenticated) {
-        context.read<LoginBloc>().add(
-          OpenNicknameEditScreen(
-            uid: state.uid,
-            createdAt: state.createdAt,
-            oldNickname: state.nickname,
-          ),
-        );
         context.push(Routes.editNickName);
       }
     }
