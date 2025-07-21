@@ -1,3 +1,4 @@
+import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:bread_place/config/routing/routes.dart';
@@ -57,10 +58,7 @@ class _SearchScreenMainState extends State<SearchScreenMain> {
               selector: (state) => state,
               builder: (context, state) {
                 if (state is SearchLoading) {
-                  return const Padding(
-                    padding: EdgeInsets.only(top: 32.0),
-                    child: CircularProgressIndicator(),
-                  );
+                  return SpreadButterView();
                 }
 
                 if (state is SearchFailure) {
