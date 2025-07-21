@@ -43,6 +43,7 @@ import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
+import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -127,6 +128,7 @@ void initLocator() {
     di<UserLocalStorageUseCase>(),
   ));
   di.registerFactory(() => LikeBloc(di<LikedBakeryUseCase>(), di<GeofencingUseCase>()));
+  di.registerFactory(() => NicknameEditBloc(loginUseCase: di<LoginUseCase>()));
 
 
   /// UseCase

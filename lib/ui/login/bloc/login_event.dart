@@ -20,21 +20,3 @@ class LoginRequested extends LoginEvent {
 }
 
 class LoginCanceled extends LoginEvent {}
-
-// 닉네임 입력 후 저장 요청
-class NicknameSubmitted extends LoginEvent {
-  final String nickname;
-
-  NicknameSubmitted(this.nickname);
-
-  @override
-  List<Object?> get props => [nickname];
-}
-
-class OpenNicknameEditScreen extends LoginEvent {
-  final String uid;
-  final String createdAt;
-  final String? oldNickname;
-
-  OpenNicknameEditScreen({required this.uid, required this.createdAt, this.oldNickname});
-}
