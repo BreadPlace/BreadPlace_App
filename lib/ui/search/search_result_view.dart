@@ -3,12 +3,14 @@ import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
 import 'package:flutter/material.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/common_left_text_view.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class SearchResultView extends StatefulWidget {
   final double? height;
   final int itemCount;
   final List<Bakery> results;
   final void Function(Bakery) onSelectBakery;
+  final LatLng? userLocation;
 
   const SearchResultView({
     super.key,
@@ -16,6 +18,7 @@ class SearchResultView extends StatefulWidget {
     required this.results,
     this.height,
     required this.onSelectBakery,
+    this.userLocation
   });
 
   @override
@@ -49,7 +52,10 @@ class _SearchResultViewState extends State<SearchResultView> {
                 itemCount: widget.itemCount,
                 itemBuilder: (context, index) {
                   final bakery = widget.results[index];
-                  return CommonBakeryContainer(bakery: bakery, onTap: () => widget.onSelectBakery(bakery));
+                  return CommonBakeryContainer(
+                      bakery: bakery,
+                      userLocation: widget.userLocation,
+                      onTap: () => widget.onSelectBakery(bakery));
                 },
                 separatorBuilder:
                     (context, int index) => Divider(color: AppColors.grey),

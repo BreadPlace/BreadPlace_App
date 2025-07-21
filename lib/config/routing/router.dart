@@ -60,10 +60,7 @@ GoRouter router = GoRouter(
               pageBuilder:
                   // 애니메이션 없이 페이지 전환
                   (context, state) => NoTransitionPage(
-                    child: BlocProvider(
-                      create: (_) => di<HomeBloc>()..add(HomeAppInitiate()),
-                      child: const HomeScreenMain(),
-                    ),
+                    child: const HomeScreenMain(),
                   ),
             ),
           ],
@@ -75,8 +72,10 @@ GoRouter router = GoRouter(
               path: Routes.search,
               pageBuilder:
                   (context, state) => NoTransitionPage(
-                    child: BlocProvider(
-                      create: (_) => di<SearchBloc>(),
+                    child: MultiBlocProvider(
+                      providers: [
+                        BlocProvider(create: (_) => di<SearchBloc>()),
+                      ],
                       child: const SearchScreenMain(),
                     ),
                   ),

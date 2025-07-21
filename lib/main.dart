@@ -1,5 +1,6 @@
 import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
+import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => di<LoginBloc>()),
         BlocProvider(create: (_) => di<LikeBloc>()..add(FetchLikedBakeries())),
+        BlocProvider(create: (_) => di<HomeBloc>())
       ],
       child: MaterialApp.router(
         title: 'BreadPlace',
