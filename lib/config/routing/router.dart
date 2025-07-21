@@ -75,8 +75,11 @@ GoRouter router = GoRouter(
               path: Routes.search,
               pageBuilder:
                   (context, state) => NoTransitionPage(
-                    child: BlocProvider(
-                      create: (_) => di<SearchBloc>(),
+                    child: MultiBlocProvider(
+                      providers: [
+                        BlocProvider(create: (_) => di<SearchBloc>()),
+                        BlocProvider(create: (_) => di<HomeBloc>())
+                      ],
                       child: const SearchScreenMain(),
                     ),
                   ),
