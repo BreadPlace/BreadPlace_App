@@ -1,5 +1,3 @@
-import 'package:bread_place/ui/login/bloc/login_bloc.dart';
-import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +14,9 @@ import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
+import 'package:bread_place/ui/home/bloc/home_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -196,12 +197,18 @@ class LikedListView extends StatelessWidget {
 
                 if (bakery == null) return const SizedBox.shrink(); // null 방지
 
-                return LikedBakeryContainer(
-                  bakery: bakery,
-                  onTapContainer: () => onBakeryContainerTapped(bakery),
-                  onHeartButtonPressed: () => showRemoveDialog(context, bakery),
-                  onBellButtonPressed: () => onBellButtonPressed(bakery, notify),
-                  isNotified: notify,
+                return BlocSelector<HomeBloc, HomeState, LatLng?>(
+                  selector: (state) => state.userLocation,
+                  builder: (context, userLocation) {
+                    return LikedBakeryContainer(
+                      bakery: bakery,
+                      onTapContainer: () => onBakeryContainerTapped(bakery),
+                      onHeartButtonPressed: () => showRemoveDialog(context, bakery),
+                      onBellButtonPressed: () => onBellButtonPressed(bakery, notify),
+                      isNotified: notify,
+                      userLocation: userLocation,
+                    );
+                  }
                 );
               }, separatorBuilder: (_, _) => const SizedBox(height: 4) // 여백
             ),
