@@ -54,8 +54,7 @@ class _SearchScreenMainState extends State<SearchScreenMain> {
           ),
           // 상태별 결과 처리
           Expanded(
-            child: BlocSelector<SearchBloc, SearchState, SearchState>(
-              selector: (state) => state,
+            child: BlocBuilder<SearchBloc, SearchState>(
               builder: (context, state) {
                 if (state is SearchLoading) {
                   return SpreadButterView();
