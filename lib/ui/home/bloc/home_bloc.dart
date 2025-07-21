@@ -118,7 +118,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       );
 
       // 사용자 위치 주변 검색
-      final result = await _searchNearBy(searchLocation, deduplicate: true);
+      final result = await _searchNearBy(searchLocation);
 
       // 상태 방출
       emit(
@@ -188,24 +188,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
-  Future<List<Bakery>> _searchNearBy(
-    LatLng location, {
-    bool deduplicate = false,
-  }) async {
+  Future<List<Bakery>> _searchNearBy(LatLng location) async {
     // 사용자 위치 주변 검색
     final result = await _searchBakeryUseCase.searchNearBy(
         latitude: location.latitude,
         longitude: location.longitude
     );
-
-    // 기존 데이터 중복 제거 로직
-    if (deduplicate) {
-      final combined = [...state.bakeryList, ...result];
-
-      final deduplicated =
-          {for (final bakery in combined) bakery.id: bakery}.values.toList();
-      return deduplicated;
-    }
 
     return result;
   }
