@@ -1,3 +1,4 @@
+import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -65,7 +66,7 @@ class _LikeScreenMainState extends State<LikeScreenMain> {
 
             case LikeStatus.initial:
             default:
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: SpreadButterView());
           }
         },
       ),
