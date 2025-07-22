@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/exception/geofence_exception.dart';
 import 'package:bread_place/domain/entities/notification_entity.dart';
 import 'package:bread_place/domain/repositories/geofencing_repository.dart';
 import 'package:bread_place/domain/repositories/notification_repository.dart';
@@ -76,7 +77,11 @@ class GeofencingUseCase {
       updatedLocations = [...savedLocations, location];
     }
 
-    await setGeofencingLocations(updatedLocations);
+    if(canAddMoreGeofence(updatedLocations)) {
+      await setGeofencingLocations(updatedLocations);
+    } else {
+      throw GeofenceLimitExceededException();
+    }
   }
 
   Future<String> findBakeryNameByPlaceId(String geofenceId) async {
@@ -94,5 +99,10 @@ class GeofencingUseCase {
       }
     }
     return '베이커리 이름 정보 없음';
+  }
+
+  bool canAddMoreGeofence(List<String> locations) {
+    const int maxGeofenceCount = 20;
+    return locations.length <= maxGeofenceCount;
   }
 }
