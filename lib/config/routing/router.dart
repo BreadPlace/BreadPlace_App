@@ -1,5 +1,8 @@
 import 'package:bread_place/domain/usecases/login_use_case.dart';
 import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
+import 'package:bread_place/ui/mypage/view/bloc/my_review_bloc.dart';
+import 'package:bread_place/ui/mypage/view/bloc/my_review_event.dart';
+import 'package:bread_place/ui/mypage/view/view/my_review_screen.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:bread_place/config/routing/routes.dart';
@@ -14,9 +17,8 @@ import 'package:bread_place/ui/review/bloc/add_review_bloc.dart';
 import 'package:bread_place/ui/review/view/add_review_screen.dart';
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/ui/common_widgets/main_scaffold.dart';
-import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/ui/home/view/home_screen_main.dart';
-import 'package:bread_place/ui/mypage/view/mypage_screen_main.dart';
+import 'package:bread_place/ui/mypage/view/view/mypage_screen_main.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:bread_place/ui/search/search_screen_main.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
@@ -172,6 +174,17 @@ GoRouter router = GoRouter(
               ),
             ],
             child: const AddReviewScreen(),
+        );
+      },
+    ),
+
+    /// 내가 쓴 리뷰 Router
+    GoRoute(
+      path: Routes.myReview,
+      builder: (context, state) {
+        return BlocProvider(
+            create: (_) => di<MyReviewBloc>()..add(FetchBakeryReview()),
+            child: const MyReviewScreen(),
         );
       },
     ),

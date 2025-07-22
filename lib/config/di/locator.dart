@@ -44,6 +44,7 @@ import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
+import 'package:bread_place/ui/mypage/view/bloc/my_review_bloc.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -129,6 +130,12 @@ void initLocator() {
   ));
   di.registerFactory(() => LikeBloc(di<LikedBakeryUseCase>(), di<GeofencingUseCase>()));
   di.registerFactory(() => NicknameEditBloc(loginUseCase: di<LoginUseCase>()));
+
+  // 내가 쓴 리뷰 Bloc
+  di.registerFactory(() => MyReviewBloc(
+        firestoreUseCase: di<FirestoreUseCase>(),
+        userLocalStorageUseCase: di<UserLocalStorageUseCase>(),
+      ));
 
 
   /// UseCase
