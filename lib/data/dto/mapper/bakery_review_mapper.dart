@@ -6,6 +6,7 @@ extension BakeryReviewEntityMapper on BakeryReviewEntity {
   BakeryReviewDto toDto() {
     return BakeryReviewDto(
         bakeryId: bakeryId,
+        bakeryName: bakeryName,
         writerId: writerId,
         writerNickName: writerNickName,
         recommendBread: recommendBread,
@@ -22,6 +23,7 @@ extension BakeryReviewDtoMapper on BakeryReviewDto {
   BakeryReviewEntity toEntity(){
     return BakeryReviewEntity(
         bakeryId: bakeryId,
+        bakeryName: bakeryName,
         writerId: writerId,
         writerNickName: writerNickName,
         recommendBread: recommendBread,

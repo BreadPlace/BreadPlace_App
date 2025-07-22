@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bread_place/config/constants/app_enum/review_fetch_type.dart';
 import 'package:bread_place/data/dto/mapper/bakery_review_mapper.dart';
 import 'package:bread_place/data/dto/mapper/liked_bakery_mapper.dart';
 import 'package:bread_place/data/dto/mapper/user_mapper.dart';
@@ -80,9 +81,11 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
     await _service.removeLikedBakery(userId, bakeryId);
   }
 
+  // 베이커리 리뷰 가져오기
   @override
   Future<({List<BakeryReviewEntity> reviews, FirebasePaginationCursor? lastDoc, bool isLast})> fetchBakeryReviews({
-    required Bakery bakery,
+    required ReviewFetchType type,
+    required String id,
     FirebasePaginationCursor? cursor
   }) async {
 
@@ -91,9 +94,9 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
         ? cursor!.raw as DocumentSnapshot
         : null;
 
-
     final response = await _service.fetchBakeryReview(
-        bakeryId: bakery.id,
+        type: type,
+        id: id,
         lastDoc: lastDoc
     );
 

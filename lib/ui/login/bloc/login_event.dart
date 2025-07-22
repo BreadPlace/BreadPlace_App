@@ -1,4 +1,4 @@
-import 'package:bread_place/config/constants/app_social_platform.dart';
+import 'package:bread_place/config/constants/app_enum/app_social_platform.dart';
 import 'package:equatable/equatable.dart';
 
 sealed class LoginEvent extends Equatable {

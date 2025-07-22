@@ -7,7 +7,7 @@ import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
-import 'package:bread_place/config/constants/app_social_platform.dart';
+import 'package:bread_place/config/constants/app_enum/app_social_platform.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';

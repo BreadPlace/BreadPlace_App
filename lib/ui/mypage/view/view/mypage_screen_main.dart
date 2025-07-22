@@ -309,6 +309,14 @@ class UserMenuList extends StatelessWidget {
       }
     }
 
+    void onMyReviewTap() {
+      final state = context.read<LoginBloc>().state;
+
+      if (state is Authenticated) {
+        context.push(Routes.myReview);
+      }
+    }
+
     return BorderContainer(
       child: Column(
         children: [
@@ -318,9 +326,7 @@ class UserMenuList extends StatelessWidget {
             widget: Icon(Icons.edit, color: AppColors.sub),
           ),
           MypageMenuItem(
-            onTap: () {
-              /// TODO : My Review 화면으로 이동
-            },
+            onTap: onMyReviewTap,
             text: '내가 쓴 리뷰 보기',
             widget: Icon(Icons.library_books, color: AppColors.sub),
           ),

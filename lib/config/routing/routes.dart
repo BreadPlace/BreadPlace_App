@@ -8,4 +8,5 @@ abstract final class Routes {
   static const like = '/like';
   static const editNickName = '/editNickName';
   static const addReview = '/addReview';
+  static const myReview = '/myReview';
 }

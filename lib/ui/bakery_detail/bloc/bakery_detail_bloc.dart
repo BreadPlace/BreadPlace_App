@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/app_enum/review_fetch_type.dart';
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/domain/entities/firebase_pagination_cursor.dart';
 import 'package:bread_place/domain/usecases/firestore_use_case.dart';
@@ -21,7 +22,7 @@ class BakeryDetailBloc extends Bloc<BakeryDetailEvent, BakeryDetailState> {
         _bakery = bakery,
         super(BakeryDetailInitial(bakery: bakery)) {
       on<OnFetchReviews>(_getReviews);
-      on<OnNewReview>(_OnNewReviewAdded);
+      on<OnNewReview>(_onNewReviewAdded);
   }
 
   Future<void> _getReviews(OnFetchReviews event, Emitter<BakeryDetailState> emit) async {
@@ -33,7 +34,11 @@ class BakeryDetailBloc extends Bloc<BakeryDetailEvent, BakeryDetailState> {
 
     emit(currentState.copyWith(isFetchingReviews: true));
 
-    final response = await _firestoreUseCase.getBakeryReviews(bakery: _bakery, cursor: currentState.cursor);
+    final response = await _firestoreUseCase.getBakeryReviews(
+        type: ReviewFetchType.bakeryId,
+        id: _bakery.id,
+        cursor: currentState.cursor
+    );
 
     emit(currentState.copyWith(
       reviews: [...(currentState.reviews ?? []), ...response.reviews],
@@ -43,7 +48,7 @@ class BakeryDetailBloc extends Bloc<BakeryDetailEvent, BakeryDetailState> {
     ));
   }
 
-  Future<void> _OnNewReviewAdded(OnNewReview event, Emitter<BakeryDetailState> emit) async {
+  Future<void> _onNewReviewAdded(OnNewReview event, Emitter<BakeryDetailState> emit) async {
     final currentState = state as BakeryDetailInitial;
 
     emit(currentState.copyWith(isLastReview: false));

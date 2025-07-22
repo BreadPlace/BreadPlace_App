@@ -1,4 +1,4 @@
-import 'package:bread_place/config/constants/app_social_platform.dart';
+import 'package:bread_place/config/constants/app_enum/app_social_platform.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';

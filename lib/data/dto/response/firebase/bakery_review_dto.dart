@@ -5,6 +5,7 @@ part 'bakery_review_dto.g.dart';
 @JsonSerializable()
 class BakeryReviewDto{
   final String bakeryId;
+  final String bakeryName;
   final String writerId;
   final String writerNickName;
   final String recommendBread;
@@ -15,6 +16,7 @@ class BakeryReviewDto{
 
   BakeryReviewDto({
     required this.bakeryId,
+    required this.bakeryName,
     required this.writerId,
     required this.writerNickName,
     required this.recommendBread,

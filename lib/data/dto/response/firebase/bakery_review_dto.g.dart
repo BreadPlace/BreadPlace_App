@@ -9,6 +9,7 @@ part of 'bakery_review_dto.dart';
 BakeryReviewDto _$BakeryReviewDtoFromJson(Map<String, dynamic> json) =>
     BakeryReviewDto(
       bakeryId: json['bakeryId'] as String,
+      bakeryName: json['bakeryName'] as String,
       writerId: json['writerId'] as String,
       writerNickName: json['writerNickName'] as String,
       recommendBread: json['recommendBread'] as String,
@@ -21,6 +22,7 @@ BakeryReviewDto _$BakeryReviewDtoFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$BakeryReviewDtoToJson(BakeryReviewDto instance) =>
     <String, dynamic>{
       'bakeryId': instance.bakeryId,
+      'bakeryName': instance.bakeryName,
       'writerId': instance.writerId,
       'writerNickName': instance.writerNickName,
       'recommendBread': instance.recommendBread,
