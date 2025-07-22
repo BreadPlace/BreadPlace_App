@@ -1,3 +1,4 @@
+import 'package:bread_place/ui/common_widgets/common_retry_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,9 +15,6 @@ import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
-import 'package:bread_place/ui/home/bloc/home_bloc.dart';
-import 'package:bread_place/ui/login/bloc/login_bloc.dart';
-import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
