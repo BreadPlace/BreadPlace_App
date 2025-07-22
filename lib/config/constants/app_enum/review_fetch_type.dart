@@ -1,0 +1,4 @@
+enum ReviewFetchType {
+  userId,
+  bakeryId
+}
