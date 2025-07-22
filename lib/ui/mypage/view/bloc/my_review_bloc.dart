@@ -40,7 +40,7 @@ class MyReviewBloc extends Bloc<MyReviewEvent, MyReviewState> {
     );
 
     emit(state.copyWith(
-      reviews: [...state.reviews ?? [], ...response.reviews],
+      reviews: [...state.reviews, ...response.reviews],
       cursor: response.lastDoc,
       status: MyReviewStatus.success,
       isLastReview: response.isLast,

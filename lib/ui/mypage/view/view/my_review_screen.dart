@@ -94,7 +94,7 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
 }
 
 class _ReviewListView extends StatelessWidget {
-  final List<BakeryReviewEntity>? reviews;
+  final List<BakeryReviewEntity> reviews;
 
   const _ReviewListView({
     required this.reviews,
@@ -109,7 +109,7 @@ class _ReviewListView extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
         child: Column(
           children: [
-            if ((reviews ?? []).isNotEmpty)
+            if (reviews.isNotEmpty)
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.white,
@@ -118,10 +118,10 @@ class _ReviewListView extends StatelessWidget {
 
                 child: Column(
                     children: List.generate(
-                      reviews!.length,
+                      reviews.length,
                           (index) => Column(
                         children: [
-                          _ReviewContentView(review: reviews![index], horizontalPadding: horizontalPadding),
+                          _ReviewContentView(review: reviews[index], horizontalPadding: horizontalPadding),
                           const Divider(height: 1),
                         ],
                       ),
