@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bread_place/config/constants/app_enum/review_fetch_type.dart';
 import 'package:bread_place/data/dto/response/firebase/bakery_review_dto.dart';
 import 'package:bread_place/data/dto/response/firebase/liked_bakery_dto.dart';
 import 'package:bread_place/data/dto/response/firebase/user_dto.dart';
@@ -76,6 +77,7 @@ class FirestoreService {
       'writerId': userID,
       'writerNickName': userNickName,
       'bakeryId': bakery.id,
+      'bakeryName': bakery.displayName,
       'recommendBread': recommendBread,
       'reviewText': content,
       'rating': starRate,
@@ -105,19 +107,22 @@ class FirestoreService {
         .set({'createdAt': createdTime, 'rating': starRate});
   }
 
-  // 특정 베이커리의 리뷰 가져오기
+  // 베이커리 리뷰 가져오기
   Future<
     ({List<BakeryReviewDto> reviews, DocumentSnapshot? lastDoc, bool isLast})
   >
   fetchBakeryReview({
-    required String bakeryId,
+    required ReviewFetchType type,
+    required String id,
     int limit = 10,
     DocumentSnapshot? lastDoc,
   }) async {
-    Query query = _db
-        .collection('bakery')
-        .doc(bakeryId)
-        .collection('reviews')
+    final reviewReference = switch (type) {
+      ReviewFetchType.userId => _db.collection('users').doc(id).collection('reviews'),
+      ReviewFetchType.bakeryId => _db.collection('bakery').doc(id).collection('reviews'),
+    };
+
+    Query query = reviewReference
         .orderBy('createdAt', descending: false)
         .limit(limit);
 

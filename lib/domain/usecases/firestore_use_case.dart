@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bread_place/config/constants/app_enum/review_fetch_type.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/domain/entities/firebase_pagination_cursor.dart';
@@ -34,9 +35,10 @@ class FirestoreUseCase {
 
   /// 베이커리 리뷰 가져오기
   Future<({List<BakeryReviewEntity> reviews, FirebasePaginationCursor? lastDoc, bool isLast})> getBakeryReviews({
-    required Bakery bakery,
+    required ReviewFetchType type,
+    required String id,
     FirebasePaginationCursor? cursor,
   }) async {
-    return await _repository.fetchBakeryReviews(bakery: bakery, cursor: cursor);
+    return await _repository.fetchBakeryReviews(type: type, id: id, cursor: cursor);
   }
 }

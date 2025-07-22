@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bread_place/config/constants/app_enum/review_fetch_type.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
@@ -18,7 +19,8 @@ abstract class FirestoreRepository {
       File? image
   );
   Future<({List<BakeryReviewEntity> reviews, FirebasePaginationCursor? lastDoc, bool isLast})> fetchBakeryReviews({
-    required Bakery bakery,
+    required ReviewFetchType type,
+    required String id,
     FirebasePaginationCursor? cursor
   });
   Future<void> addLiked(String userId, LikedBakeryEntity bakery, bool isNotificationAllowed);
