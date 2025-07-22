@@ -152,7 +152,6 @@ class LikedListView extends StatelessWidget {
       );
     }
 
-    // 알림 버튼 클릭 시 작동
     void onBellButtonPressed(Bakery bakery, bool isNotificationAllowed) async {
       context.read<LikeBloc>().add(ToggleNotification(
           bakery: bakery, isNotificationAllowed: isNotificationAllowed));
