@@ -192,18 +192,14 @@ class _ReviewContentView extends StatelessWidget {
                   constraints: BoxConstraints(
                       minWidth: screenWidth - (horizontalPadding * 4)),
                   child: Row(
-                    children: List.generate(
-                        1,
-                            (index) =>
-                            Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: CommonImageContainer(
-                                    uri: review.imageUrl ?? '',
-                                    width: 160,
-                                    height: 160
-                                )
-                            )
-                    ),
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: CommonImageContainer(
+                                uri: review.imageUrl ?? '',
+                                width: 160,
+                                height: 160)),
+                      ]
                   ),
                 ),
               ),
