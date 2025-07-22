@@ -38,6 +38,12 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
     }});
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _onAddReviewButtonTapped(Bakery bakery) {
     final bloc = context.read<BakeryDetailBloc>();
 

@@ -34,6 +34,12 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _fetchBakeryReview() {
     final bloc = context.read<MyReviewBloc>();
     final state = bloc.state;
