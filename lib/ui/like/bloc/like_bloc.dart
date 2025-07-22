@@ -1,3 +1,4 @@
+import 'package:bread_place/config/constants/exception/geofence_exception.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
@@ -85,19 +86,27 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     bool newState = !currentState;
     String location = event.bakery.formattedLocationWithDetail;
 
-    try {
-      await _updateNotificationStatus(bakery.id, newState);
-      await _updateGeofenceLocation(location);
+    emit(state.copyWith(status: LikeStatus.loading));
 
+    try {
+      await _updateGeofenceLocation(location);
       final updateList = _updateIsAllowed(bakery, newState);
+
+      await _updateNotificationStatus(bakery.id, newState);
 
       emit(state.copyWith(
           bakeries: updateList,
           status: LikeStatus.success));
+
+    } on GeofenceLimitExceededException catch (e) {
+      emit(state.copyWith(
+        status: LikeStatus.geofenceLimitExceeded,
+        errorMessage: e.message,
+      ));
     } catch (e) {
       emit(state.copyWith(
           status: LikeStatus.error,
-          errorMessage: '지오펜스 또는 알림 허용 실패 $e'));
+          errorMessage: '알림 등록 중 오류가 발생했습니다. 다시 시도해 주세요.'));
     }
   }
 

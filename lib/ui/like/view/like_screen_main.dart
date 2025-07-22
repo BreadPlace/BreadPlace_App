@@ -1,4 +1,3 @@
-import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +17,10 @@ import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
+import 'package:bread_place/ui/home/bloc/home_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
+import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,6 +38,10 @@ class _LikeScreenMainState extends State<LikeScreenMain> {
   @override
   void initState() {
     super.initState();
+    _fetchLikedBakeries();
+  }
+
+  void _fetchLikedBakeries() {
     context.read<LikeBloc>().add(FetchLikedBakeries());
   }
 
@@ -42,13 +49,13 @@ class _LikeScreenMainState extends State<LikeScreenMain> {
   Widget build(BuildContext context) {
     return BlocListener<LoginBloc, LoginState>(
       listenWhen: (previous, current) => current is Unauthenticated,
-      listener: (context, state){
+      listener: (context, state) {
         context.read<LikeBloc>().add(ResetLikedBakeries());
       },
-      child: BlocSelector<LikeBloc, LikeState, LikeStatus>(
-        selector: (state) => state.status,
-        builder: (context, status) {
-          switch (status) {
+      child: BlocSelector<LikeBloc, LikeState, LikeState>(
+        selector: (state) => state,
+        builder: (context, state) {
+          switch (state.status) {
             case LikeStatus.success:
               return LikedListView(); // 성공 상태 시 빌드
 
@@ -61,12 +68,20 @@ class _LikeScreenMainState extends State<LikeScreenMain> {
                 ),
               );
 
-            case LikeStatus.error:
-              return const Center(child: Text("좋아요 정보를 불러오지 못했습니다"));
+            case LikeStatus.geofenceLimitExceeded:
+              return RetryView(
+                  message: state.errorMessage ?? '',
+                  buttonText: '돌아가기',
+                  onRetry: _fetchLikedBakeries
+              );
 
-            case LikeStatus.initial:
+            case LikeStatus.error:
+              return RetryView(
+                onRetry: _fetchLikedBakeries,
+              );
+
             default:
-              return const Center(child: SpreadButterView());
+              return SpreadButterView();
           }
         },
       ),
@@ -139,13 +154,10 @@ class LikedListView extends StatelessWidget {
       );
     }
 
-    /// 알림 버튼 클릭 시 작동
+    // 알림 버튼 클릭 시 작동
     void onBellButtonPressed(Bakery bakery, bool isNotificationAllowed) async {
-      context.read<LikeBloc>().add(ToggleNotification(bakery: bakery, isNotificationAllowed: isNotificationAllowed));
-      // TODO: UseCase로 20개 제한 코드를 옮겨야 합니다.
-      if (isNotifyCount > 20) {
-        return;
-      }
+      context.read<LikeBloc>().add(ToggleNotification(
+          bakery: bakery, isNotificationAllowed: isNotificationAllowed));
     }
 
     return BlocListener<SearchBloc, SearchState>(
