@@ -102,7 +102,7 @@ class GeofencingUseCase {
   }
 
   bool canAddMoreGeofence(List<String> locations) {
-    int maxGeofenceCount = 20;
+    const int maxGeofenceCount = 20;
     return locations.length <= maxGeofenceCount;
   }
 }
