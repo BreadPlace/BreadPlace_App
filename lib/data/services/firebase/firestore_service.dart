@@ -348,7 +348,6 @@ class FirestoreService {
       await batch.commit();
 
     } catch (e) {
-      print("닉네임 변경 프로세스 중 오류 발생: $e");
       rethrow;
     }
   }
