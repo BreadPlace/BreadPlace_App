@@ -305,4 +305,50 @@ class FirestoreService {
         .doc(uid)
         .delete();
   }
+
+  // 'users' 컬렉션의 사용자 문서 닉네임 업데이트를 배치에 추가
+  void _addUserNicknameUpdateToBatch({
+    required WriteBatch batch,
+    required UserDto user
+  }) {
+    final userDocRef = _db.collection('users').doc(user.uid);
+
+    batch.update(userDocRef, {
+      'nickname': user.nickname,
+      'updatedAt': user.updatedAt,
+    });
+  }
+
+  // 'reviews' 컬렉션의 모든 리뷰 닉네임 업데이트를 배치에 추가
+  Future<void> _addReviewNicknameUpdatesToBatch({
+    required WriteBatch batch,
+    required String userId,
+    required String newNickname,
+  }) async {
+
+    final querySnapshot = await _db
+        .collection('reviews')
+        .where('writerId', isEqualTo: userId)
+        .get();
+
+    for (var doc in querySnapshot.docs) {
+        batch.update(doc.reference, {'writerNickName': newNickname});
+    }
+  }
+
+  // 닉네임 변경 + 기존 리뷰들의 닉네임 업데이트 하는 통합 함수
+  Future<void> updateAllUserAndReviewNicknames({required UserDto user}) async {
+    final batch = _db.batch();
+
+    try {
+      _addUserNicknameUpdateToBatch(batch: batch, user: user);
+      await _addReviewNicknameUpdatesToBatch(batch: batch, userId: user.uid, newNickname: user.nickname);
+
+      // 모든 배치 작업을 한 번에 커밋
+      await batch.commit();
+
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
