@@ -331,10 +331,8 @@ class FirestoreService {
         .where('writerId', isEqualTo: userId)
         .get();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      for (var doc in querySnapshot.docs) {
+    for (var doc in querySnapshot.docs) {
         batch.update(doc.reference, {'writerNickName': newNickname});
-      }
     }
   }
 
