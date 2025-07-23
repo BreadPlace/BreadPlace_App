@@ -34,7 +34,7 @@ import 'package:get_it/get_it.dart';
 void registerRepository(GetIt di) {
   // Kakao Login
   di.registerSingletonAsync<KakaoLoginRepository>(() async {
-    final kakaoLoginService =  di<KakaoLoginService>();
+    final kakaoLoginService = di<KakaoLoginService>();
     return KakaoLoginRepositoryImpl(kakaoLoginService: kakaoLoginService);
   });
 
@@ -60,8 +60,7 @@ void registerRepository(GetIt di) {
   // GeofencingLocations
   di.registerSingletonAsync<GeofencingRepository>(() async {
     final service = await di.getAsync<GeofencingService>();
-    final repository = GeofencingRepositoryImpl(service: service);
-    return repository;
+    return GeofencingRepositoryImpl(service: service);
   });
 
   // 사용자 위치

@@ -18,13 +18,13 @@ class LoginUseCase {
     required FirestoreRepository firestoreRepository,
     required UserLocalStorageRepository userLocalStorageRepository,
     required KakaoLoginRepository kakaoLoginRepository,
-    required GoogleLoginRepository googleLoginReposiory,
+    required GoogleLoginRepository googleLoginRepository,
     required GeofencingRepository geofencingRepository,
   })
       : _firestoreRepository = firestoreRepository,
         _userLocalStorageRepository = userLocalStorageRepository,
         _kakaoLoginRepository = kakaoLoginRepository,
-        _googleLoginRepository = googleLoginReposiory,
+        _googleLoginRepository = googleLoginRepository,
         _geofencingRepository = geofencingRepository;
 
   Future<String> loginAndGetUID(AppSocialPlatform platform) async {

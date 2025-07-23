@@ -43,7 +43,7 @@ void registerUseCase(GetIt di) {
       firestoreRepository: di<FirestoreRepository>(),
       userLocalStorageRepository: await di.getAsync<UserLocalStorageRepository>(),
       kakaoLoginRepository: await di.getAsync<KakaoLoginRepository>(),
-      googleLoginReposiory: await di.getAsync<GoogleLoginRepository>(),
+      googleLoginRepository: await di.getAsync<GoogleLoginRepository>(),
       geofencingRepository: await di.getAsync<GeofencingRepository>(),
     );
   });
