@@ -81,7 +81,7 @@ class MypageScreenMain extends StatelessWidget {
         UserMenuList(),
         SizedBox(height: 10),
 
-        _appMenuList(),
+        AppMenuList(),
         SizedBox(height: 10),
 
         AccountMenuList(
@@ -96,7 +96,7 @@ class MypageScreenMain extends StatelessWidget {
       children: [
         _loginRequiredInfoView(context),
         SizedBox(height: 10),
-        _appMenuList(),
+        AppMenuList(),
         SizedBox(height: 10),
       ],
     );
@@ -151,8 +151,19 @@ class MypageScreenMain extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _appMenuList() {
+class AppMenuList extends StatelessWidget {
+  const AppMenuList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    
+    void goTermsOfUseScreen() {
+      context.push(Routes.termsOfUse);
+    }
+    
+    
     return BorderContainer(
       child: Column(
         children: [
@@ -162,6 +173,7 @@ class MypageScreenMain extends StatelessWidget {
               CupertinoIcons.chevron_right,
               color: AppColors.fontGrey,
             ),
+            onTap: goTermsOfUseScreen,
           ),
           MypageMenuItem(
             text: '오픈소스 라이선스',

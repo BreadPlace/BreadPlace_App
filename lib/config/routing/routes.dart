@@ -9,4 +9,5 @@ abstract final class Routes {
   static const editNickName = '/editNickName';
   static const addReview = '/addReview';
   static const myReview = '/myReview';
+  static const termsOfUse = '/termsOfUse';
 }

@@ -3,6 +3,7 @@ import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_event.dart';
 import 'package:bread_place/ui/mypage/view/view/my_review_screen.dart';
+import 'package:bread_place/ui/mypage/view/view/terms_of_use_screen.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:bread_place/config/routing/routes.dart';
@@ -188,6 +189,12 @@ GoRouter router = GoRouter(
         );
       },
     ),
+
+    /// 이용 약관
+    GoRoute(
+        path: Routes.termsOfUse,
+        builder: (_, _) => TermsOfUseScreen()
+    )
   ],
   refreshListenable: StreamToListenable([_loginBloc.stream]),
   redirect: (context, state) => _redirect(context, state, _loginBloc)
