@@ -70,8 +70,7 @@ dependencies:
   flutter_image_compress: ^2.4.0 # 이미지 압축
   lottie: ^3.3.1 # 로띠 이미지 사용
   flutter_oss_licenses: ^3.0.4 # 오픈소스 라이선스 표기
-
-
+  url_launcher: ^6.3.2 # 웹사이트 열기
 
 
 dev_dependencies:
