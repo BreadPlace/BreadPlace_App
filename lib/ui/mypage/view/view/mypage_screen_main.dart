@@ -162,7 +162,10 @@ class AppMenuList extends StatelessWidget {
     void goTermsOfUseScreen() {
       context.push(Routes.termsOfUse);
     }
-    
+
+    void goOssLicensesPage() {
+      context.push(Routes.ossLicenses);
+    }
     
     return BorderContainer(
       child: Column(
@@ -176,6 +179,7 @@ class AppMenuList extends StatelessWidget {
             onTap: goTermsOfUseScreen,
           ),
           MypageMenuItem(
+            onTap: goOssLicensesPage,
             text: '오픈소스 라이선스',
             widget: Icon(
               CupertinoIcons.chevron_right,
