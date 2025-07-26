@@ -4,4 +4,5 @@ abstract class PermissionRepository {
   Future<AppPermissionStatus> getPermissionStatus(AppPermission permission);
   Future<AppPermissionStatus> requestPermission(AppPermission permission);
   Future<bool> ensurePermissionGranted(AppPermission permission);
+  Future<void> openDeviceAppSettings();
 }

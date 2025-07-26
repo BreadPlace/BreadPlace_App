@@ -25,4 +25,9 @@ class PermissionRepositoryImpl implements PermissionRepository {
     bool result = await _service.ensurePermissionGranted(permission.toPlatform);
     return result;
   }
+
+  @override
+  Future<void> openDeviceAppSettings() async {
+    await _service.openDeviceAppSettings();
+  }
 }
