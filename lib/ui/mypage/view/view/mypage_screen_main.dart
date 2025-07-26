@@ -1,4 +1,3 @@
-import 'package:bread_place/ui/common_widgets/common_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +7,9 @@ import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
+import 'package:bread_place/config/di/locator.dart';
+import 'package:bread_place/domain/usecases/notification_use_case.dart';
+import 'package:bread_place/ui/common_widgets/common_dialog.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -166,7 +168,11 @@ class AppMenuList extends StatelessWidget {
     void goOssLicensesPage() {
       context.push(Routes.ossLicenses);
     }
-    
+
+    void openDeviceAppSettings() {
+      di<NotificationUseCase>().openDeviceAppSettings();
+    }
+
     return BorderContainer(
       child: Column(
         children: [
@@ -187,8 +193,9 @@ class AppMenuList extends StatelessWidget {
             ),
           ),
           MypageMenuItem(
-            text: '알림 설정',
-            widget: Icon(CupertinoIcons.bell_fill, color: AppColors.fontGrey),
+            onTap: openDeviceAppSettings,
+            text: '알림 등 권한설정',
+            widget: Icon(CupertinoIcons.settings, color: AppColors.fontGrey),
           ),
           MypageMenuItem(
             text: '앱 버전',
@@ -241,7 +248,7 @@ class AccountMenuList extends StatelessWidget {
             onTap: onWithdrawButtonTapped,
             text: '회원 탈퇴',
             widget: Icon(
-              CupertinoIcons.square_arrow_right,
+              CupertinoIcons.exclamationmark_triangle,
               color: AppColors.fontGrey,
             ),
           ),
