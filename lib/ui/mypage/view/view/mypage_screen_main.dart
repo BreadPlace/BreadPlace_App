@@ -13,6 +13,7 @@ import 'package:bread_place/ui/common_widgets/common_dialog.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class MypageScreenMain extends StatelessWidget {
   const MypageScreenMain({super.key});
@@ -173,50 +174,60 @@ class AppMenuList extends StatelessWidget {
       di<NotificationUseCase>().openDeviceAppSettings();
     }
 
-    return BorderContainer(
-      child: Column(
-        children: [
-          MypageMenuItem(
-            text: '약관 및 정책',
-            widget: Icon(
-              CupertinoIcons.chevron_right,
-              color: AppColors.fontGrey,
-            ),
-            onTap: goTermsOfUseScreen,
-          ),
-          MypageMenuItem(
-            onTap: goOssLicensesPage,
-            text: '오픈소스 라이선스',
-            widget: Icon(
-              CupertinoIcons.chevron_right,
-              color: AppColors.fontGrey,
-            ),
-          ),
-          MypageMenuItem(
-            onTap: openDeviceAppSettings,
-            text: '알림 등 권한설정',
-            widget: Icon(CupertinoIcons.settings, color: AppColors.fontGrey),
-          ),
-          MypageMenuItem(
-            text: '앱 버전',
-            widget: Text(
-              'v1.0',
-              style: AppTextStyles.pretendardRegular.copyWith(
-                color: AppColors.fontGrey,
+    Future<String> getAppVersionInfo() async {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      return packageInfo.version;
+    }
+
+    return FutureBuilder(
+      future: getAppVersionInfo(),
+      builder: (context, snapShot) {
+        return BorderContainer(
+          child: Column(
+            children: [
+              MypageMenuItem(
+                text: '약관 및 정책',
+                widget: Icon(
+                  CupertinoIcons.chevron_right,
+                  color: AppColors.fontGrey,
+                ),
+                onTap: goTermsOfUseScreen,
               ),
-            ),
-          ),
-          MypageMenuItem(
-            text: '문의 메일',
-            widget: Text(
-              'opendoor2026@gmail.com',
-              style: AppTextStyles.pretendardRegular.copyWith(
-                color: Colors.blueAccent,
+              MypageMenuItem(
+                onTap: goOssLicensesPage,
+                text: '오픈소스 라이선스',
+                widget: Icon(
+                  CupertinoIcons.chevron_right,
+                  color: AppColors.fontGrey,
+                ),
               ),
-            ),
+              MypageMenuItem(
+                onTap: openDeviceAppSettings,
+                text: '알림 등 권한설정',
+                widget: Icon(CupertinoIcons.settings, color: AppColors.fontGrey),
+              ),
+              MypageMenuItem(
+                text: '앱 버전',
+                widget: Text(
+                  'v${snapShot.data}',
+                  style: AppTextStyles.pretendardRegular.copyWith(
+                    color: AppColors.fontGrey,
+                  ),
+                ),
+              ),
+              MypageMenuItem(
+                text: '문의 메일',
+                widget: Text(
+                  'opendoor2026@gmail.com',
+                  style: AppTextStyles.pretendardRegular.copyWith(
+                    color: Colors.blueAccent,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }
     );
   }
 }
