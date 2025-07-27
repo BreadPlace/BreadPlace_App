@@ -25,8 +25,7 @@ class UserLocalStorageUseCase {
   }
 
   UserEntity getUserData() {
-    final user = _repository.getUserData();
-    return UserEntity(uid: user.uid, createdAt: user.createdAt, nickname: user.nickname);
+    return _repository.getUserData();
   }
 
   /// GeofencingLocations
