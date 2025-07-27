@@ -4,6 +4,7 @@ import 'package:bread_place/config/constants/app_enum/review_fetch_type.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/domain/entities/firebase_pagination_cursor.dart';
+import 'package:bread_place/domain/entities/recommend_bakery_entity.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 
 class FirestoreUseCase {
@@ -40,5 +41,10 @@ class FirestoreUseCase {
     FirebasePaginationCursor? cursor,
   }) async {
     return await _repository.fetchBakeryReviews(type: type, id: id, cursor: cursor);
+  }
+
+  /// 추천 베이커리 가져오기
+  Future<RecommendBakeryEntity> fetchRecommendBakery() async {
+    return await _repository.fetchRecommendBakery();
   }
 }

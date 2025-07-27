@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:bread_place/config/constants/app_enum/review_fetch_type.dart';
 import 'package:bread_place/data/dto/mapper/bakery_review_mapper.dart';
 import 'package:bread_place/data/dto/mapper/liked_bakery_mapper.dart';
+import 'package:bread_place/data/dto/mapper/recommend_bakery_mapper.dart';
 import 'package:bread_place/data/dto/mapper/user_mapper.dart';
 import 'package:bread_place/data/services/firebase/firestore_service.dart';
 import 'package:bread_place/data/services/image/image_compress_service.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
+import 'package:bread_place/domain/entities/recommend_bakery_entity.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/entities/firebase_pagination_cursor.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
@@ -120,5 +122,11 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
   @override
   Future<void> deleteAllUserInfo(String uid) async {
     await _service.deleteAllUserInfo(uid: uid);
+  }
+
+  /// 추천 베이커리 가져오기
+  Future<RecommendBakeryEntity> fetchRecommendBakery() async {
+     final recommendBakryDto = await _service.fetchRecommendBakery();
+     return recommendBakryDto.toEntity();
   }
 }

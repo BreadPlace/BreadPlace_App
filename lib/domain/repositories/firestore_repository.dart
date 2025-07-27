@@ -3,6 +3,7 @@ import 'package:bread_place/config/constants/app_enum/review_fetch_type.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
+import 'package:bread_place/domain/entities/recommend_bakery_entity.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/entities/firebase_pagination_cursor.dart';
 
@@ -29,4 +30,5 @@ abstract class FirestoreRepository {
   Future<bool> toggleBakeryNotification(String userId, String bakeryId, bool isNotificationAllowed);
   Future<void> deleteAllUserInfo(String uid);
   Future<void> updateUserNickname(UserEntity user);
+  Future<RecommendBakeryEntity> fetchRecommendBakery();
 }
