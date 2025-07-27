@@ -360,32 +360,25 @@ class FirestoreService {
     final random = Random();
     final randomValue = double.parse(random.nextDouble().toStringAsFixed(5));
 
-    final snapshot = await _db
+    QuerySnapshot snapshot = await _db
         .collection('recommend_bakery')
         .where('random', isGreaterThanOrEqualTo: randomValue)
         .orderBy('random')
         .limit(1)
         .get();
 
-    if (snapshot.docs.isNotEmpty) {
-      final doc = snapshot.docs.first;
-      final data = doc.data();
-      return RecommendBakeryDto.fromJson({
-        ...data,
-        'id': doc.id,
-      });
-    }
-
-    final reverseSnapshot = await _db
+    if(snapshot.docs.isEmpty) {
+      snapshot = await _db
         .collection('recommend_bakery')
         .where('random', isLessThan: randomValue)
         .orderBy('random')
         .limit(1)
         .get();
+    }
 
-    if(reverseSnapshot.docs.isNotEmpty) {
-      final doc = reverseSnapshot.docs.first;
-      final data = doc.data();
+    if (snapshot.docs.isNotEmpty) {
+      final doc = snapshot.docs.first;
+      final data = doc.data() as Map<String, dynamic>;
       return RecommendBakeryDto.fromJson({
         ...data,
         'id': doc.id,
