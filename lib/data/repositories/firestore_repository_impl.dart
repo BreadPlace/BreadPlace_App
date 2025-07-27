@@ -126,7 +126,7 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
 
   /// 추천 베이커리 가져오기
   Future<RecommendBakeryEntity> fetchRecommendBakery() async {
-     final recommendBakryDto = await _service.fetchRecommendBakery();
-     return recommendBakryDto.toEntity();
+     final recommendBakeryDto = await _service.fetchRecommendBakery();
+     return recommendBakeryDto.toEntity();
   }
 }
