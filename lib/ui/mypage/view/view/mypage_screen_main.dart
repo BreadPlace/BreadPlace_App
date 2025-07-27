@@ -157,29 +157,43 @@ class MypageScreenMain extends StatelessWidget {
   }
 }
 
-class AppMenuList extends StatelessWidget {
+class AppMenuList extends StatefulWidget {
   const AppMenuList({super.key});
 
   @override
+  State<AppMenuList> createState() => _AppMenuListState();
+}
+
+class _AppMenuListState extends State<AppMenuList> {
+  String? _appVersion;
+
+  @override
+  void initState() {
+    super.initState();
+    getAppVersionInfo();
+  }
+
+  void goTermsOfUseScreen() {
+    context.push(Routes.termsOfUse);
+  }
+
+  void goOssLicensesPage() {
+    context.push(Routes.ossLicenses);
+  }
+
+  void openDeviceAppSettings() {
+    di<NotificationUseCase>().openDeviceAppSettings();
+  }
+
+  Future<void> getAppVersionInfo() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _appVersion = packageInfo.version;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    
-    void goTermsOfUseScreen() {
-      context.push(Routes.termsOfUse);
-    }
-
-    void goOssLicensesPage() {
-      context.push(Routes.ossLicenses);
-    }
-
-    void openDeviceAppSettings() {
-      di<NotificationUseCase>().openDeviceAppSettings();
-    }
-
-    Future<String> getAppVersionInfo() async {
-      PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      return packageInfo.version;
-    }
-
     return FutureBuilder(
       future: getAppVersionInfo(),
       builder: (context, snapShot) {
@@ -210,7 +224,7 @@ class AppMenuList extends StatelessWidget {
               MypageMenuItem(
                 text: '앱 버전',
                 widget: Text(
-                  'v${snapShot.data}',
+                  _appVersion != null ? 'v$_appVersion' : '버전 확인 중...',
                   style: AppTextStyles.pretendardRegular.copyWith(
                     color: AppColors.fontGrey,
                   ),
