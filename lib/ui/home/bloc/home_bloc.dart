@@ -58,11 +58,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       HomeAppInitiate event,
       Emitter<HomeState> emit
       ) async {
-    final recommendBakery = await _searchRecommendBakery();
+
+    RecommendBakeryEntity? recommendBakery;
 
     try {
-      //
+      recommendBakery = await _searchRecommendBakery();
+    } catch (error) {
+      print('추천 베이커리를 불러오지 못했습니다: $error');
+    }
 
+    try {
       // 권한이 있는 경우
       final currentPosition = await _userLocationUseCase.getUserLocation();
 
