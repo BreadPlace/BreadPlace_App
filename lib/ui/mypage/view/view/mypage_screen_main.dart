@@ -274,8 +274,8 @@ class AccountMenuList extends StatelessWidget {
             onTap: onWithdrawButtonTapped,
             text: '회원 탈퇴',
             widget: Icon(
-              CupertinoIcons.exclamationmark_triangle,
-              color: AppColors.fontGrey,
+              CupertinoIcons.exclamationmark_circle,
+              color: AppColors.error,
             ),
           ),
         ],
