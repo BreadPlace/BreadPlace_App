@@ -2,7 +2,7 @@ part of 'home_bloc.dart';
 
 sealed class HomeState extends Equatable {
   final LatLng? userLocation;
-  final TempBakeryEntity recommendBakery;
+  final RecommendBakeryEntity? recommendBakery;
   final LatLng? lastSearchLocation;
   final List<Bakery> bakeryList;
   final Bakery? markerTappedBakery;
@@ -62,7 +62,7 @@ final class HomeScreenState extends HomeState {
 extension HomeScreenStateCopy on HomeScreenState {
   HomeScreenState copyWith({
     LatLng? userLocation,
-    TempBakeryEntity? recommendBakery,
+    RecommendBakeryEntity? recommendBakery,
     LatLng? lastSearchLocation,
     List<Bakery>? bakeryList,
     Bakery? markerTappedBakery,

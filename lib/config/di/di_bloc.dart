@@ -17,9 +17,10 @@ import 'package:get_it/get_it.dart';
 
 void registerBloc(GetIt di) {
   // 홈 탭
-  di.registerFactory(() => HomeBloc(
+  di.registerLazySingleton(() => HomeBloc(
     searchBakeryUseCase: di<SearchBakeryUseCase>(),
     userLocationUseCase: di<UserLocationUseCase>(),
+    firestoreUseCase: di<FirestoreUseCase>(),
   ));
 
   // 검색 탭

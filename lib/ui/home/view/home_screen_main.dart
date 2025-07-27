@@ -1,3 +1,4 @@
+import 'package:bread_place/domain/entities/recommend_bakery_entity.dart';
 import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -5,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 
 import 'package:bread_place/config/constants/app_colors.dart';
-import 'package:bread_place/domain/entities/temp_bakery_entity.dart';
 import 'package:bread_place/ui/common_widgets/common_left_text_view.dart';
 import 'package:bread_place/ui/common_widgets/common_breadplace_title_view.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
@@ -121,7 +121,7 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 랜덤 추천 빵집
-                const _RecommandBakeryView(),
+                const _RecommendBakeryView(),
                 const SizedBox(height: 16),
 
                 // 근처 빵집 지도
@@ -152,26 +152,27 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   }
 }
 
-class _RecommandBakeryView extends StatelessWidget {
-  const _RecommandBakeryView({super.key});
+class _RecommendBakeryView extends StatelessWidget {
+  const _RecommendBakeryView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<HomeBloc, HomeState, (TempBakeryEntity, LatLng)>(
-      selector:
-          (state) =>
-              state is HomeScreenState
-                  ? (
-                    state.recommendBakery,
-                    state.userLocation ?? AppLocations.seoulStation,
-                  )
-                  : (TempBakeryEntity.empty, AppLocations.seoulStation),
+    return BlocSelector<HomeBloc, HomeState, (RecommendBakeryEntity?, LatLng)>(
+    selector:
+    (state) =>
+    state is HomeScreenState
+    ? (
+    state.recommendBakery,
+    state.userLocation ?? AppLocations.seoulStation,
+    )
+        : (null, AppLocations.seoulStation),
 
       builder: (context, data) {
         final recommendBakery = data.$1;
         final userLocation = data.$2;
 
-        return Padding(
+        return recommendBakery != null
+        ? Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,44 +190,16 @@ class _RecommandBakeryView extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // 이미지를 담은 컨테이너
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: AppColors.grey,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      // 베이커리 이미지
-                      child: Center(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            recommendBakery.imagePath,
-                            width: 44,
-                            height: 44,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 20),
-
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           recommendBakery.name,
-                          style: AppTextStyles.pretendardBold.copyWith(
-                            fontSize: 16,
-                          ),
+                          style: AppTextStyles.pretendardBold.copyWith(fontSize: 16),
                         ),
                         Text(
                           recommendBakery.address,
-                          style: AppTextStyles.pretendardSemiBold.copyWith(
-                            fontSize: 12,
-                          ),
+                          style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 12),
                         ),
                         Text(
                           "${recommendBakery.distanceFromUser(userLocation)}KM",
@@ -237,16 +210,15 @@ class _RecommandBakeryView extends StatelessWidget {
                         ),
                       ],
                     ),
-
-                    Spacer(),
-
+                    const Spacer(),
                     Text("리뷰 >"),
                   ],
                 ),
               ),
             ],
           ),
-        );
+        )
+        : Text('추천 빵집이 없습니다.');
       },
     );
   }
