@@ -201,8 +201,14 @@ GoRouter router = GoRouter(
     GoRoute(
         path: Routes.ossLicenses,
         builder: (_, _) => OssLicenseScreen()
+    ),
+    GoRoute(
+        path: Routes.ossLicenseSingle,
+        builder: (context, state)  {
+          final package = state.extra as Package;
+          return MiscOssLicenseSingle(package: package);
+        }
     )
-
   ],
   refreshListenable: StreamToListenable([_loginBloc.stream]),
   redirect: (context, state) => _redirect(context, state, _loginBloc)

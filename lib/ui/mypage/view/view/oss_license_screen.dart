@@ -1,4 +1,5 @@
 import 'package:bread_place/config/constants/app_colors.dart';
+import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/oss_licenses.dart';
 import 'package:bread_place/ui/common_widgets/common_app_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -54,27 +55,35 @@ class OssLicenseScreen extends StatelessWidget {
       ),
       body: FutureBuilder<List<Package>>(
         future: _licenses,
-        initialData: const [],
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primary,
+              ),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text('오류가 발생했습니다.'),
+            );
+          }
+
+          final licenses = snapshot.data ?? [];
+
           return ListView.separated(
             padding: const EdgeInsets.all(0),
-            itemCount: snapshot.data?.length ?? 0,
+            itemCount: licenses.length,
             itemBuilder: (context, index) {
-              final package = snapshot.data![index];
+              final package = licenses[index];
               return ListTile(
                 title: Text('${package.name} ${package.version}'),
-                subtitle:
-                    package.description.isNotEmpty
-                        ? Text(package.description)
-                        : null,
+                subtitle: package.description.isNotEmpty
+                    ? Text(package.description)
+                    : null,
                 trailing: const Icon(Icons.chevron_right),
-                onTap:
-                    () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder:
-                            (context) => MiscOssLicenseSingle(package: package),
-                      ),
-                    ),
+                onTap: () => context.push(Routes.ossLicenseSingle, extra: package),
               );
             },
             separatorBuilder: (context, index) => const Divider(),

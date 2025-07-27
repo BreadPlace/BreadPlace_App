@@ -11,4 +11,5 @@ abstract final class Routes {
   static const myReview = '/myReview';
   static const termsOfUse = '/termsOfUse';
   static const ossLicenses = '/ossLicenses';
+  static const ossLicenseSingle = '/ossLicenseSingle';
 }
