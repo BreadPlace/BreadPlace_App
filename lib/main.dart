@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => di<LoginBloc>()),
         BlocProvider(create: (_) => di<LikeBloc>()..add(FetchLikedBakeries())),
-        BlocProvider(create: (_) => di<HomeBloc>())
+        BlocProvider(create: (_) => di<HomeBloc>()..add(HomeAppInitiate())),
       ],
       child: MaterialApp.router(
         title: 'BreadPlace',

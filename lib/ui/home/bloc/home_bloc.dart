@@ -1,11 +1,12 @@
 import 'package:bread_place/config/constants/app_constants.dart';
+import 'package:bread_place/domain/entities/recommend_bakery_entity.dart';
+import 'package:bread_place/domain/usecases/firestore_use_case.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/config/constants/exception/app_permission_exception.dart';
 import 'package:bread_place/domain/usecases/user_location_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:bread_place/domain/entities/bakery.dart';
-import 'package:bread_place/domain/entities/temp_bakery_entity.dart';
 import 'package:bread_place/config/constants/app_locations.dart';
 import 'package:bread_place/utils/calculate_distance.dart';
 
@@ -18,17 +19,20 @@ part 'home_state.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final SearchBakeryUseCase _searchBakeryUseCase;
   final UserLocationUseCase _userLocationUseCase;
+  final FirestoreUseCase _firestoreUseCase;
 
   HomeBloc({
     required SearchBakeryUseCase searchBakeryUseCase,
-    required UserLocationUseCase userLocationUseCase
+    required UserLocationUseCase userLocationUseCase,
+    required FirestoreUseCase firestoreUseCase,
   })
       : _searchBakeryUseCase = searchBakeryUseCase,
         _userLocationUseCase = userLocationUseCase,
+        _firestoreUseCase = firestoreUseCase,
         super(
         HomeScreenState(
           userLocation: AppLocations.seoulStation,
-          recommendBakery: TempBakeryEntity.empty,
+          recommendBakery: null,
           lastSearchLocation: null,
           bakeryList: [],
           markerTappedBakery: null,
@@ -54,6 +58,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       HomeAppInitiate event,
       Emitter<HomeState> emit
       ) async {
+
+    RecommendBakeryEntity? recommendBakery;
+
+    try {
+      recommendBakery = await _searchRecommendBakery();
+    } catch (error) {
+      print('추천 베이커리를 불러오지 못했습니다: $error');
+    }
+
     try {
       // 권한이 있는 경우
       final currentPosition = await _userLocationUseCase.getUserLocation();
@@ -63,6 +76,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         currentPosition.longitude,
       );
 
+      // TODO: 배포 환경에서 주석 해제하기
       // 사용자 위치 주변 베이커리 검색
       // final bakeryList = await _fetchNearby(
       //   LatLng(currentPosition.latitude, currentPosition.longitude),
@@ -70,6 +84,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       emit(
         (state as HomeScreenState).copyWith(
+          recommendBakery: recommendBakery,
           hasLocationPermission: true,
           // bakeryList: bakeryList,
           lastSearchLocation: currentLatLng,
@@ -80,18 +95,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     } catch (error) {
       // TODO: 추후 에러 종류에 따라 분기처리 가능
       print(error.toString());
-      if(error == AppPermissionDeniedException) {
+
+      if(error is AppPermissionDeniedException) {
         emit(
           HomeScreenState(
             userLocation: AppLocations.seoulStation,
-            recommendBakery: TempBakeryEntity.empty,
+            recommendBakery: recommendBakery,
             lastSearchLocation: null,
             bakeryList: [],
             markerTappedBakery: null,
             mapCenter: null,
 
             hasLocationPermission: false,
-            isFarFromLastSearch: false,
+            isFarFromLastSearch: true,
             isMapMoving: false,
             isLoadingBakery: false,
           ),
@@ -196,5 +212,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
 
     return result;
+  }
+
+  Future<RecommendBakeryEntity> _searchRecommendBakery() async {
+    return await _firestoreUseCase.fetchRecommendBakery();
   }
 }

@@ -1,8 +1,11 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:bread_place/config/constants/app_enum/review_fetch_type.dart';
+import 'package:bread_place/config/constants/exception/recommend_bakery_exception.dart';
 import 'package:bread_place/data/dto/response/firebase/bakery_review_dto.dart';
 import 'package:bread_place/data/dto/response/firebase/liked_bakery_dto.dart';
+import 'package:bread_place/data/dto/response/firebase/recommend_bakery_dto.dart';
 import 'package:bread_place/data/dto/response/firebase/user_dto.dart';
 import 'package:bread_place/domain/entities/bakery.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -350,5 +353,38 @@ class FirestoreService {
     } catch (e) {
       rethrow;
     }
+  }
+
+  /// 추천 베이커리 가져오기
+  Future<RecommendBakeryDto> fetchRecommendBakery() async {
+    final random = Random();
+    final randomValue = double.parse(random.nextDouble().toStringAsFixed(5));
+
+    QuerySnapshot snapshot = await _db
+        .collection('recommend_bakery')
+        .where('random', isGreaterThanOrEqualTo: randomValue)
+        .orderBy('random')
+        .limit(1)
+        .get();
+
+    if(snapshot.docs.isEmpty) {
+      snapshot = await _db
+        .collection('recommend_bakery')
+        .where('random', isLessThan: randomValue)
+        .orderBy('random')
+        .limit(1)
+        .get();
+    }
+
+    if (snapshot.docs.isNotEmpty) {
+      final doc = snapshot.docs.first;
+      final data = doc.data() as Map<String, dynamic>;
+      return RecommendBakeryDto.fromJson({
+        ...data,
+        'id': doc.id,
+      });
+    }
+
+    throw RecommendBakeryException();
   }
 }
