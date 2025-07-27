@@ -10,6 +10,7 @@ import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
 import 'package:bread_place/ui/common_widgets/common_dialog.dart';
+import 'package:bread_place/utils/iso_date_extensions.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -77,7 +78,7 @@ class MypageScreenMain extends StatelessWidget {
       children: [
         _loginUserInfoContainer(
           name: state.nickname ?? '저장된 닉네임이 없습니다',
-          reviewCnt: null, // TODO: 리뷰 개수 연동 필요
+          createdAt: state.createdAt.isoStringToShortFormat(),
         ),
         SizedBox(height: 10),
 
@@ -124,7 +125,7 @@ class MypageScreenMain extends StatelessWidget {
 
   Widget _loginUserInfoContainer({
     required String name,
-    required int? reviewCnt
+    required String createdAt,
   }) {
     return BorderContainer(
       child: Padding(
@@ -142,7 +143,7 @@ class MypageScreenMain extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  '작성한 리뷰: ${reviewCnt ?? 0}',
+                  '가입일: $createdAt',
                   style: AppTextStyles.pretendardRegular.copyWith(
                     color: AppColors.fontGrey,
                   ),

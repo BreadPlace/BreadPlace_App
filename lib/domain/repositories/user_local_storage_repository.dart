@@ -1,12 +1,13 @@
+import 'package:bread_place/domain/entities/user_entity.dart';
+
 abstract class UserLocalStorageRepository {
   Future<void> saveUserId(String userId);
   Future<String?> getUserId();
-  Future<void> removeUserId();
   Future<void> saveUserNickname(String userNickname);
   Future<String?> getUserNickname();
-  Future<void> removeUserNickname();
-  Future<void> saveUserIdAndNickname(String userId, String userNickname);
-  Future<void> removeUserIdAndNickname();
+  Future<void> saveUserData(UserEntity user);
+  Future<void> removeUserData();
+  UserEntity getUserData();
 
   // GeofencingLocations
   Future<void>saveGeofencingLocations(List<String> locations);

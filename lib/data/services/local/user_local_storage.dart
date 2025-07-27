@@ -1,3 +1,4 @@
+import 'package:bread_place/data/dto/response/firebase/user_dto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserLocalStorageService {
@@ -8,6 +9,7 @@ class UserLocalStorageService {
   // Key 상수 정의
   final String _userIdKey = 'userId';
   final String _userNicknameKey = 'userNickname';
+  final String _userCreatedAtKey = 'userCreatedAt';
   final String _geofencingLocationsKey = 'geofencingLocationsKey';
 
   Future<void> init() async {
@@ -16,6 +18,7 @@ class UserLocalStorageService {
         allowList: <String>{
           _userIdKey,
           _userNicknameKey,
+          _userCreatedAtKey,
           _geofencingLocationsKey,
         },
       ),
@@ -32,12 +35,6 @@ class UserLocalStorageService {
     return _prefs.getString(_userIdKey);
   }
 
-  Future<void> removeUserId() async {
-    await _prefs.remove(_userIdKey);
-    await _prefs.reloadCache();
-  }
-
-
   /// Nickname
   Future<void> saveUserNickname(String userNickname) async {
     await _prefs.setString(_userNicknameKey, userNickname);
@@ -48,21 +45,32 @@ class UserLocalStorageService {
     return _prefs.getString(_userNicknameKey);
   }
 
-  Future<void> removeUserNickname() async {
-    await _prefs.remove(_userNicknameKey);
+  /// CreatedAt
+  Future<void> saveUserCreatedAt(String userCreatedAt) async {
+    await _prefs.setString(_userCreatedAtKey, userCreatedAt);
     await _prefs.reloadCache();
   }
 
-  /// ID & Nickname
-  Future<void> saveUserIdAndNickname(String userId, String userNickname) async {
-    await _prefs.setString(_userIdKey, userId);
-    await _prefs.setString(_userNicknameKey, userNickname);
+  /// ID, Nickname, CreatedAt
+  UserDto getUserData() {
+    String uid = _prefs.getString(_userIdKey) ?? '';
+    String nickname = _prefs.getString(_userNicknameKey) ?? '닉네임 정보 없음';
+    String createdAt = _prefs.getString(_userCreatedAtKey) ?? '생성일 정보 없음';
+
+    return UserDto(uid: uid, nickname: nickname, createdAt: createdAt);
+  }
+
+  Future<void> saveUserData(UserDto user) async {
+    await _prefs.setString(_userIdKey, user.uid);
+    await _prefs.setString(_userNicknameKey, user.nickname);
+    await _prefs.setString(_userCreatedAtKey, user.createdAt);
     await _prefs.reloadCache();
   }
 
-  Future<void> removeUserIdAndNickname() async {
+  Future<void> removeUserData() async {
     await _prefs.remove(_userIdKey);
     await _prefs.remove(_userNicknameKey);
+    await _prefs.remove(_userCreatedAtKey);
     await _prefs.reloadCache();
   }
 

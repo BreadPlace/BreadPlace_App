@@ -27,8 +27,6 @@ void registerBloc(GetIt di) {
 
   // 로그인
   di.registerFactory(() => LoginBloc(
-    di<FirestoreRepository>(),
-    di<UserLocalStorageRepository>(),
     di<LoginUseCase>(),
     di<UserLocalStorageUseCase>(),
   ));
