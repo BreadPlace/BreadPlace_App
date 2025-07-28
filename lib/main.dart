@@ -1,14 +1,14 @@
-import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
-import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
-import 'package:bread_place/ui/home/bloc/home_bloc.dart';
-import 'package:bread_place/ui/like/bloc/like_bloc.dart';
-import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:flutter/material.dart';
 
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/config/routing/router.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
+import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
+import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
+import 'package:bread_place/ui/home/bloc/home_bloc.dart';
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
+import 'package:bread_place/ui/like/bloc/like_event.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,11 +20,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _initializeApp();
 
-  runApp(const MyApp());
+  runApp(MyApp(isFirstLaunch: await isFirstLaunch()));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isFirstLaunch;
+  
+  const MyApp({super.key, required this.isFirstLaunch});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'BreadPlace',
         themeMode: ThemeMode.light,
-        routerConfig: router,
+        routerConfig: createRouter(isFirstLaunch: isFirstLaunch),
       ),
     );
   }
@@ -80,4 +82,8 @@ Future<void> _initGeofencing() async {
 
   final locations = await localInstance.getGeofencingLocations();
   await geofenceInstance.setGeofencingLocations(locations);
+}
+
+Future<bool> isFirstLaunch() async {
+  return await di<UserLocalStorageUseCase>().isFirstLaunch();
 }
