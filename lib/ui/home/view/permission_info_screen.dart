@@ -1,9 +1,11 @@
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/config/routing/routes.dart';
+import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 
@@ -77,7 +79,7 @@ class _PermissionInfoScreenState extends State<PermissionInfoScreen> {
               InkWell(
                 onTap: () {
                   context.go(Routes.home);
-
+                  context.read<HomeBloc>().add(RequestPermissionsOnFirstLaunch());
                 },
                 child: Container(
                   color: AppColors.primary,

@@ -55,6 +55,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeMapTapped>(_onMapTapped);
     on<HomeMapMoved>(_onMapMoved);
     on<HomeMapStopped>(_onMapStopped);
+    on<RequestPermissionsOnFirstLaunch>(_onRequestInitialPermissions);
   }
 
   /// 앱의 Initiate 시점 결과 반환
@@ -222,7 +223,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     return await _firestoreUseCase.fetchRecommendBakery();
   }
 
-  Future<void> requestInitialPermissions() async {
+  Future<void> _onRequestInitialPermissions(
+      RequestPermissionsOnFirstLaunch event, Emitter<HomeState> emit) async {
     await _permissionUseCase.requestInitialPermissions();
   }
 }
