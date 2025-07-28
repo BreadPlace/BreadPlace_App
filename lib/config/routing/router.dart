@@ -1,5 +1,6 @@
 import 'package:bread_place/domain/usecases/login_use_case.dart';
 import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
+import 'package:bread_place/ui/mypage/view/bloc/my_page_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_event.dart';
 import 'package:bread_place/ui/mypage/view/view/my_review_screen.dart';
@@ -112,9 +113,13 @@ GoRouter router = GoRouter(
               pageBuilder:
                   (context, state) =>
                   NoTransitionPage(
-                      child: BlocProvider(
-                          create: (_) => di<NicknameEditBloc>(),
-                          child: const MypageScreenMain())),
+                      child: MultiBlocProvider(
+                          providers: [
+                            BlocProvider(create: (_) => di<NicknameEditBloc>()),
+                            BlocProvider(create: (_) => di<MyPageBloc>()),
+                          ],
+                          child: const MypageScreenMain()
+                      )),
             ),
           ],
         ),

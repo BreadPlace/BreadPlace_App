@@ -1,3 +1,5 @@
+import 'package:bread_place/ui/mypage/view/bloc/my_page_bloc.dart';
+import 'package:bread_place/ui/mypage/view/bloc/my_page_event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -182,7 +184,7 @@ class _AppMenuListState extends State<AppMenuList> {
   }
 
   void openDeviceAppSettings() {
-    di<NotificationUseCase>().openDeviceAppSettings();
+    context.read<MyPageBloc>().add(OpenDeviceSetting());
   }
 
   Future<void> getAppVersionInfo() async {
