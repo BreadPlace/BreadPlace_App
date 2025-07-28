@@ -8,11 +8,11 @@ abstract class UserLocalStorageRepository {
   Future<void> saveUserData(UserEntity user);
   Future<void> removeUserData();
   UserEntity getUserData();
+  Future<bool> isFirstLaunch();
+  Future<void> setLaunched();
 
   // GeofencingLocations
   Future<void>saveGeofencingLocations(List<String> locations);
   Future<List<String>>getGeofencingLocations();
   Future<void>removeGeofencingLocationAll();
-  Future<void>removeGeofencingLocation(String location);
-  Future<void>addGeofencingLocation(String location);
 }
