@@ -1,4 +1,5 @@
-import 'package:bread_place/ui/common_widgets/common_dialog.dart';
+import 'package:bread_place/ui/mypage/view/bloc/my_page_bloc.dart';
+import 'package:bread_place/ui/mypage/view/bloc/my_page_event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,9 +9,14 @@ import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
+import 'package:bread_place/config/di/locator.dart';
+import 'package:bread_place/domain/usecases/notification_use_case.dart';
+import 'package:bread_place/ui/common_widgets/common_dialog.dart';
+import 'package:bread_place/utils/iso_date_extensions.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class MypageScreenMain extends StatelessWidget {
   const MypageScreenMain({super.key});
@@ -74,14 +80,14 @@ class MypageScreenMain extends StatelessWidget {
       children: [
         _loginUserInfoContainer(
           name: state.nickname ?? '저장된 닉네임이 없습니다',
-          reviewCnt: null, // TODO: 리뷰 개수 연동 필요
+          createdAt: state.createdAt.isoStringToShortFormat(),
         ),
         SizedBox(height: 10),
 
         UserMenuList(),
         SizedBox(height: 10),
 
-        _appMenuList(),
+        AppMenuList(),
         SizedBox(height: 10),
 
         AccountMenuList(
@@ -96,7 +102,7 @@ class MypageScreenMain extends StatelessWidget {
       children: [
         _loginRequiredInfoView(context),
         SizedBox(height: 10),
-        _appMenuList(),
+        AppMenuList(),
         SizedBox(height: 10),
       ],
     );
@@ -121,7 +127,7 @@ class MypageScreenMain extends StatelessWidget {
 
   Widget _loginUserInfoContainer({
     required String name,
-    required int? reviewCnt
+    required String createdAt,
   }) {
     return BorderContainer(
       child: Padding(
@@ -139,7 +145,7 @@ class MypageScreenMain extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  '작성한 리뷰: ${reviewCnt ?? 0}',
+                  '가입일: $createdAt',
                   style: AppTextStyles.pretendardRegular.copyWith(
                     color: AppColors.fontGrey,
                   ),
@@ -151,49 +157,94 @@ class MypageScreenMain extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _appMenuList() {
-    return BorderContainer(
-      child: Column(
-        children: [
-          MypageMenuItem(
-            text: '약관 및 정책',
-            widget: Icon(
-              CupertinoIcons.chevron_right,
-              color: AppColors.fontGrey,
-            ),
-          ),
-          MypageMenuItem(
-            text: '오픈소스 라이선스',
-            widget: Icon(
-              CupertinoIcons.chevron_right,
-              color: AppColors.fontGrey,
-            ),
-          ),
-          MypageMenuItem(
-            text: '알림 설정',
-            widget: Icon(CupertinoIcons.bell_fill, color: AppColors.fontGrey),
-          ),
-          MypageMenuItem(
-            text: '앱 버전',
-            widget: Text(
-              'v1.0',
-              style: AppTextStyles.pretendardRegular.copyWith(
-                color: AppColors.fontGrey,
+class AppMenuList extends StatefulWidget {
+  const AppMenuList({super.key});
+
+  @override
+  State<AppMenuList> createState() => _AppMenuListState();
+}
+
+class _AppMenuListState extends State<AppMenuList> {
+  String? _appVersion;
+
+  @override
+  void initState() {
+    super.initState();
+    getAppVersionInfo();
+  }
+
+  void goTermsOfUseScreen() {
+    context.push(Routes.termsOfUse);
+  }
+
+  void goOssLicensesPage() {
+    context.push(Routes.ossLicenses);
+  }
+
+  void openDeviceAppSettings() {
+    context.read<MyPageBloc>().add(OpenDeviceSetting());
+  }
+
+  Future<void> getAppVersionInfo() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _appVersion = packageInfo.version;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: getAppVersionInfo(),
+      builder: (context, snapShot) {
+        return BorderContainer(
+          child: Column(
+            children: [
+              MypageMenuItem(
+                text: '약관 및 정책',
+                widget: Icon(
+                  CupertinoIcons.chevron_right,
+                  color: AppColors.fontGrey,
+                ),
+                onTap: goTermsOfUseScreen,
               ),
-            ),
-          ),
-          MypageMenuItem(
-            text: '문의 메일',
-            widget: Text(
-              'opendoor2026@gmail.com',
-              style: AppTextStyles.pretendardRegular.copyWith(
-                color: Colors.blueAccent,
+              MypageMenuItem(
+                onTap: goOssLicensesPage,
+                text: '오픈소스 라이선스',
+                widget: Icon(
+                  CupertinoIcons.chevron_right,
+                  color: AppColors.fontGrey,
+                ),
               ),
-            ),
+              MypageMenuItem(
+                onTap: openDeviceAppSettings,
+                text: '알림 등 권한설정',
+                widget: Icon(CupertinoIcons.settings, color: AppColors.fontGrey),
+              ),
+              MypageMenuItem(
+                text: '앱 버전',
+                widget: Text(
+                  _appVersion != null ? 'v$_appVersion' : '버전 확인 중...',
+                  style: AppTextStyles.pretendardRegular.copyWith(
+                    color: AppColors.fontGrey,
+                  ),
+                ),
+              ),
+              MypageMenuItem(
+                text: '문의 메일',
+                widget: Text(
+                  'opendoor2026@gmail.com',
+                  style: AppTextStyles.pretendardRegular.copyWith(
+                    color: Colors.blueAccent,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }
     );
   }
 }
@@ -225,8 +276,8 @@ class AccountMenuList extends StatelessWidget {
             onTap: onWithdrawButtonTapped,
             text: '회원 탈퇴',
             widget: Icon(
-              CupertinoIcons.square_arrow_right,
-              color: AppColors.fontGrey,
+              CupertinoIcons.exclamationmark_circle,
+              color: AppColors.error,
             ),
           ),
         ],

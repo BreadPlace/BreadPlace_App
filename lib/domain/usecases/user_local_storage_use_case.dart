@@ -1,3 +1,4 @@
+import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
 
 class UserLocalStorageUseCase {
@@ -18,18 +19,13 @@ class UserLocalStorageUseCase {
     return userNickname;
   }
 
-  /// 유저 ID 삭제하기
-  Future<void> removeUserId() async {
-    _repository.removeUserId();
+  /// Uid & Nickname & CreatedAt
+  Future<void> saveUserData(UserEntity user) async {
+    _repository.saveUserData(user);
   }
 
-  /// Uid & Nickname
-  Future<void> saveUidAndNickname(String uid, String nickname) async {
-    _repository.saveUserIdAndNickname(uid, nickname);
-  }
-
-  Future<void> removeUidAndNickname() async {
-    _repository.removeUserIdAndNickname();
+  UserEntity getUserData() {
+    return _repository.getUserData();
   }
 
   /// GeofencingLocations

@@ -1,27 +1,17 @@
-import 'package:bread_place/config/constants/app_enum/app_social_platform.dart';
 import 'package:bread_place/config/constants/exception/login_exception.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
-import 'package:bread_place/domain/repositories/firestore_repository.dart';
-import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
 import 'package:bread_place/domain/usecases/login_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final FirestoreRepository _firestoreRepo;
-  final UserLocalStorageRepository _userLocalStorageRepo;
   final LoginUseCase _loginUseCase;
   final UserLocalStorageUseCase _userLocalStorageUseCase;
 
-  LoginBloc(
-      this._firestoreRepo,
-      this._userLocalStorageRepo,
-      this._loginUseCase,
-      this._userLocalStorageUseCase
-  ): super(Unauthenticated()) {
+  LoginBloc(this._loginUseCase, this._userLocalStorageUseCase)
+    : super(Unauthenticated()) {
     on<LoggedOut>(_onLoggedOut);
     on<WithDraw>(_onWithDraw);
     on<CheckAuthStatus>(_onAuthStatusChecked);
@@ -58,20 +48,22 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) async {
     emit(AuthInProgress());
-    String? cachedId = await _userLocalStorageUseCase.getUserId();
-    String? cachedNickname = await _userLocalStorageUseCase.getUserNickname();
 
-    (cachedId != null)
-        ? emit(Authenticated(uid: cachedId, nickname: cachedNickname, createdAt: '',))
+    final user = _userLocalStorageUseCase.getUserData();
+
+    (user.uid.isNotEmpty)
+        ? emit(
+          Authenticated(
+            uid: user.uid,
+            nickname: user.nickname,
+            createdAt: user.createdAt,
+          ),
+        )
         : emit(Unauthenticated());
   }
 
-
   /// 로그인 로직
-  Future<void> _login (
-      LoginRequested event,
-      Emitter<LoginState> emit,
-      ) async {
+  Future<void> _login(LoginRequested event, Emitter<LoginState> emit) async {
     try {
       // 로그인 성공 시 UID 가져오기
       final uid = await _loginUseCase.loginAndGetUID(event.platform);
@@ -81,21 +73,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       // 신규 유저 -> 닉네임 입력받는 화면으로 이동
       if (userData == null) {
-        emit(NewUserRequireNickname(
-          uid: uid
-        ));
+        emit(NewUserRequireNickname(uid: uid));
       } else {
-        // 기존 유저 -> 아이디, 닉네임 저장
-        await _userLocalStorageRepo.saveUserId(userData.uid);
-        await _userLocalStorageRepo.saveUserNickname(userData.nickname);
+        // 기존 유저 -> 아이디, 닉네임, 생성일 저장
+        String nickname = userData.nickname;
+        String createdAt = userData.createdAt;
 
-        emit(
-          Authenticated(
-            uid: userData.uid,
-            createdAt: userData.createdAt,
-            nickname: userData.nickname,
-          ),
+        final user = UserEntity(
+          uid: uid,
+          createdAt: createdAt,
+          nickname: nickname,
         );
+        await _userLocalStorageUseCase.saveUserData(user);
+
+        emit(Authenticated(uid: uid, createdAt: createdAt, nickname: nickname));
       }
     } on LoginCanceldException {
       emit(LoginFailure());

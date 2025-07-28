@@ -1,8 +1,11 @@
 import 'package:bread_place/domain/usecases/login_use_case.dart';
 import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
+import 'package:bread_place/ui/mypage/view/bloc/my_page_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_event.dart';
 import 'package:bread_place/ui/mypage/view/view/my_review_screen.dart';
+import 'package:bread_place/ui/mypage/view/view/oss_license_screen.dart';
+import 'package:bread_place/ui/mypage/view/view/terms_of_use_screen.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:bread_place/config/routing/routes.dart';
@@ -29,7 +32,7 @@ import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:bread_place/oss_licenses.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorHomeKey = GlobalKey<NavigatorState>(
@@ -110,9 +113,13 @@ GoRouter router = GoRouter(
               pageBuilder:
                   (context, state) =>
                   NoTransitionPage(
-                      child: BlocProvider(
-                          create: (_) => di<NicknameEditBloc>(),
-                          child: const MypageScreenMain())),
+                      child: MultiBlocProvider(
+                          providers: [
+                            BlocProvider(create: (_) => di<NicknameEditBloc>()),
+                            BlocProvider(create: (_) => di<MyPageBloc>()),
+                          ],
+                          child: const MypageScreenMain()
+                      )),
             ),
           ],
         ),
@@ -188,6 +195,25 @@ GoRouter router = GoRouter(
         );
       },
     ),
+
+    /// 이용 약관
+    GoRoute(
+        path: Routes.termsOfUse,
+        builder: (_, _) => TermsOfUseScreen()
+    ),
+
+    /// 오픈소스 라이선스
+    GoRoute(
+        path: Routes.ossLicenses,
+        builder: (_, _) => OssLicenseScreen()
+    ),
+    GoRoute(
+        path: Routes.ossLicenseSingle,
+        builder: (context, state)  {
+          final package = state.extra as Package;
+          return MiscOssLicenseSingle(package: package);
+        }
+    )
   ],
   refreshListenable: StreamToListenable([_loginBloc.stream]),
   redirect: (context, state) => _redirect(context, state, _loginBloc)

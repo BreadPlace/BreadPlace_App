@@ -55,11 +55,8 @@ class LoginUseCase {
   }
 
   Future<void> logout() async {
-    // 로컬에 등록된 유저 UID 삭제하기
-    _userLocalStorageRepository.removeUserId();
-
-    // 로컬에 등록된 유저 닉네임 삭제하기
-    _userLocalStorageRepository.removeUserNickname();
+    // 로컬에 등록된 유저 데이터 삭제하기 (UID, 닉네임, 가입일)
+    _userLocalStorageRepository.removeUserData();
 
     // 로컬에 등록된 로컬 지오펜스 삭제하기
     _userLocalStorageRepository.removeGeofencingLocationAll();
@@ -102,6 +99,6 @@ class LoginUseCase {
 
   Future<void> saveNewUser(UserEntity user) async {
     await _firestoreRepository.saveUser(user);
-    await _userLocalStorageRepository.saveUserNickname(user.nickname);
+    await _userLocalStorageRepository.saveUserData(user);
   }
 }

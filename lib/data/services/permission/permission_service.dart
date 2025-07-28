@@ -28,4 +28,11 @@ class PermissionService {
     final result = await requestPermission(permission);
     return result.isGranted;
   }
+
+  /// 앱 설정 화면으로 유도
+  Future<void> openDeviceAppSettings() async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      await openAppSettings();
+    }
+  }
 }

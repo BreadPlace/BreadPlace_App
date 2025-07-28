@@ -1,4 +1,6 @@
+import 'package:bread_place/data/dto/mapper/user_mapper.dart';
 import 'package:bread_place/data/services/local/user_local_storage.dart';
+import 'package:bread_place/domain/entities/user_entity.dart';
 import 'package:bread_place/domain/repositories/user_local_storage_repository.dart';
 
 class UserLocalStorageRepositoryImpl implements UserLocalStorageRepository {
@@ -8,11 +10,6 @@ class UserLocalStorageRepositoryImpl implements UserLocalStorageRepository {
   @override
   Future<String?> getUserId() {
     return _service.getUserId();
-  }
-
-  @override
-  Future<void> removeUserId() {
-    return _service.removeUserId();
   }
 
   @override
@@ -26,23 +23,23 @@ class UserLocalStorageRepositoryImpl implements UserLocalStorageRepository {
   }
 
   @override
-  Future<void> removeUserNickname() {
-    return _service.removeUserNickname();
-  }
-
-  @override
   Future<void> saveUserNickname(String userNickname) {
     return _service.saveUserNickname(userNickname);
   }
 
   @override
-  Future<void> saveUserIdAndNickname(String userId, String userNickname) {
-    return _service.saveUserIdAndNickname(userId, userNickname);
+  Future<void> removeUserData() async {
+    await _service.removeUserData();
   }
 
   @override
-  Future<void> removeUserIdAndNickname() {
-    return _service.removeUserIdAndNickname();
+  Future<void> saveUserData(UserEntity user) async {
+    await _service.saveUserData(user.toDto());
+  }
+
+  @override
+  UserEntity getUserData() {
+    return _service.getUserData().toEntity();
   }
 
   // Geofencing

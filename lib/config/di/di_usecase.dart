@@ -24,11 +24,13 @@ void registerUseCase(GetIt di) {
   // 파이어 스토어
   di.registerLazySingleton<FirestoreUseCase>(() => FirestoreUseCase(repository: di<FirestoreRepository>()));
 
-  // 알림
-  di.registerLazySingleton<NotificationUseCase>(() => NotificationUseCase(di<NotificationRepository>()));
-
   // 로컬 저장
   di.registerLazySingleton<UserLocalStorageUseCase>(() => UserLocalStorageUseCase(repository: di<UserLocalStorageRepository>()));
+
+  // 알림
+  di.registerLazySingleton<NotificationUseCase>(() =>
+      NotificationUseCase(notificationRepository: di<NotificationRepository>(),
+          permissionRepository: di<PermissionRepository>()));
 
   // 빵짐 - 좋아요
   di.registerLazySingleton(() =>
