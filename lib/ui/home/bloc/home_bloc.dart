@@ -33,6 +33,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         HomeScreenState(
           userLocation: AppLocations.seoulStation,
           recommendBakery: null,
+          selectedRecommendBakery: null,
           lastSearchLocation: null,
           bakeryList: [],
           markerTappedBakery: null,
@@ -51,6 +52,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeMapTapped>(_onMapTapped);
     on<HomeMapMoved>(_onMapMoved);
     on<HomeMapStopped>(_onMapStopped);
+    on<HomeRecommendBakeryTapped>(_onRecommendBakeryTapped);
   }
 
   /// 앱의 Initiate 시점 결과 반환
@@ -101,6 +103,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           HomeScreenState(
             userLocation: AppLocations.seoulStation,
             recommendBakery: recommendBakery,
+            selectedRecommendBakery: null,
             lastSearchLocation: null,
             bakeryList: [],
             markerTappedBakery: null,
@@ -216,5 +219,26 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<RecommendBakeryEntity> _searchRecommendBakery() async {
     return await _firestoreUseCase.fetchRecommendBakery();
+  }
+
+  Future<void> _onRecommendBakeryTapped(HomeRecommendBakeryTapped event, Emitter<HomeState> emit) async {
+    if(state.isLoadingBakery) {
+      return;
+    }
+
+    emit(
+        (state as HomeScreenState).copyWith(
+            isLoadingBakery: true
+        )
+    );
+
+     final recommendBakery = await _searchBakeryUseCase.searchPlaceById(event.bakeryId);
+
+     emit(
+         (state as HomeScreenState).copyWith(
+           selectedRecommendBakery: recommendBakery,
+           isLoadingBakery: false
+         )
+     );
   }
 }

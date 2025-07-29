@@ -92,6 +92,10 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     context.push(Routes.bakeryDetail, extra: bakery);
   }
 
+  void _onSelectRecommendBakery(String bakeryId){
+    context.read<HomeBloc>().add(HomeRecommendBakeryTapped(bakeryId: bakeryId));
+  }
+
   void _changeCameraPosition(LatLng to) {
     if(mapController == null) { return; }
     mapController!.animateCamera(CameraUpdate.newLatLng(to));
@@ -103,57 +107,70 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     const String mapViewTitle = '현재 위치';
     const String bakeryListViewTitle = '근처 베이커리';
 
-    return Column(
-      children: [
-        // 커스텀 타이틀
-        BreadPlaceTitleView(
-          title: tabTitle,
-          titleImage: const AssetImage('assets/images/Croissant.png'),
-          trailingIcon: CupertinoIcons.bell_fill,
-          onTrailingTap: _onBellIconTapped,
-        ),
-
-        const SizedBox(height: 8),
-
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 랜덤 추천 빵집
-                const _RecommendBakeryView(),
-                const SizedBox(height: 16),
-
-                // 근처 빵집 지도
-                _MapView(
-                  title: mapViewTitle,
-                  onTrailingTap: _onSearchLocationTapped,
-                  onMapCreated: _onMapCreated,
-                  onMarkerTapped: _onMarkerTapped,
-                  onMapTapped: _onMapTapped,
-                  changeCameraPosition: _changeCameraPosition,
-                  onMapMoved: _onMapMoved,
-                  onMapStopped: _onMapStopped,
-                ),
-                const SizedBox(height: 16),
-
-                // 근처 빵집 리스트
-                _BakeryListView(
-                  title: bakeryListViewTitle,
-                  onSelectBakery: _onSelectBakery,
-                ),
-                const SizedBox(height: 32),
-              ],
+    return BlocListener<HomeBloc, HomeState>(
+      listenWhen: (prev, curr) => prev.selectedRecommendBakery != curr.selectedRecommendBakery,
+      listener: (context, state) {
+        if(state.selectedRecommendBakery != null) {
+          _onSelectBakery(state.selectedRecommendBakery!);
+        }
+      },
+      child: Column(
+        children: [
+          // 커스텀 타이틀
+          BreadPlaceTitleView(
+            title: tabTitle,
+            titleImage: const AssetImage('assets/images/Croissant.png'),
+            trailingIcon: CupertinoIcons.bell_fill,
+            onTrailingTap: _onBellIconTapped,
+          ),
+      
+          const SizedBox(height: 8),
+      
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 랜덤 추천 빵집
+                  _RecommendBakeryView(onSelectRecommendBakery: _onSelectRecommendBakery),
+                  const SizedBox(height: 16),
+      
+                  // 근처 빵집 지도
+                  _MapView(
+                    title: mapViewTitle,
+                    onTrailingTap: _onSearchLocationTapped,
+                    onMapCreated: _onMapCreated,
+                    onMarkerTapped: _onMarkerTapped,
+                    onMapTapped: _onMapTapped,
+                    changeCameraPosition: _changeCameraPosition,
+                    onMapMoved: _onMapMoved,
+                    onMapStopped: _onMapStopped,
+                  ),
+                  const SizedBox(height: 16),
+      
+                  // 근처 빵집 리스트
+                  _BakeryListView(
+                    title: bakeryListViewTitle,
+                    onSelectBakery: _onSelectBakery,
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 class _RecommendBakeryView extends StatelessWidget {
-  const _RecommendBakeryView({super.key});
+  final void Function(String) onSelectRecommendBakery;
+
+  const _RecommendBakeryView({
+    required this.onSelectRecommendBakery,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -181,38 +198,42 @@ class _RecommendBakeryView extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          recommendBakery.name,
-                          style: AppTextStyles.pretendardBold.copyWith(fontSize: 16),
-                        ),
-                        Text(
-                          recommendBakery.address,
-                          style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 12),
-                        ),
-                        Text(
-                          "${recommendBakery.distanceFromUser(userLocation)}KM",
-                          style: AppTextStyles.pretendardSemiBold.copyWith(
-                            fontSize: 14,
-                            color: AppColors.grey,
+              InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () => onSelectRecommendBakery(recommendBakery.bakeryId),
+                child: Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            recommendBakery.name,
+                            style: AppTextStyles.pretendardBold.copyWith(fontSize: 16),
                           ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Text("리뷰 >"),
-                  ],
+                          Text(
+                            recommendBakery.address,
+                            style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 12),
+                          ),
+                          Text(
+                            "${recommendBakery.distanceFromUser(userLocation)}KM",
+                            style: AppTextStyles.pretendardSemiBold.copyWith(
+                              fontSize: 14,
+                              color: AppColors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Text("리뷰 >"),
+                    ],
+                  ),
                 ),
               ),
             ],
