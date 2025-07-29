@@ -42,13 +42,11 @@ class UserLocalStorageUseCase {
     return _repository.removeGeofencingLocationAll();
   }
 
-  // Note: Index관리하기에 불편하면 사용하지 않고 삭제해도 좋을 것 같습니다.
-  Future<void> removeGeofencingLocation(String location) async {
-    return _repository.removeGeofencingLocation(location);
+  Future<bool> isFirstLaunch() async {
+    return _repository.isFirstLaunch();
   }
 
-  // Note: Index관리하기에 불편하면 사용하지 않고 삭제해도 좋을 것 같습니다.
-  Future<void> addGeofencingLocation(String location) async {
-    return _repository.addGeofencingLocation(location);
+  Future<void> setLaunched() async {
+    return _repository.setLaunched();
   }
 }

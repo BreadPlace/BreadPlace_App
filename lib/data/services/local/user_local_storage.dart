@@ -11,6 +11,7 @@ class UserLocalStorageService {
   final String _userNicknameKey = 'userNickname';
   final String _userCreatedAtKey = 'userCreatedAt';
   final String _geofencingLocationsKey = 'geofencingLocationsKey';
+  final String _firstLaunchKey = 'is_first_launch';
 
   Future<void> init() async {
     _prefs = await SharedPreferencesWithCache.create(
@@ -20,9 +21,21 @@ class UserLocalStorageService {
           _userNicknameKey,
           _userCreatedAtKey,
           _geofencingLocationsKey,
+          _firstLaunchKey
         },
       ),
     );
+  }
+
+  // 앱 최초 실행 여부 확인
+  Future<bool> isFirstLaunch() async {
+    final isFirst = _prefs.getBool(_firstLaunchKey);
+    return isFirst ?? true;
+  }
+
+  // 최초 실행 이후 플래그 저장
+  Future<void> setLaunched() async {
+    await _prefs.setBool(_firstLaunchKey, false);
   }
 
   /// ID
@@ -87,23 +100,5 @@ class UserLocalStorageService {
   Future<void> removeGeofencingLocationAll() async {
     await _prefs.remove(_geofencingLocationsKey);
     await _prefs.reloadCache();
-  }
-
-  // Note: Index관리하기에 불편하면 사용하지 않고 삭제해도 좋을 것 같습니다.
-  Future<void> removeGeofencingLocation(String location) async {
-    final currentLocations = await getGeofencingLocations();
-    currentLocations.remove(location);
-
-    await saveGeofencingLocations(currentLocations);
-  }
-
-  // Note: Index관리하기에 불편하면 사용하지 않고 삭제해도 좋을 것 같습니다.
-  Future<void> addGeofencingLocation(String location) async {
-    final currentLocations = await getGeofencingLocations();
-
-    if(!currentLocations.contains(location)) {
-      currentLocations.add(location);
-      await saveGeofencingLocations(currentLocations);
-    }
   }
 }

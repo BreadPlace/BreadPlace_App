@@ -59,12 +59,12 @@ class UserLocalStorageRepositoryImpl implements UserLocalStorageRepository {
   }
 
   @override
-  Future<void> removeGeofencingLocation(String location) {
-    return _service.removeGeofencingLocation(location);
+  Future<bool> isFirstLaunch() {
+    return _service.isFirstLaunch();
   }
 
   @override
-  Future<void> addGeofencingLocation(String location) {
-    return _service.addGeofencingLocation(location);
+  Future<void> setLaunched() {
+    return _service.setLaunched();
   }
 }

@@ -12,4 +12,5 @@ abstract final class Routes {
   static const termsOfUse = '/termsOfUse';
   static const ossLicenses = '/ossLicenses';
   static const ossLicenseSingle = '/ossLicenseSingle';
+  static const permissionInfo = '/permissionInfo';
 }

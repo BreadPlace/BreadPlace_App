@@ -1,8 +1,10 @@
 import 'package:bread_place/config/constants/app_constants.dart';
 import 'package:bread_place/domain/entities/recommend_bakery_entity.dart';
 import 'package:bread_place/domain/usecases/firestore_use_case.dart';
+import 'package:bread_place/domain/usecases/permission_use_case.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/config/constants/exception/app_permission_exception.dart';
+import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/domain/usecases/user_location_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,15 +22,21 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final SearchBakeryUseCase _searchBakeryUseCase;
   final UserLocationUseCase _userLocationUseCase;
   final FirestoreUseCase _firestoreUseCase;
+  final PermissionUseCase _permissionUseCase;
+  final UserLocalStorageUseCase _userLocalStorageUseCase;
 
   HomeBloc({
     required SearchBakeryUseCase searchBakeryUseCase,
     required UserLocationUseCase userLocationUseCase,
     required FirestoreUseCase firestoreUseCase,
+    required PermissionUseCase permissionUseCase,
+    required UserLocalStorageUseCase userLocalStorageUseCase
   })
       : _searchBakeryUseCase = searchBakeryUseCase,
         _userLocationUseCase = userLocationUseCase,
         _firestoreUseCase = firestoreUseCase,
+        _permissionUseCase = permissionUseCase,
+        _userLocalStorageUseCase = userLocalStorageUseCase,
         super(
         HomeScreenState(
           userLocation: AppLocations.seoulStation,
@@ -51,6 +59,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeMapTapped>(_onMapTapped);
     on<HomeMapMoved>(_onMapMoved);
     on<HomeMapStopped>(_onMapStopped);
+    on<RequestPermissionsOnFirstLaunch>(_onRequestInitialPermissions);
   }
 
   /// 앱의 Initiate 시점 결과 반환
@@ -216,5 +225,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<RecommendBakeryEntity> _searchRecommendBakery() async {
     return await _firestoreUseCase.fetchRecommendBakery();
+  }
+
+  Future<void> _onRequestInitialPermissions(
+      RequestPermissionsOnFirstLaunch event, Emitter<HomeState> emit) async {
+    await _permissionUseCase.requestInitialPermissions();
+    await _userLocalStorageUseCase.setLaunched();
   }
 }

@@ -3,6 +3,7 @@ import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
 import 'package:bread_place/domain/usecases/liked_bakery_use_case.dart';
 import 'package:bread_place/domain/usecases/login_use_case.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
+import 'package:bread_place/domain/usecases/permission_use_case.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/domain/usecases/user_location_use_case.dart';
@@ -21,6 +22,8 @@ void registerBloc(GetIt di) {
     searchBakeryUseCase: di<SearchBakeryUseCase>(),
     userLocationUseCase: di<UserLocationUseCase>(),
     firestoreUseCase: di<FirestoreUseCase>(),
+    permissionUseCase: di<PermissionUseCase>(),
+    userLocalStorageUseCase: di<UserLocalStorageUseCase>()
   ));
 
   // 검색 탭

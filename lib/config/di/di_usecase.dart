@@ -12,6 +12,7 @@ import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
 import 'package:bread_place/domain/usecases/liked_bakery_use_case.dart';
 import 'package:bread_place/domain/usecases/login_use_case.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
+import 'package:bread_place/domain/usecases/permission_use_case.dart';
 import 'package:bread_place/domain/usecases/search_bakery_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/domain/usecases/user_location_use_case.dart';
@@ -26,6 +27,9 @@ void registerUseCase(GetIt di) {
 
   // 로컬 저장
   di.registerLazySingleton<UserLocalStorageUseCase>(() => UserLocalStorageUseCase(repository: di<UserLocalStorageRepository>()));
+
+  // 권한
+  di.registerLazySingleton<PermissionUseCase>(() => PermissionUseCase(repository: di<PermissionRepository>()));
 
   // 알림
   di.registerLazySingleton<NotificationUseCase>(() =>
