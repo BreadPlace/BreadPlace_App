@@ -22,7 +22,8 @@ void registerBloc(GetIt di) {
     searchBakeryUseCase: di<SearchBakeryUseCase>(),
     userLocationUseCase: di<UserLocationUseCase>(),
     firestoreUseCase: di<FirestoreUseCase>(),
-    permissionUseCase: di<PermissionUseCase>()
+    permissionUseCase: di<PermissionUseCase>(),
+    userLocalStorageUseCase: di<UserLocalStorageUseCase>()
   ));
 
   // 검색 탭
