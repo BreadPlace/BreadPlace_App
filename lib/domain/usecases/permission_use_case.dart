@@ -7,8 +7,8 @@ class PermissionUseCase {
   PermissionUseCase({required PermissionRepository repository})
       : _repository = repository;
 
-  Future<void> getPermissionStatus(AppPermission permission) async {
-    await _repository.getPermissionStatus(permission);
+  Future<AppPermissionStatus> getPermissionStatus(AppPermission permission) async {
+    return await _repository.getPermissionStatus(permission);
   }
 
   Future<void> requestInitialPermissions() async {
