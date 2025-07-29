@@ -68,10 +68,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       Emitter<HomeState> emit
       ) async {
 
-    RecommendBakeryEntity? recommendBakery;
+    RecommendBakeryEntity? recommendBakeryData;
+    Bakery? recommendBakery;
 
     try {
-      recommendBakery = await _searchRecommendBakery();
+      recommendBakeryData = await _searchRecommendBakery();
+      recommendBakery = await _searchBakeryUseCase.searchPlaceById(recommendBakeryData.bakeryId);
     } catch (error) {
       print('추천 베이커리를 불러오지 못했습니다: $error');
     }

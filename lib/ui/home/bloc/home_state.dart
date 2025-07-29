@@ -2,7 +2,7 @@ part of 'home_bloc.dart';
 
 sealed class HomeState extends Equatable {
   final LatLng? userLocation;
-  final RecommendBakeryEntity? recommendBakery;
+  final Bakery? recommendBakery;
   final LatLng? lastSearchLocation;
   final List<Bakery> bakeryList;
   final Bakery? markerTappedBakery;
@@ -46,7 +46,6 @@ final class HomeScreenState extends HomeState {
   @override
   List<Object?> get props => [
     userLocation,
-    recommendBakery,
     lastSearchLocation,
     bakeryList,
     markerTappedBakery,
@@ -62,7 +61,7 @@ final class HomeScreenState extends HomeState {
 extension HomeScreenStateCopy on HomeScreenState {
   HomeScreenState copyWith({
     LatLng? userLocation,
-    RecommendBakeryEntity? recommendBakery,
+    Bakery? recommendBakery,
     LatLng? lastSearchLocation,
     List<Bakery>? bakeryList,
     Bakery? markerTappedBakery,

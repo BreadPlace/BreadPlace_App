@@ -6,9 +6,6 @@ extension RecommendBakeryMapper on RecommendBakeryDto {
     return RecommendBakeryEntity(
         bakeryId: id,
         name: name,
-        address: address,
-        latitude: latitude,
-        longitude: longitude
     );
   }
 }
