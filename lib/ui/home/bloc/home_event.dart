@@ -43,11 +43,6 @@ final class HomeBellIconTapped extends HomeEvent {
   const HomeBellIconTapped();
 }
 
-final class HomeRecommendBakeryTapped extends HomeEvent {
-  final String bakeryId;
-  const HomeRecommendBakeryTapped({required this.bakeryId});
-}
-
 
 
 

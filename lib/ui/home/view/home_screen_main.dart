@@ -1,4 +1,3 @@
-import 'package:bread_place/domain/entities/recommend_bakery_entity.dart';
 import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -88,12 +87,15 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     context.read<HomeBloc>().add(HomeMapStopped(lastPosition: center));
   }
 
+  // 리스트의 베이커리를 선택했을 때
   void _onSelectBakery(Bakery bakery) {
     context.push(Routes.bakeryDetail, extra: bakery);
   }
 
-  void _onSelectRecommendBakery(String bakeryId){
-    context.read<HomeBloc>().add(HomeRecommendBakeryTapped(bakeryId: bakeryId));
+  // 추천 베이커리를 선택했을 때
+  void _onSelectRecommendBakery(){
+    final state = context.read<HomeBloc>().state;
+    context.push(Routes.bakeryDetail, extra: state.recommendBakery);
   }
 
   void _changeCameraPosition(LatLng to) {
@@ -107,65 +109,57 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     const String mapViewTitle = '현재 위치';
     const String bakeryListViewTitle = '근처 베이커리';
 
-    return BlocListener<HomeBloc, HomeState>(
-      listenWhen: (prev, curr) => prev.selectedRecommendBakery != curr.selectedRecommendBakery,
-      listener: (context, state) {
-        if(state.selectedRecommendBakery != null) {
-          _onSelectBakery(state.selectedRecommendBakery!);
-        }
-      },
-      child: Column(
-        children: [
-          // 커스텀 타이틀
-          BreadPlaceTitleView(
-            title: tabTitle,
-            titleImage: const AssetImage('assets/images/Croissant.png'),
-            trailingIcon: CupertinoIcons.bell_fill,
-            onTrailingTap: _onBellIconTapped,
-          ),
-      
-          const SizedBox(height: 8),
-      
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 랜덤 추천 빵집
-                  _RecommendBakeryView(onRecommendBakeryTapped: _onSelectRecommendBakery),
-                  const SizedBox(height: 16),
-      
-                  // 근처 빵집 지도
-                  _MapView(
-                    title: mapViewTitle,
-                    onTrailingTap: _onSearchLocationTapped,
-                    onMapCreated: _onMapCreated,
-                    onMarkerTapped: _onMarkerTapped,
-                    onMapTapped: _onMapTapped,
-                    changeCameraPosition: _changeCameraPosition,
-                    onMapMoved: _onMapMoved,
-                    onMapStopped: _onMapStopped,
-                  ),
-                  const SizedBox(height: 16),
-      
-                  // 근처 빵집 리스트
-                  _BakeryListView(
-                    title: bakeryListViewTitle,
-                    onSelectBakery: _onSelectBakery,
-                  ),
-                  const SizedBox(height: 32),
-                ],
-              ),
+    return Column(
+      children: [
+        // 커스텀 타이틀
+        BreadPlaceTitleView(
+          title: tabTitle,
+          titleImage: const AssetImage('assets/images/Croissant.png'),
+          trailingIcon: CupertinoIcons.bell_fill,
+          onTrailingTap: _onBellIconTapped,
+        ),
+
+        const SizedBox(height: 8),
+
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 랜덤 추천 빵집
+                _RecommendBakeryView(onRecommendBakeryTapped: _onSelectRecommendBakery),
+                const SizedBox(height: 16),
+
+                // 근처 빵집 지도
+                _MapView(
+                  title: mapViewTitle,
+                  onTrailingTap: _onSearchLocationTapped,
+                  onMapCreated: _onMapCreated,
+                  onMarkerTapped: _onMarkerTapped,
+                  onMapTapped: _onMapTapped,
+                  changeCameraPosition: _changeCameraPosition,
+                  onMapMoved: _onMapMoved,
+                  onMapStopped: _onMapStopped,
+                ),
+                const SizedBox(height: 16),
+
+                // 근처 빵집 리스트
+                _BakeryListView(
+                  title: bakeryListViewTitle,
+                  onSelectBakery: _onSelectBakery,
+                ),
+                const SizedBox(height: 32),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
 class _RecommendBakeryView extends StatelessWidget {
-  final void Function(String) onRecommendBakeryTapped;
+  final VoidCallback onRecommendBakeryTapped;
 
   const _RecommendBakeryView({
     required this.onRecommendBakeryTapped,
@@ -174,7 +168,7 @@ class _RecommendBakeryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<HomeBloc, HomeState, (RecommendBakeryEntity?, LatLng)>(
+    return BlocSelector<HomeBloc, HomeState, (Bakery?, LatLng)>(
     selector:
     (state) =>
     state is HomeScreenState
@@ -188,8 +182,7 @@ class _RecommendBakeryView extends StatelessWidget {
         final recommendBakery = data.$1;
         final userLocation = data.$2;
 
-        return recommendBakery != null
-        ? Padding(
+        return Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,48 +191,18 @@ class _RecommendBakeryView extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              InkWell(
-                borderRadius: BorderRadius.circular(16),
-                onTap: () => onRecommendBakeryTapped(recommendBakery.bakeryId),
-                child: Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            recommendBakery.name,
-                            style: AppTextStyles.pretendardBold.copyWith(fontSize: 16),
-                          ),
-                          Text(
-                            recommendBakery.address,
-                            style: AppTextStyles.pretendardSemiBold.copyWith(fontSize: 12),
-                          ),
-                          Text(
-                            "${recommendBakery.distanceFromUser(userLocation)}KM",
-                            style: AppTextStyles.pretendardSemiBold.copyWith(
-                              fontSize: 14,
-                              color: AppColors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Text("리뷰 >"),
-                    ],
-                  ),
-                ),
-              ),
+              recommendBakery != null
+              ? CommonBakeryContainer(bakery: recommendBakery)
+              : Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                )
+              )
             ],
           ),
-        )
-        : Text('추천 빵집이 없습니다.');
+        );
       },
     );
   }
