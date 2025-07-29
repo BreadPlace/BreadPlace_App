@@ -132,7 +132,7 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // 랜덤 추천 빵집
-                  _RecommendBakeryView(onSelectRecommendBakery: _onSelectRecommendBakery),
+                  _RecommendBakeryView(onRecommendBakeryTapped: _onSelectRecommendBakery),
                   const SizedBox(height: 16),
       
                   // 근처 빵집 지도
@@ -165,10 +165,10 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
 }
 
 class _RecommendBakeryView extends StatelessWidget {
-  final void Function(String) onSelectRecommendBakery;
+  final void Function(String) onRecommendBakeryTapped;
 
   const _RecommendBakeryView({
-    required this.onSelectRecommendBakery,
+    required this.onRecommendBakeryTapped,
     super.key
   });
 
@@ -200,7 +200,7 @@ class _RecommendBakeryView extends StatelessWidget {
 
               InkWell(
                 borderRadius: BorderRadius.circular(16),
-                onTap: () => onSelectRecommendBakery(recommendBakery.bakeryId),
+                onTap: () => onRecommendBakeryTapped(recommendBakery.bakeryId),
                 child: Container(
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
