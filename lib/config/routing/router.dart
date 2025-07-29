@@ -35,22 +35,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bread_place/oss_licenses.dart';
 
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _shellNavigatorHomeKey = GlobalKey<NavigatorState>(
-  debugLabel: 'shellHome',
-);
-final _shellNavigatorSearchKey = GlobalKey<NavigatorState>(
-  debugLabel: 'shellSearch',
-);
-final _shellNavigatorLikeKey = GlobalKey<NavigatorState>(
-  debugLabel: 'shellLike',
-);
-
 final _loginBloc = di<LoginBloc>();
 
 GoRouter createRouter({required bool isFirstLaunch}) {
+  final rootNavigatorKey = GlobalKey<NavigatorState>();
+  final shellNavigatorHomeKey = GlobalKey<NavigatorState>(
+    debugLabel: 'shellHome',
+  );
+  final shellNavigatorSearchKey = GlobalKey<NavigatorState>(
+    debugLabel: 'shellSearch',
+  );
+  final shellNavigatorLikeKey = GlobalKey<NavigatorState>(
+    debugLabel: 'shellLike',
+  );
+  final shellNavigatorMypageKey = GlobalKey<NavigatorState>(
+    debugLabel: 'shellMypage',
+  );
+
   return GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     initialLocation: isFirstLaunch ? Routes.permissionInfo : Routes.home,
     routes: [
       StatefulShellRoute.indexedStack(
@@ -60,7 +63,7 @@ GoRouter createRouter({required bool isFirstLaunch}) {
         },
         branches: [
           StatefulShellBranch(
-            navigatorKey: _shellNavigatorHomeKey,
+            navigatorKey: shellNavigatorHomeKey,
             routes: [
               GoRoute(
                 path: Routes.home,
@@ -72,7 +75,7 @@ GoRouter createRouter({required bool isFirstLaunch}) {
             ],
           ),
           StatefulShellBranch(
-            navigatorKey: _shellNavigatorSearchKey,
+            navigatorKey: shellNavigatorSearchKey,
             routes: [
               GoRoute(
                 path: Routes.search,
@@ -89,7 +92,7 @@ GoRouter createRouter({required bool isFirstLaunch}) {
             ],
           ),
           StatefulShellBranch(
-            navigatorKey: _shellNavigatorLikeKey,
+            navigatorKey: shellNavigatorLikeKey,
             routes: [
               GoRoute(
                 path: Routes.like,
@@ -107,6 +110,7 @@ GoRouter createRouter({required bool isFirstLaunch}) {
             ],
           ),
           StatefulShellBranch(
+            navigatorKey: shellNavigatorMypageKey,
             routes: [
               GoRoute(
                 path: Routes.mypage,
