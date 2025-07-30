@@ -47,9 +47,7 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
   }
 
   void _onAddReviewButtonTapped(Bakery bakery) {
-    final loginState = context.read<LoginBloc>().state;
-
-    if (loginState is Authenticated) {
+    _doIfLogined((){
       final bloc = context.read<BakeryDetailBloc>();
 
       context.push(
@@ -59,23 +57,17 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
             'bloc': bloc,
           }
       );
-    } else {
-      context.go(Routes.login);
-    }
+    });
   }
 
   void _onHeartButtonTapped(Bakery bakery, bool isLiked) {
-    final loginState = context.read<LoginBloc>().state;
-
-    if (loginState is Authenticated) {
+    _doIfLogined(() {
       bool notifyByDefault = false;
 
       isLiked
-        ? context.read<LikeBloc>().add(RemoveLike(bakery: bakery, isNotificationAllowed: notifyByDefault))
-        : context.read<LikeBloc>().add(AddLike(bakery: bakery, isNotificationAllowed: notifyByDefault));
-    } else {
-      context.go(Routes.login);
-    }
+          ? context.read<LikeBloc>().add(RemoveLike(bakery: bakery, isNotificationAllowed: notifyByDefault))
+          : context.read<LikeBloc>().add(AddLike(bakery: bakery, isNotificationAllowed: notifyByDefault));
+    });
   }
 
   // 현재 좋아요 상태인지 체크
@@ -94,6 +86,16 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
       if (state.isLastReview || state.isFetchingReviews) return;
 
       context.read<BakeryDetailBloc>().add(OnFetchReviews());
+    }
+  }
+
+  void _doIfLogined(VoidCallback action) {
+    final loginState = context.read<LoginBloc>().state;
+
+    if(loginState is Authenticated){
+      action();
+    } else {
+      context.go(Routes.login);
     }
   }
 
