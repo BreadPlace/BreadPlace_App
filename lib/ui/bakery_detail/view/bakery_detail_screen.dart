@@ -1,4 +1,6 @@
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
+import 'package:bread_place/ui/login/bloc/login_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/utils/iso_date_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -45,23 +47,35 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
   }
 
   void _onAddReviewButtonTapped(Bakery bakery) {
-    final bloc = context.read<BakeryDetailBloc>();
+    final loginState = context.read<LoginBloc>().state;
 
-    context.push(
-        Routes.addReview,
-        extra: {
-          'bakery': bakery,
-          'bloc': bloc,
-        }
-    );
+    if (loginState is Authenticated) {
+      final bloc = context.read<BakeryDetailBloc>();
+
+      context.push(
+          Routes.addReview,
+          extra: {
+            'bakery': bakery,
+            'bloc': bloc,
+          }
+      );
+    } else {
+      context.go(Routes.login);
+    }
   }
 
   void _onHeartButtonTapped(Bakery bakery, bool isLiked) {
-    bool notifyByDefault = false;
+    final loginState = context.read<LoginBloc>().state;
 
-    isLiked
+    if (loginState is Authenticated) {
+      bool notifyByDefault = false;
+
+      isLiked
         ? context.read<LikeBloc>().add(RemoveLike(bakery: bakery, isNotificationAllowed: notifyByDefault))
         : context.read<LikeBloc>().add(AddLike(bakery: bakery, isNotificationAllowed: notifyByDefault));
+    } else {
+      context.go(Routes.login);
+    }
   }
 
   // 현재 좋아요 상태인지 체크
