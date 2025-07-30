@@ -1,4 +1,3 @@
-import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,6 +17,7 @@ import 'package:bread_place/ui/common_widgets/common_bakery_container.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/utils/calculate_distance.dart';
+import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -192,7 +192,11 @@ class _RecommendBakeryView extends StatelessWidget {
               const SizedBox(height: 8),
 
               recommendBakery != null
-              ? CommonBakeryContainer(bakery: recommendBakery)
+              ? CommonBakeryContainer(
+                  bakery: recommendBakery,
+                  onTap: onRecommendBakeryTapped,
+                  userLocation: userLocation,
+              )
               : Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
