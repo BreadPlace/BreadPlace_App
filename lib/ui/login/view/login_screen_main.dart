@@ -33,6 +33,7 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
         }
       },
       child: Material(
+        color: AppColors.background,
         child: SafeArea(
           child: Container(
             color: AppColors.background,
