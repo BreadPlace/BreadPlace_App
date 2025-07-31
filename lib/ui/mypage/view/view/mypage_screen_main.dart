@@ -221,7 +221,7 @@ class _AppMenuListState extends State<AppMenuList> {
               MypageMenuItem(
                 onTap: openDeviceAppSettings,
                 text: '알림 등 권한설정',
-                widget: Icon(CupertinoIcons.settings, color: AppColors.fontGrey),
+                widget: Icon(CupertinoIcons.gear_solid, color: AppColors.fontGrey),
               ),
               MypageMenuItem(
                 text: '앱 버전',
