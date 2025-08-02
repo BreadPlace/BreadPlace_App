@@ -50,7 +50,11 @@ class _EmptyResultViewState extends State<EmptyResultView> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image(image: widget.imageProvider),
+              Image(
+                  image: widget.imageProvider,
+                  width: 98,
+                  height: 98,
+              ),
               SizedBox(height: 30),
               Text(widget.message, style: AppTextStyles.bmJua),
             ],
