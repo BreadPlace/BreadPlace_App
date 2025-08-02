@@ -131,7 +131,7 @@ class _ReviewListView extends StatelessWidget {
                   )
               ),
             )
-                : const Center(
+                : Center(
               child: EmptyResultView(
                   headLine: '',
                   message: '작성한 리뷰가 빵개입니다...',
