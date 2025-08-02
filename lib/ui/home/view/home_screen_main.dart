@@ -416,7 +416,7 @@ class _BakeryListView extends StatelessWidget {
                   ? EmptyResultView(
                     headLine: '검색결과',
                     message: '근처에 있는 빵집이 빵개입니다...',
-                    imageProvider: AssetImage('assets/images/image_donut.png'),
+                    imageProvider: AssetImage('assets/images/baumkuhen.png'),
                   )
                   : ListView.separated(
                     itemCount: nearbyBackeies.length,
