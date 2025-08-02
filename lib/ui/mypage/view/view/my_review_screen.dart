@@ -3,6 +3,7 @@ import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/domain/entities/bakery_review_entity.dart';
 import 'package:bread_place/ui/common_widgets/common_breadplace_title_view.dart';
 import 'package:bread_place/ui/common_widgets/common_image_container.dart';
+import 'package:bread_place/ui/common_widgets/empty_result_view.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_event.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_state.dart';
@@ -109,25 +110,34 @@ class _ReviewListView extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
         child: Column(
           children: [
-            if (reviews.isNotEmpty)
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
+            reviews.isNotEmpty
+                ? Container(
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
 
-                child: Column(
-                    children: List.generate(
-                      reviews.length,
-                          (index) => Column(
-                        children: [
-                          _ReviewContentView(review: reviews[index], horizontalPadding: horizontalPadding),
-                          const Divider(height: 1),
-                        ],
-                      ),
-                    )
-                ),
-              )
+              child: Column(
+                  children: List.generate(
+                    reviews.length,
+                        (index) =>
+                        Column(
+                          children: [
+                            _ReviewContentView(review: reviews[index],
+                                horizontalPadding: horizontalPadding),
+                            const Divider(height: 1),
+                          ],
+                        ),
+                  )
+              ),
+            )
+                : const Center(
+              child: EmptyResultView(
+                  headLine: '',
+                  message: '작성한 리뷰가 빵개입니다...',
+                  imageProvider: AssetImage('assets/images/bagel.png')
+              ),
+            )
           ],
         )
     );
