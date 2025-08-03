@@ -32,6 +32,7 @@ class CommonBakeryContainer extends StatelessWidget {
         child: Row(
           children: [
             bakeryImageContainer(bakery.photoUri),
+            SizedBox(width: 8),
             bakeryInfoText(bakery, userLocation),
             goReviewScreenButton()
           ],
