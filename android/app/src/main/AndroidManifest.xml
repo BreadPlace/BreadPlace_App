@@ -7,9 +7,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
     <application
-        android:label="bread_place"
+        android:label="빵플레이스"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_bread_place_logo">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_cloud_key"/>
         <meta-data android:name="com.kakao.sdk.APP_KEY"
