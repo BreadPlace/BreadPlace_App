@@ -55,7 +55,7 @@ class GeofencingUseCase {
 
       final notificationEntity = NotificationEntity(
         title: '가고싶던 빵집이 근처에 있어요!',
-        body: '$displayName 에 진입',
+        body: '$displayName 근처에 진입',
       );
 
       _notificationRepository.showNotification(notificationEntity);
