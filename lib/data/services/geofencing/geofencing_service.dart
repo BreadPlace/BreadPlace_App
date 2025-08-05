@@ -42,7 +42,7 @@ class GeofencingService {
           final eventType = event['event'] as String?;
           final regionId = event['regionId'] as String?;
 
-          if(eventType == 'onEnterGeofence' && regionId != null) {
+          if(eventType == AppConstants.onEnterGeofenceEventName && regionId != null) {
             _geofencingEnteredController.add(regionId);
           }
         }
