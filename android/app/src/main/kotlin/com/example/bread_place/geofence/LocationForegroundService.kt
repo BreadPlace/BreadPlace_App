@@ -52,8 +52,8 @@ class LocationForegroundService : Service() {
     // Foreground 서비스를 시작하고, 사용자에게 위치 추적 중임을 알리는 Notification 생성
     private fun startForegroundService() {
         val notification = NotificationCompat.Builder(this, NotificationConstants.CHANNEL_ID)
-            .setContentTitle("위치 추적 중")
-            .setContentText("사용자의 위치 정보를 사용하고 있습니다.")
+            .setContentTitle("위치 정보 사용 중")
+            .setContentText("저장한 빵집에 가까워지면 알려드리기 위해 사용자의 위치 정보를 사용하고 있습니다.")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()

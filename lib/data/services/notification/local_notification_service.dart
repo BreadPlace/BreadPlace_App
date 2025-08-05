@@ -9,7 +9,7 @@ class LocalNotificationService {
   Future<void> init() async {
     // Android 플랫폼용 초기화 설정 (앱 아이콘 설정)
     const AndroidInitializationSettings androidInitializationSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/ic_bread_place_logo');
 
     // iOS 플랫폼용 초기화 설정 (권한 요청 여부 설정)
     const DarwinInitializationSettings iosInitializationSettings =
