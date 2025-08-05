@@ -1,7 +1,3 @@
-import 'package:bread_place/domain/entities/bakery_review_entity.dart';
-import 'package:bread_place/ui/login/bloc/login_bloc.dart';
-import 'package:bread_place/ui/login/bloc/login_state.dart';
-import 'package:bread_place/utils/iso_date_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +12,11 @@ import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:bread_place/ui/like/bloc/like_state.dart';
+import 'package:bread_place/domain/entities/bakery_review_entity.dart';
+import 'package:bread_place/ui/common_widgets/empty_result_view.dart';
+import 'package:bread_place/ui/login/bloc/login_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
+import 'package:bread_place/utils/iso_date_extensions.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -307,26 +308,33 @@ class _ReviewListView extends StatelessWidget {
             ),
             SizedBox(height: 12),
 
-            if ((reviews ?? []).isNotEmpty)
-            Container(
+            // 작성된 리뷰 존재 여부에 따라 분기
+            (reviews ?? []).isEmpty
+                ? EmptyResultView(
+                headLine: '',
+                message: '작성된 리뷰가 빵개입니다...',
+                imageProvider: AssetImage('assets/images/bagel.png'))
+                : Container(
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
-
               child: Column(
                 children: List.generate(
-                    reviews!.length,
-                    (index) => Column(
-                      children: [
-                        _ReviewContentView(review: reviews![index], horizontalPadding: horizontalPadding),
-                        // if (index < reviewList.length - 1)
+                  reviews!.length,
+                      (index) =>
+                      Column(
+                        children: [
+                          _ReviewContentView(
+                            review: reviews![index],
+                            horizontalPadding: horizontalPadding,
+                          ),
                           const Divider(height: 1),
-                      ],
-                    ),
-                )
+                        ],
+                      ),
+                ),
               ),
-            )
+            ),
           ],
         )
     );
