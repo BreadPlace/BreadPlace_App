@@ -61,7 +61,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 for (geofence in geofences) {
                     val id = geofence.requestId
                     val event = mapOf(
-                        "event" to "onEnterGeofence",
+                        "event" to "onEnterGeofencing",
                         "regionId" to id
                     )
                     MainActivity.onEnterGeofencing?.success(event) // 플러터로 전송
