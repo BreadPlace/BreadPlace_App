@@ -100,7 +100,6 @@ GoRouter createRouter({required bool isFirstLaunch}) {
                     (context, state) => NoTransitionPage(
                       child: MultiBlocProvider(
                         providers: [
-                          BlocProvider.value(value: context.read<LikeBloc>()),
                           BlocProvider(create: (_) => di<SearchBloc>()),
                         ],
                         child: const LikeScreenMain(),

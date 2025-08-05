@@ -115,8 +115,6 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
         BreadPlaceTitleView(
           title: tabTitle,
           titleImage: const AssetImage('assets/images/Croissant.png'),
-          trailingIcon: CupertinoIcons.bell_fill,
-          onTrailingTap: _onBellIconTapped,
         ),
 
         const SizedBox(height: 8),

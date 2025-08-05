@@ -9,8 +9,6 @@ import 'package:bread_place/config/routing/routes.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
-import 'package:bread_place/config/di/locator.dart';
-import 'package:bread_place/domain/usecases/notification_use_case.dart';
 import 'package:bread_place/ui/common_widgets/common_dialog.dart';
 import 'package:bread_place/utils/iso_date_extensions.dart';
 
@@ -25,6 +23,13 @@ class MypageScreenMain extends StatelessWidget {
     showDialog(
         context: context,
         builder: (_) => _buildWithdrawDialog(context)
+    );
+  }
+
+  void _showLoggedOutDialog(BuildContext context){
+    showDialog(
+        context: context,
+        builder: (_) => _buildLoggedOutDialog(context)
     );
   }
 
@@ -67,6 +72,21 @@ class MypageScreenMain extends StatelessWidget {
     );
   }
 
+  Widget _buildLoggedOutDialog(BuildContext context){
+    return CommonDialog(
+      content: '로그아웃 하시겠습니까?',
+      positiveButtonText: '로그아웃',
+      negativeButtonText: '취소',
+      onTapPositiveButton: (){
+        context.read<LoginBloc>().add(LoggedOut());
+        context.pop();
+      },
+      onTapNegativeButton: (){
+        context.pop();
+      },
+    );
+  }
+
   Widget _loadingView() {
     return Center(
       child: SizedBox(
@@ -92,6 +112,7 @@ class MypageScreenMain extends StatelessWidget {
 
         AccountMenuList(
           onWithdrawButtonTapped: () => _showWithdarwDialog(context),
+          onLoggedOutButtonTapped: () => _showLoggedOutDialog(context),
         ),
       ],
     );
@@ -221,7 +242,7 @@ class _AppMenuListState extends State<AppMenuList> {
               MypageMenuItem(
                 onTap: openDeviceAppSettings,
                 text: '알림 등 권한설정',
-                widget: Icon(CupertinoIcons.settings, color: AppColors.fontGrey),
+                widget: Icon(CupertinoIcons.gear_solid, color: AppColors.fontGrey),
               ),
               MypageMenuItem(
                 text: '앱 버전',
@@ -251,9 +272,11 @@ class _AppMenuListState extends State<AppMenuList> {
 
 class AccountMenuList extends StatelessWidget {
   final VoidCallback onWithdrawButtonTapped;
+  final VoidCallback onLoggedOutButtonTapped;
 
   const AccountMenuList({
     required this.onWithdrawButtonTapped,
+    required this.onLoggedOutButtonTapped,
     super.key
   });
 
@@ -263,9 +286,7 @@ class AccountMenuList extends StatelessWidget {
       child: Column(
         children: [
           MypageMenuItem(
-            onTap: () {
-              context.read<LoginBloc>().add(LoggedOut());
-            },
+            onTap: onLoggedOutButtonTapped,
             text: '로그아웃',
             widget: Icon(
               CupertinoIcons.square_arrow_right,

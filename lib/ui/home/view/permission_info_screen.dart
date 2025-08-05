@@ -116,12 +116,14 @@ class PermissionInfo extends StatelessWidget {
               child: Icon(icon, color: AppColors.fontGrey)
             ),
             SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: AppTextStyles.pretendardSemiBold),
-                Text(description, style: AppTextStyles.hintText)
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: AppTextStyles.pretendardSemiBold),
+                  Text(description, style: AppTextStyles.hintText)
+                ],
+              ),
             )
           ]),
     );
