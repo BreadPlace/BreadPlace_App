@@ -21,6 +21,15 @@ if (envFile.exists()) {
     println(".env 파일을 찾을 수 없습니다.")
 }
 
+// key.properties 불러오기
+val keyPropertiesFile = rootProject.file("key.properties")
+val keyProperties = Properties()
+if (keyPropertiesFile.exists()) {
+    keyPropertiesFile.inputStream().use { keyProperties.load(it) }
+} else {
+    throw GradleException("key.properties 파일을 찾을 수 없습니다.")
+}
+
 android {
     namespace = "com.example.bread_place"
     compileSdk = flutter.compileSdkVersion
@@ -56,11 +65,25 @@ android {
         )
     }
 
+    signingConfigs {
+        create("release") {
+            val storeFilePath = keyProperties.getProperty("storeFile") ?: throw GradleException("storeFile 누락")
+            val storePassword = keyProperties.getProperty("storePassword") ?: throw GradleException("storePassword 누락")
+            val keyAlias = keyProperties.getProperty("keyAlias") ?: throw GradleException("keyAlias 누락")
+            val keyPassword = keyProperties.getProperty("keyPassword") ?: throw GradleException("keyPassword 누락")
+
+            this.storeFile = file(storeFilePath)
+            this.storePassword = storePassword
+            this.keyAlias = keyAlias
+            this.keyPassword = keyPassword
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
