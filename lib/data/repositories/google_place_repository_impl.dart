@@ -18,7 +18,7 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
     final response = await _api.searchText(body: request);
 
     final results = response.bakeries
-        .where((dto) => dto.types.contains('cafe') || dto.types.contains('bakery'))
+        .where((dto) => dto.types.any(['cafe', 'bakery'].contains))
         .map((dto) => dto.toEntity())
         .toList();
 
