@@ -1,4 +1,4 @@
-package com.bp.bread_place.geofence
+package com.bp.breadplace.geofence
 
 
 // 코루틴 사용을 위한 관련 패키지 임포트

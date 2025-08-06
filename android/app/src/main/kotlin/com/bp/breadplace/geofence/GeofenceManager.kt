@@ -1,4 +1,4 @@
-package com.bp.bread_place.geofence
+package com.bp.breadplace.geofence
 
 // Android 기본 시스템 관련
 import android.annotation.SuppressLint
