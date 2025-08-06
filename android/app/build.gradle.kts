@@ -21,15 +21,6 @@ if (envFile.exists()) {
     println(".env 파일을 찾을 수 없습니다.")
 }
 
-// key.properties 불러오기
-val keyPropertiesFile = rootProject.file("key.properties")
-val keyProperties = Properties()
-if (keyPropertiesFile.exists()) {
-    keyPropertiesFile.inputStream().use { keyProperties.load(it) }
-} else {
-    throw GradleException("key.properties 파일을 찾을 수 없습니다.")
-}
-
 android {
     namespace = "com.bp.breadplace"
     compileSdk = flutter.compileSdkVersion
