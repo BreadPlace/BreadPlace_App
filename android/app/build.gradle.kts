@@ -55,25 +55,19 @@ android {
             envProperties.getProperty("KAKAO_NATIVE_APP_KEY") ?: "default_kakao_key"
         )
     }
-
     signingConfigs {
         create("release") {
-            val storeFilePath = keyProperties.getProperty("storeFile") ?: throw GradleException("storeFile 누락")
-            val storePassword = keyProperties.getProperty("storePassword") ?: throw GradleException("storePassword 누락")
-            val keyAlias = keyProperties.getProperty("keyAlias") ?: throw GradleException("keyAlias 누락")
-            val keyPassword = keyProperties.getProperty("keyPassword") ?: throw GradleException("keyPassword 누락")
-
-            this.storeFile = file(storeFilePath)
-            this.storePassword = storePassword
-            this.keyAlias = keyAlias
-            this.keyPassword = keyPassword
+            if (System.getenv("KEYSTORE_PATH") != null) {
+                storeFile = file(System.getenv("KEYSTORE_PATH"))
+                storePassword = System.getenv("STORE_PASSWORD")
+                keyAlias = System.getenv("KEYSTORE_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
         }
     }
 
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        getByName("release") {
             signingConfig = signingConfigs.getByName("release")
         }
     }
