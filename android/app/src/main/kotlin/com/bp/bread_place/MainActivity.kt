@@ -1,4 +1,4 @@
-package com.example.bread_place
+package com.bp.bread_place
 
 // Flutter 연동 관련
 import io.flutter.embedding.android.FlutterActivity
@@ -26,11 +26,11 @@ import android.os.Bundle
 import android.app.NotificationChannel
 import android.app.NotificationManager
 
-import com.example.bread_place.geofence.NotificationHelper
-import com.example.bread_place.geofence.GeofenceBroadcastReceiver
-import com.example.bread_place.geofence.GeofenceManager
-import com.example.bread_place.geofence.LocationForegroundService
-import com.example.bread_place.geofence.GeofenceLocationModel
+import com.bp.bread_place.geofence.NotificationHelper
+import com.bp.bread_place.geofence.GeofenceBroadcastReceiver
+import com.bp.bread_place.geofence.GeofenceManager
+import com.bp.bread_place.geofence.LocationForegroundService
+import com.bp.bread_place.geofence.GeofenceLocationModel
 
 class MainActivity : FlutterActivity() {
     companion object {

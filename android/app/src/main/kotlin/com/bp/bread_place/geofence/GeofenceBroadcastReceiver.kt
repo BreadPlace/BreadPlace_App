@@ -1,4 +1,4 @@
-package com.example.bread_place.geofence
+package com.bp.bread_place.geofence
 
 // Android 기본 시스템 관련
 import android.content.BroadcastReceiver
@@ -19,8 +19,8 @@ import com.google.android.gms.location.LocationServices
 
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.example.bread_place.geofence.NotificationHelper
-import com.example.bread_place.MainActivity
+import com.bp.bread_place.geofence.NotificationHelper
+import com.bp.bread_place.MainActivity
 
 
 // 사용자가 등록된 위치에 들어가거나 나갈 때 호출되는 클래스

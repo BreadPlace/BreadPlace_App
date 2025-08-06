@@ -1,4 +1,4 @@
-package com.example.bread_place.geofence
+package com.bp.bread_place.geofence
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

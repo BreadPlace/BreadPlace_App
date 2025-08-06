@@ -1,4 +1,4 @@
-package com.example.bread_place.geofence
+package com.bp.bread_place.geofence
 
 data class GeofenceLocationModel(
     val placeId: String,
