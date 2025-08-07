@@ -11,25 +11,19 @@ class PermissionUseCase {
     return await _repository.getPermissionStatus(permission);
   }
 
-  Future<void> requestInitialPermissions() async {
-      await _repository.requestPermission(AppPermission.location);
-      await _repository.requestPermission(AppPermission.notification);
-      await _repository.requestPermission(AppPermission.camera);
-  }
-
-  Future<bool> ensureCameraPermission() async {
+  Future<AppPermissionStatus> ensureCameraPermission() async {
     return await _repository.ensurePermissionGranted(AppPermission.camera);
   }
 
-  Future<bool> ensureNotificationPermission() async {
+  Future<AppPermissionStatus> ensureNotificationPermission() async {
     return await _repository.ensurePermissionGranted(AppPermission.notification);
   }
 
-  Future<bool> ensureLocationPermission() async {
+  Future<AppPermissionStatus> ensureLocationPermission() async {
     return await _repository.ensurePermissionGranted(AppPermission.location);
   }
 
-  Future<bool> ensureLocationAlwaysPermission() async {
+  Future<AppPermissionStatus> ensureLocationAlwaysPermission() async {
     return await _repository.ensurePermissionGranted(AppPermission.locationAlways);
   }
 }
