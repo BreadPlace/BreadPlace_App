@@ -22,20 +22,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final SearchBakeryUseCase _searchBakeryUseCase;
   final UserLocationUseCase _userLocationUseCase;
   final FirestoreUseCase _firestoreUseCase;
-  final PermissionUseCase _permissionUseCase;
   final UserLocalStorageUseCase _userLocalStorageUseCase;
 
   HomeBloc({
     required SearchBakeryUseCase searchBakeryUseCase,
     required UserLocationUseCase userLocationUseCase,
     required FirestoreUseCase firestoreUseCase,
-    required PermissionUseCase permissionUseCase,
     required UserLocalStorageUseCase userLocalStorageUseCase
   })
       : _searchBakeryUseCase = searchBakeryUseCase,
         _userLocationUseCase = userLocationUseCase,
         _firestoreUseCase = firestoreUseCase,
-        _permissionUseCase = permissionUseCase,
         _userLocalStorageUseCase = userLocalStorageUseCase,
         super(
         HomeScreenState(
@@ -59,7 +56,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeMapTapped>(_onMapTapped);
     on<HomeMapMoved>(_onMapMoved);
     on<HomeMapStopped>(_onMapStopped);
-    on<RequestPermissionsOnFirstLaunch>(_onRequestInitialPermissions);
   }
 
   /// 앱의 Initiate 시점 결과 반환
@@ -227,11 +223,5 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<RecommendBakeryEntity> _searchRecommendBakery() async {
     return await _firestoreUseCase.fetchRecommendBakery();
-  }
-
-  Future<void> _onRequestInitialPermissions(
-      RequestPermissionsOnFirstLaunch event, Emitter<HomeState> emit) async {
-    await _permissionUseCase.requestInitialPermissions();
-    await _userLocalStorageUseCase.setLaunched();
   }
 }

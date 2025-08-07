@@ -43,10 +43,6 @@ final class HomeBellIconTapped extends HomeEvent {
   const HomeBellIconTapped();
 }
 
-/// 앱 최초 실행 시 권한 요청
-final class RequestPermissionsOnFirstLaunch extends HomeEvent {}
-
-
 
 
 
