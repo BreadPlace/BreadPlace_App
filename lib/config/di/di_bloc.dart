@@ -13,6 +13,7 @@ import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_page_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_bloc.dart';
+import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
 import 'package:bread_place/ui/search/bloc/search_bloc.dart';
 import 'package:get_it/get_it.dart';
 
@@ -22,7 +23,6 @@ void registerBloc(GetIt di) {
     searchBakeryUseCase: di<SearchBakeryUseCase>(),
     userLocationUseCase: di<UserLocationUseCase>(),
     firestoreUseCase: di<FirestoreUseCase>(),
-    permissionUseCase: di<PermissionUseCase>(),
     userLocalStorageUseCase: di<UserLocalStorageUseCase>()
   ));
 
@@ -49,6 +49,12 @@ void registerBloc(GetIt di) {
 
   // 마이페이지
   di.registerFactory(() => MyPageBloc(notificationUseCase: di<NotificationUseCase>()));
+
+  // 권한
+  di.registerFactory(() => PermissionBloc(
+      permissionUseCase: di<PermissionUseCase>(),
+      userLocalStorageUseCase: di<UserLocalStorageUseCase>()
+  ));
 }
 
 

@@ -1,3 +1,4 @@
+import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:bread_place/config/di/locator.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di<LoginBloc>()),
         BlocProvider(create: (_) => di<LikeBloc>()..add(FetchLikedBakeries())),
         BlocProvider(create: (_) => di<HomeBloc>()..add(HomeAppInitiate())),
+        BlocProvider(create: (_) => di<PermissionBloc>())
       ],
       child: MaterialApp.router(
         title: 'BreadPlace',
