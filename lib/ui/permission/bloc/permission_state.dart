@@ -5,13 +5,11 @@ class PermissionState extends Equatable {
   final AppPermissionStatus locationStatus;
   final AppPermissionStatus locationAlwaysStatus;
   final AppPermissionStatus notificationStatus;
-  final AppPermissionStatus cameraStatus;
 
   const PermissionState({
     this.locationStatus = AppPermissionStatus.denied,
     this.locationAlwaysStatus = AppPermissionStatus.denied,
     this.notificationStatus = AppPermissionStatus.denied,
-    this.cameraStatus = AppPermissionStatus.denied,
   });
 
   PermissionState copyWith({
@@ -24,7 +22,6 @@ class PermissionState extends Equatable {
       locationStatus: locationStatus ?? this.locationStatus,
       locationAlwaysStatus: locationAlwaysStatus ?? this.locationAlwaysStatus,
       notificationStatus: notificationStatus ?? this.notificationStatus,
-      cameraStatus: cameraStatus ?? this.cameraStatus,
     );
   }
 
@@ -33,6 +30,5 @@ class PermissionState extends Equatable {
     locationStatus,
     locationAlwaysStatus,
     notificationStatus,
-    cameraStatus,
   ];
 }

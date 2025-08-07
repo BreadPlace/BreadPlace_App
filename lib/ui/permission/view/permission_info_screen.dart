@@ -51,7 +51,7 @@ class PermissionInfoScreen extends StatelessWidget {
               PermissionInfo(
                   name: '카메라/사진',
                   description: '리뷰 작성 시 사진 촬영과 이미지 첨부 등',
-                  icon: CupertinoIcons.camera
+                  icon: CupertinoIcons.photo
               ),
               SizedBox(height: 20),
 

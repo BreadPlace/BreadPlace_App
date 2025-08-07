@@ -20,4 +20,3 @@ class CheckAndRequestLocationPermission extends PermissionEvent {}
 class EnsureLocationPermission extends PermissionEvent {}
 class EnsureLocationAlwaysPermission extends PermissionEvent {}
 class EnsureNotificationPermission extends PermissionEvent {}
-class EnsureCameraPermission extends PermissionEvent {}
