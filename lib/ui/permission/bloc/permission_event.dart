@@ -20,6 +20,4 @@ class CheckAndRequestLocationPermission extends PermissionEvent {}
 class EnsureLocationPermission extends PermissionEvent {}
 class EnsureLocationAlwaysPermission extends PermissionEvent {}
 class EnsureNotificationPermission extends PermissionEvent {}
-
-/// 지오펜스에 필요한 권한 요청
-final class RequestPermissionsOnGeofencing extends PermissionEvent {}
+class EnsureCameraPermission extends PermissionEvent {}

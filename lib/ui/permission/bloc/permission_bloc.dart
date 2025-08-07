@@ -15,10 +15,12 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
   }) : _permissionUseCase = permissionUseCase,
        _userLocalStorageUseCase = userLocalStorageUseCase,
         super(const PermissionState()) {
+    on<CheckAllPermissionStatus>(_onCheckAllPermissionStatus);
     on<RequestPermissionsOnFirstLaunch>(_onRequestInitialPermissions);
     on<EnsureLocationPermission>(_onEnsureLocationPermission);
     on<EnsureLocationAlwaysPermission>(_onEnsureLocationAlwaysPermission);
     on<EnsureNotificationPermission>(_onEnsureNotificationPermission);
+    on<EnsureCameraPermission>(_onEnsureCameraPermission);
   }
 
   // 앱 첫 실행 시 필수 권한 요청 및 최초 실행 여부 저장
@@ -31,7 +33,7 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
     final locationStatus = await _permissionUseCase.ensureLocationPermission();
     final notificationStatus =
         await _permissionUseCase.ensureNotificationPermission();
-    final cameraStatus = await _permissionUseCase.ensureLocationPermission();
+    final cameraStatus = await _permissionUseCase.ensureCameraPermission();
 
     emit(
       state.copyWith(
@@ -95,5 +97,14 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
   ) async {
     final status = await _permissionUseCase.ensureNotificationPermission();
     emit(state.copyWith(notificationStatus: status));
+  }
+
+  // 카메라 권한 요청
+  Future<void> _onEnsureCameraPermission(
+      EnsureCameraPermission event,
+      Emitter<PermissionState> emit,
+      ) async {
+    final status = await _permissionUseCase.ensureCameraPermission();
+    emit(state.copyWith(cameraStatus: status));
   }
 }
