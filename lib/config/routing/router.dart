@@ -22,7 +22,7 @@ import 'package:bread_place/ui/login/view/login_screen_main.dart';
 import 'package:bread_place/utils/stream_to_listenable.dart';
 import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/domain/usecases/login_use_case.dart';
-import 'package:bread_place/ui/home/view/permission_info_screen.dart';
+import 'package:bread_place/ui/permission/view/permission_info_screen.dart';
 import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_page_bloc.dart';
 import 'package:bread_place/ui/mypage/view/bloc/my_review_bloc.dart';
