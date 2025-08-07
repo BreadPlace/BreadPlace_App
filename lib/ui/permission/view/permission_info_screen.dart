@@ -1,7 +1,8 @@
 import 'package:bread_place/config/constants/app_colors.dart';
 import 'package:bread_place/config/constants/app_text_styles.dart';
 import 'package:bread_place/config/routing/routes.dart';
-import 'package:bread_place/ui/home/bloc/home_bloc.dart';
+import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
+import 'package:bread_place/ui/permission/bloc/permission_event.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class PermissionInfoScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 100),
+              SizedBox(height: 50),
 
               Text('빵플레이스 앱에서 사용하는\n권한을 알려드립니다.', style: AppTextStyles.pretendardBold.copyWith(fontSize: 24)),
               SizedBox(height: 40),
@@ -33,6 +34,12 @@ class PermissionInfoScreen extends StatelessWidget {
                   name: '위치',
                   description: '주변 빵집 검색 시 사용',
                   icon: CupertinoIcons.location_solid
+              ),
+
+              PermissionInfo(
+                name: '항상 허용 (백그라운드 위치)',
+                description: '앱이 종료되어도 저장한 빵집 근처에 도달하면 알림 전송',
+                icon: CupertinoIcons.location,
               ),
 
               PermissionInfo(
@@ -73,7 +80,7 @@ class PermissionInfoScreen extends StatelessWidget {
               InkWell(
                 onTap: () {
                   context.go(Routes.home);
-                  context.read<HomeBloc>().add(RequestPermissionsOnFirstLaunch());
+                  context.read<PermissionBloc>().add(RequestPermissionsOnFirstLaunch());
                 },
                 child: Container(
                   color: AppColors.primary,
