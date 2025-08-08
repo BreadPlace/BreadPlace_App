@@ -1,0 +1,94 @@
+import 'package:bread_place/domain/entities/app_permission.dart';
+import 'package:bread_place/domain/usecases/permission_use_case.dart';
+import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'permission_event.dart';
+import 'permission_state.dart';
+
+class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
+  final PermissionUseCase _permissionUseCase;
+  final UserLocalStorageUseCase _userLocalStorageUseCase;
+
+  PermissionBloc({
+    required PermissionUseCase permissionUseCase,
+    required UserLocalStorageUseCase userLocalStorageUseCase,
+  }) : _permissionUseCase = permissionUseCase,
+       _userLocalStorageUseCase = userLocalStorageUseCase,
+        super(const PermissionState()) {
+    on<CheckAllPermissionStatus>(_onCheckAllPermissionStatus);
+    on<RequestPermissionsOnFirstLaunch>(_onRequestInitialPermissions);
+    on<EnsureLocationPermission>(_onEnsureLocationPermission);
+    on<EnsureLocationAlwaysPermission>(_onEnsureLocationAlwaysPermission);
+    on<EnsureNotificationPermission>(_onEnsureNotificationPermission);
+  }
+
+  // 앱 첫 실행 시 필수 권한 요청 및 최초 실행 여부 저장
+  Future<void> _onRequestInitialPermissions(
+    RequestPermissionsOnFirstLaunch event,
+    Emitter<PermissionState> emit,
+  ) async {
+    await _userLocalStorageUseCase.setLaunched();
+
+    final locationStatus = await _permissionUseCase.ensureLocationPermission();
+    final notificationStatus =
+        await _permissionUseCase.ensureNotificationPermission();
+
+    emit(
+      state.copyWith(
+        locationStatus: locationStatus,
+        notificationStatus: notificationStatus,
+      ),
+    );
+  }
+
+  // 전체 권한 상태 확인
+  Future<void> _onCheckAllPermissionStatus(
+    CheckAllPermissionStatus event,
+    Emitter<PermissionState> emit,
+  ) async {
+    final location = await _permissionUseCase.getPermissionStatus(
+      AppPermission.location,
+    );
+    final locationAlways = await _permissionUseCase.getPermissionStatus(
+      AppPermission.locationAlways,
+    );
+    final notification = await _permissionUseCase.getPermissionStatus(
+      AppPermission.notification,
+    );
+
+    emit(
+      state.copyWith(
+        locationStatus: location,
+        locationAlwaysStatus: locationAlways,
+        notificationStatus: notification,
+      ),
+    );
+  }
+
+  // 위치 권한 요청
+  Future<void> _onEnsureLocationPermission(
+    EnsureLocationPermission event,
+    Emitter<PermissionState> emit,
+  ) async {
+    final status = await _permissionUseCase.ensureLocationPermission();
+    emit(state.copyWith(locationStatus: status));
+  }
+
+  // 항상 위치 허용 권한 요청
+  Future<void> _onEnsureLocationAlwaysPermission(
+    EnsureLocationAlwaysPermission event,
+    Emitter<PermissionState> emit,
+  ) async {
+    final status = await _permissionUseCase.ensureLocationAlwaysPermission();
+    emit(state.copyWith(locationAlwaysStatus: status));
+  }
+
+  // 알림 권한 요청
+  Future<void> _onEnsureNotificationPermission(
+    EnsureNotificationPermission event,
+    Emitter<PermissionState> emit,
+  ) async {
+    final status = await _permissionUseCase.ensureNotificationPermission();
+    emit(state.copyWith(notificationStatus: status));
+  }
+}

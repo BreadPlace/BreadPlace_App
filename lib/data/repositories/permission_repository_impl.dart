@@ -15,15 +15,9 @@ class PermissionRepositoryImpl implements PermissionRepository {
   }
 
   @override
-  Future<AppPermissionStatus> requestPermission(AppPermission permission) async {
-    final result = await _service.requestPermission(permission.toPlatform);
+  Future<AppPermissionStatus> ensurePermissionGranted(AppPermission permission) async {
+    final result = await _service.ensurePermissionGranted(permission.toPlatform);
     return result.toAppStatus;
-  }
-
-  @override
-  Future<bool> ensurePermissionGranted(AppPermission permission) async {
-    bool result = await _service.ensurePermissionGranted(permission.toPlatform);
-    return result;
   }
 
   @override

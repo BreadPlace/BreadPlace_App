@@ -11,22 +11,15 @@ class PermissionService {
     return PermissionStatus.denied;
   }
 
-  /// 권한 요청만
-  Future<PermissionStatus> requestPermission(Permission permission) async {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return await permission.request();
+  /// 권한 상태 확인 후 없으면 요청. 최종 권한 허용 여부 반환
+  Future<PermissionStatus> ensurePermissionGranted(Permission permission) async {
+    final status = await permission.status;
+
+    if (status.isGranted) {
+      return status;
     }
-    return PermissionStatus.denied;
-  }
 
-  /// 권한 상태 확인 후 없으면 요청. 최종 권한 허용 여부를 bool로 반환
-  Future<bool> ensurePermissionGranted(Permission permission) async {
-    final status = await getPermissionStatus(permission);
-
-    if (status.isGranted) return true;
-
-    final result = await requestPermission(permission);
-    return result.isGranted;
+    return await permission.request();
   }
 
   /// 앱 설정 화면으로 유도
