@@ -1,6 +1,6 @@
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 
-enum LikeStatus { initial, loading, success, empty, error, geofenceLimitExceeded }
+enum LikeStatus { initial, loading, success, empty, error, geofenceLimitExceeded, geofenceInitSuccess }
 
 class LikeState {
   final LikeStatus status;

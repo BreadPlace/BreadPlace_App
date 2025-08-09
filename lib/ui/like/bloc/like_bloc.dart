@@ -17,6 +17,7 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     on<AddLike>(_onAddLike);
     on<RemoveLike>(_onRemoveLike);
     on<ToggleNotification>(_onToggleNotificationAndUpdateGeofence);
+    on<InitializeGeofence>(_onInitializeGeofenceRegistration);
   }
 
   /// 좋아요 목록에 추가
@@ -135,5 +136,18 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     emit(state.copyWith(
       bakeries: []
     ));
+  }
+
+  Future<List<String>> getLocalSavedGeofence() async {
+    return await _geofencingUseCase.getLocalSavedLocations();
+  }
+  
+  Future<void> _onInitializeGeofenceRegistration(InitializeGeofence event, Emitter<LikeState> emit) async {
+    try {
+      await _geofencingUseCase.initializeGeofenceFromLocalStorage();
+    } catch (e) {
+      print("InitializeGeofence error $e");
+    }
+    emit(state.copyWith(status: LikeStatus.geofenceInitSuccess));
   }
 }
