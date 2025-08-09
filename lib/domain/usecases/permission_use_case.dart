@@ -26,4 +26,8 @@ class PermissionUseCase {
   Future<AppPermissionStatus> ensureLocationAlwaysPermission() async {
     return await _repository.ensurePermissionGranted(AppPermission.locationAlways);
   }
+
+  Future<void> openDeviceAppSettings() async {
+    return await _repository.openDeviceAppSettings();
+  }
 }
