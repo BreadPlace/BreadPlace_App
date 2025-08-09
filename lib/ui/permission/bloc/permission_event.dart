@@ -14,6 +14,7 @@ class RequestPermissionsOnFirstLaunch extends PermissionEvent {}
 
 /// 전체 권한 확인
 class CheckAllPermissionStatus extends PermissionEvent {}
+class EnsureGeofencePermission extends PermissionEvent {}
 
 /// 개별 권한 확인 및 요청
 class CheckAndRequestLocationPermission extends PermissionEvent {}

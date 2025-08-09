@@ -20,6 +20,7 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
     on<EnsureLocationPermission>(_onEnsureLocationPermission);
     on<EnsureLocationAlwaysPermission>(_onEnsureLocationAlwaysPermission);
     on<EnsureNotificationPermission>(_onEnsureNotificationPermission);
+    on<EnsureGeofencePermission>(_onEnsureGeofencePermission);
   }
 
   // 앱 첫 실행 시 필수 권한 요청 및 최초 실행 여부 저장
@@ -90,5 +91,62 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
   ) async {
     final status = await _permissionUseCase.ensureNotificationPermission();
     emit(state.copyWith(notificationStatus: status));
+  }
+
+  // 지오펜스에 필요한 권한 중 granted가 아닌 것만 요청
+  Future<void> _onEnsureGeofencePermission(EnsureGeofencePermission event, Emitter<PermissionState> emit) async {
+    if (state.locationStatus != AppPermissionStatus.granted) {
+      await _handleLocationPermission(emit);
+    }
+
+    if (state.locationAlwaysStatus != AppPermissionStatus.granted) {
+      await _handleLocationAlwaysPermission(emit);
+    }
+
+    if (state.notificationStatus != AppPermissionStatus.granted) {
+      await _handleNotificationPermission(emit);
+    }
+  }
+
+  Future<void> _handleLocationPermission(Emitter<PermissionState> emit) async {
+    switch (state.locationStatus) {
+      case AppPermissionStatus.denied:
+        await _permissionUseCase.ensureLocationPermission();
+        break;
+      case AppPermissionStatus.permanentlyDenied:
+      case AppPermissionStatus.restricted:
+        emit(state.copyWith(shouldShowSettingsDialog: true));
+        break;
+      default:
+        break;
+    }
+  }
+
+  Future<void> _handleLocationAlwaysPermission(Emitter<PermissionState> emit) async {
+    switch (state.locationAlwaysStatus) {
+      case AppPermissionStatus.denied:
+        await _permissionUseCase.ensureLocationAlwaysPermission();
+        break;
+      case AppPermissionStatus.permanentlyDenied:
+      case AppPermissionStatus.restricted:
+        emit(state.copyWith(shouldShowSettingsDialog: true));
+        break;
+      default:
+        break;
+    }
+  }
+
+  Future<void> _handleNotificationPermission(Emitter<PermissionState> emit) async {
+    switch (state.notificationStatus) {
+      case AppPermissionStatus.denied:
+        await _permissionUseCase.ensureNotificationPermission();
+        break;
+      case AppPermissionStatus.permanentlyDenied:
+      case AppPermissionStatus.restricted:
+        emit(state.copyWith(shouldShowSettingsDialog: true));
+        break;
+      default:
+        break;
+    }
   }
 }
