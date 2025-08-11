@@ -18,6 +18,11 @@ import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/utils/calculate_distance.dart';
 import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
+import 'package:bread_place/ui/like/bloc/like_event.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
+import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
+import 'package:bread_place/ui/permission/bloc/permission_event.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -37,10 +42,29 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   void initState() {
     super.initState();
     _checkLogin();
+    _checkPermissionStatus();
   }
 
   void _checkLogin() {
     context.read<LoginBloc>().add(CheckAuthStatus());
+  }
+
+  void _checkPermissionStatus() {
+    context.read<PermissionBloc>().add(CheckAllPermissionStatus());
+  }
+
+  void _initGeofenceIfLoggedIn() async {
+    final permissionBloc = context.read<PermissionBloc>();
+    final likeBloc = context.read<LikeBloc>();
+    final geofence = await likeBloc.getLocalSavedGeofence();
+
+    if (geofence.isEmpty) return;
+
+    if (permissionBloc.state.isAllGranted) {
+      likeBloc.add(InitializeGeofence());
+    } else {
+      permissionBloc.add(EnsureGeofencePermission());
+    }
   }
 
   // 벨 아이콘이 눌렸을 때 이벤트
@@ -109,49 +133,56 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     const String mapViewTitle = '현재 위치';
     const String bakeryListViewTitle = '근처 베이커리';
 
-    return Column(
-      children: [
-        // 커스텀 타이틀
-        BreadPlaceTitleView(
-          title: tabTitle,
-          titleImage: const AssetImage('assets/images/Croissant.png'),
-        ),
+    return BlocListener<LoginBloc, LoginState>(
+      listener: (context, loginState) {
+        if(loginState is Authenticated) {
+          _initGeofenceIfLoggedIn();
+        }
+      },
+      child: Column(
+        children: [
+          // 커스텀 타이틀
+          BreadPlaceTitleView(
+            title: tabTitle,
+            titleImage: const AssetImage('assets/images/Croissant.png'),
+          ),
 
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 랜덤 추천 빵집
-                _RecommendBakeryView(onRecommendBakeryTapped: _onSelectRecommendBakery),
-                const SizedBox(height: 16),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 랜덤 추천 빵집
+                  _RecommendBakeryView(onRecommendBakeryTapped: _onSelectRecommendBakery),
+                  const SizedBox(height: 16),
 
-                // 근처 빵집 지도
-                _MapView(
-                  title: mapViewTitle,
-                  onTrailingTap: _onSearchLocationTapped,
-                  onMapCreated: _onMapCreated,
-                  onMarkerTapped: _onMarkerTapped,
-                  onMapTapped: _onMapTapped,
-                  changeCameraPosition: _changeCameraPosition,
-                  onMapMoved: _onMapMoved,
-                  onMapStopped: _onMapStopped,
-                ),
-                const SizedBox(height: 16),
+                  // 근처 빵집 지도
+                  _MapView(
+                    title: mapViewTitle,
+                    onTrailingTap: _onSearchLocationTapped,
+                    onMapCreated: _onMapCreated,
+                    onMarkerTapped: _onMarkerTapped,
+                    onMapTapped: _onMapTapped,
+                    changeCameraPosition: _changeCameraPosition,
+                    onMapMoved: _onMapMoved,
+                    onMapStopped: _onMapStopped,
+                  ),
+                  const SizedBox(height: 16),
 
-                // 근처 빵집 리스트
-                _BakeryListView(
-                  title: bakeryListViewTitle,
-                  onSelectBakery: _onSelectBakery,
-                ),
-                const SizedBox(height: 32),
-              ],
+                  // 근처 빵집 리스트
+                  _BakeryListView(
+                    title: bakeryListViewTitle,
+                    onSelectBakery: _onSelectBakery,
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
