@@ -25,17 +25,19 @@ class _ReportReviewScreenState extends State<ReportReviewScreen> {
   String content = "";
 
   String? _onTitleValidate(String? val) {
-    if (val == null) {
+    if (val == null || val.isEmpty) {
       return '내용을 입력해주세요';
     }
+
 
     return null;
   }
 
   String? _onContentValidate(String? val) {
-    if (val == null) {
+    if (val == null || val.isEmpty) {
       return '내용을 입력해주세요';
     }
+
 
     if (val.length < 5) {
       return '5자 이상을 입력해주세요!';
