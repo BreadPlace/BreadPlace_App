@@ -23,6 +23,8 @@ import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
 import 'package:bread_place/ui/permission/bloc/permission_event.dart';
+import 'package:bread_place/ui/common_widgets/common_dialog.dart';
+import 'package:bread_place/ui/permission/bloc/permission_state.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -42,7 +44,6 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   void initState() {
     super.initState();
     _checkLogin();
-    _checkPermissionStatus();
   }
 
   void _checkLogin() {
@@ -53,23 +54,41 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     context.read<PermissionBloc>().add(CheckAllPermissionStatus());
   }
 
-  void _initGeofenceIfLoggedIn() async {
-    final permissionBloc = context.read<PermissionBloc>();
+  void _checkGeofenceDataIfLoggedIn() async {
     final likeBloc = context.read<LikeBloc>();
     final geofence = await likeBloc.getLocalSavedGeofence();
 
+    // 지오펜스 데이터 없으면 종료
     if (geofence.isEmpty) return;
 
-    if (permissionBloc.state.isAllGranted) {
-      likeBloc.add(InitializeGeofence());
-    } else {
-      permissionBloc.add(EnsureGeofencePermission());
-    }
+    // 권한 상태 최신화 요청
+    _checkPermissionStatus();
   }
 
-  // 벨 아이콘이 눌렸을 때 이벤트
-  void _onBellIconTapped() {
-    context.read<HomeBloc>().add(HomeBellIconTapped());
+  void _showPermissionRequestDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => CommonDialog(
+        title: '권한 요청',
+        content: '알림을 켜둔 빵집이 있어요!\n'
+            '이 기능을 사용하려면 아래 권한을 허용해 주세요.\n\n'
+            '📍 위치 (항상 허용)\n'
+            '🔔 알림',
+        positiveButtonText: '권한 허용',
+        negativeButtonText: '취소',
+        onTapPositiveButton: () {
+          _ensurePermission();
+        },
+        onTapNegativeButton: () {
+          context.pop();
+        },
+      ),
+    );
+  }
+
+  void _ensurePermission() {
+    context.read<PermissionBloc>().add(EnsureGeofencePermission());
   }
 
   // 탐색 버튼이 눌렸을 때 이벤트
@@ -133,56 +152,74 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     const String mapViewTitle = '현재 위치';
     const String bakeryListViewTitle = '근처 베이커리';
 
-    return BlocListener<LoginBloc, LoginState>(
-      listener: (context, loginState) {
-        if(loginState is Authenticated) {
-          _initGeofenceIfLoggedIn();
-        }
-      },
-      child: Column(
-        children: [
-          // 커스텀 타이틀
-          BreadPlaceTitleView(
-            title: tabTitle,
-            titleImage: const AssetImage('assets/images/Croissant.png'),
-          ),
+    return MultiBlocListener(
+      listeners: [
+        // 1. 로그인 상태 감지
+        // 로그인 성공(Authenticated) 시 로컬에 저장된 지오펜스 데이터 존재 여부를 확인함
+        BlocListener<LoginBloc, LoginState>(
+          listener: (context, loginState) {
+            if (loginState is Authenticated) {
+              _checkGeofenceDataIfLoggedIn();
+            }
+          },
+        ),
 
-          const SizedBox(height: 8),
+        // 2. 권한 상태 감지
+        // 권한이 모두 허용되었으면 지오펜스 초기화
+        BlocListener<PermissionBloc, PermissionState>(
+          listener: (context, permissionState) {
+            if (permissionState.isAllGranted) {
+              context.read<LikeBloc>().add(InitializeGeofence());
+            } else  {
+              _showPermissionRequestDialog(context);
+            }
+          },
+        ),
+      ],
+        child: Column(
+          children: [
+            // 커스텀 타이틀
+            BreadPlaceTitleView(
+              title: tabTitle,
+              titleImage: const AssetImage('assets/images/Croissant.png'),
+            ),
 
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 랜덤 추천 빵집
-                  _RecommendBakeryView(onRecommendBakeryTapped: _onSelectRecommendBakery),
-                  const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
-                  // 근처 빵집 지도
-                  _MapView(
-                    title: mapViewTitle,
-                    onTrailingTap: _onSearchLocationTapped,
-                    onMapCreated: _onMapCreated,
-                    onMarkerTapped: _onMarkerTapped,
-                    onMapTapped: _onMapTapped,
-                    changeCameraPosition: _changeCameraPosition,
-                    onMapMoved: _onMapMoved,
-                    onMapStopped: _onMapStopped,
-                  ),
-                  const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 랜덤 추천 빵집
+                    _RecommendBakeryView(onRecommendBakeryTapped: _onSelectRecommendBakery),
+                    const SizedBox(height: 16),
 
-                  // 근처 빵집 리스트
-                  _BakeryListView(
-                    title: bakeryListViewTitle,
-                    onSelectBakery: _onSelectBakery,
-                  ),
-                  const SizedBox(height: 32),
-                ],
+                    // 근처 빵집 지도
+                    _MapView(
+                      title: mapViewTitle,
+                      onTrailingTap: _onSearchLocationTapped,
+                      onMapCreated: _onMapCreated,
+                      onMarkerTapped: _onMarkerTapped,
+                      onMapTapped: _onMapTapped,
+                      changeCameraPosition: _changeCameraPosition,
+                      onMapMoved: _onMapMoved,
+                      onMapStopped: _onMapStopped,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 근처 빵집 리스트
+                    _BakeryListView(
+                      title: bakeryListViewTitle,
+                      onSelectBakery: _onSelectBakery,
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
     );
   }
 }

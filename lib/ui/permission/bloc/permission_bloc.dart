@@ -113,11 +113,9 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
       case AppPermissionStatus.denied:
         await _permissionUseCase.ensureLocationPermission();
         break;
-      case AppPermissionStatus.permanentlyDenied:
-      case AppPermissionStatus.restricted:
-        emit(state.copyWith(shouldShowSettingsDialog: true));
-        break;
       default:
+      // Todo: permanentlyDenied, restricted, granted 등 나머지 상태 상세 분기
+        _permissionUseCase.openDeviceAppSettings();
         break;
     }
   }
@@ -127,11 +125,9 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
       case AppPermissionStatus.denied:
         await _permissionUseCase.ensureLocationAlwaysPermission();
         break;
-      case AppPermissionStatus.permanentlyDenied:
-      case AppPermissionStatus.restricted:
-        emit(state.copyWith(shouldShowSettingsDialog: true));
-        break;
       default:
+      // Todo: permanentlyDenied, restricted, granted 등 나머지 상태 상세 분기
+        _permissionUseCase.openDeviceAppSettings();
         break;
     }
   }
@@ -141,11 +137,9 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
       case AppPermissionStatus.denied:
         await _permissionUseCase.ensureNotificationPermission();
         break;
-      case AppPermissionStatus.permanentlyDenied:
-      case AppPermissionStatus.restricted:
-        emit(state.copyWith(shouldShowSettingsDialog: true));
-        break;
       default:
+      // Todo: permanentlyDenied, restricted, granted 등 나머지 상태 상세 분기
+        _permissionUseCase.openDeviceAppSettings();
         break;
     }
   }
