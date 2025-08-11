@@ -20,8 +20,9 @@ extension BakeryReviewEntityMapper on BakeryReviewEntity {
 
 // Dto -> Entity 변환
 extension BakeryReviewDtoMapper on BakeryReviewDto {
-  BakeryReviewEntity toEntity(){
+  BakeryReviewEntity toEntity({required String id}){
     return BakeryReviewEntity(
+        id: id,
         bakeryId: bakeryId,
         bakeryName: bakeryName,
         writerId: writerId,
