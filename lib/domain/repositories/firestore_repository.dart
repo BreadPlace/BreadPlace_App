@@ -31,4 +31,11 @@ abstract class FirestoreRepository {
   Future<void> deleteAllUserInfo(String uid);
   Future<void> updateUserNickname(UserEntity user);
   Future<RecommendBakeryEntity> fetchRecommendBakery();
+
+  Future<void> reportReview({
+    required String targetReviewId,
+    required String writerUid,
+    required String title,
+    required String content,
+  });
 }

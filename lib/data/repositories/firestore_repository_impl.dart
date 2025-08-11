@@ -103,7 +103,13 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
     );
 
     final reviewsDto = response.reviews;
-    final reviewEntity = reviewsDto.map((review) => review.toEntity()).toList();
+    final reviewIds = response.reviewIds;
+
+    final reviewEntity = List.generate(
+        reviewsDto.length, (index)
+        => reviewsDto[index].toEntity(id: reviewIds[index])
+    );
+
     final fetchedLastDoc = FirebasePaginationCursor(response.lastDoc);
 
     return (reviews: reviewEntity, lastDoc: fetchedLastDoc, isLast: response.isLast);
@@ -128,5 +134,19 @@ class FirestoreRepositoryImpl implements FirestoreRepository {
   Future<RecommendBakeryEntity> fetchRecommendBakery() async {
      final recommendBakeryDto = await _service.fetchRecommendBakery();
      return recommendBakeryDto.toEntity();
+  }
+
+  Future<void> reportReview({
+    required String targetReviewId,
+    required String writerUid,
+    required String title,
+    required String content,
+  }) async {
+    return await _service.reportReview(
+        targetReviewId: targetReviewId,
+        writerUid: writerUid,
+        title: title,
+        content: content
+    );
   }
 }

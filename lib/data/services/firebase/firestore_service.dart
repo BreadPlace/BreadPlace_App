@@ -112,7 +112,7 @@ class FirestoreService {
 
   // 베이커리 리뷰 가져오기
   Future<
-    ({List<BakeryReviewDto> reviews, DocumentSnapshot? lastDoc, bool isLast})
+    ({ List<BakeryReviewDto> reviews, List<String> reviewIds, DocumentSnapshot? lastDoc, bool isLast })
   >
   fetchBakeryReview({
     required ReviewFetchType type,
@@ -138,7 +138,7 @@ class FirestoreService {
     final snapshot = await query.get();
 
     if (snapshot.docs.isEmpty) {
-      return (reviews: <BakeryReviewDto>[], lastDoc: lastDoc, isLast: true);
+      return (reviews: <BakeryReviewDto>[], reviewIds: <String>[], lastDoc: lastDoc, isLast: true);
     }
 
     // 베이커리의 ReviewID를 통해 리뷰 데이터 획득
@@ -156,8 +156,11 @@ class FirestoreService {
 
     final lastDocTo = snapshot.docs.last;
 
+    final ids = snapshot.docs.map((doc) => doc.id).toList();
+
     return (
       reviews: reviewDocs.whereType<BakeryReviewDto>().toList(),
+      reviewIds: ids,
       lastDoc: lastDocTo,
       isLast: false,
     );
@@ -386,5 +389,24 @@ class FirestoreService {
     }
 
     throw RecommendBakeryException();
+  }
+
+  /// 리뷰 신고
+  Future<void> reportReview({
+    required String targetReviewId,
+    required String writerUid,
+    required String title,
+    required String content,
+  }) async {
+    try {
+      await _db.collection('reports').add({
+        'targetReviewId': targetReviewId,
+        'writerUid': writerUid,
+        'title': title,
+        'content': content,
+      });
+    } catch (error) {
+      print(error);
+    }
   }
 }

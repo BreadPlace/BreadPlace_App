@@ -1,4 +1,5 @@
 class BakeryReviewEntity {
+  final String id;
   final String bakeryId;
   final String bakeryName;
   final String writerId;
@@ -10,6 +11,7 @@ class BakeryReviewEntity {
   final String createdAt;
 
   BakeryReviewEntity({
+    required this.id,
     required this.bakeryId,
     required this.bakeryName,
     required this.writerId,

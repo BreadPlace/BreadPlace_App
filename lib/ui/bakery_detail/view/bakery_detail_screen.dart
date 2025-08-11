@@ -1,3 +1,4 @@
+import 'package:bread_place/ui/common_widgets/common_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -100,6 +101,19 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
     }
   }
 
+  void _onReportReviewTapped(String reviewId){
+    _doIfLogined((){
+      _showReportDialog(context, reviewId);
+    });
+  }
+
+  void _showReportDialog(BuildContext context, String reviewId){
+    showDialog(
+        context: context,
+        builder: (_) => _buildReportDialog(context, reviewId)
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,6 +155,7 @@ class _BakeryDetailScreenState extends State<BakeryDetailScreen> {
 
                             // 리뷰 리스트 뷰
                             _ReviewListView(
+                                onReportReviewTapped: _onReportReviewTapped,
                                 bakery: bakery,
                                 reviews: reviews,
                                 onTrailingTap: _onAddReviewButtonTapped
@@ -266,11 +281,13 @@ class _ReviewListView extends StatelessWidget {
   final Bakery bakery;
   final List<BakeryReviewEntity>? reviews;
   final void Function(Bakery) onTrailingTap;
+  final void Function(String) onReportReviewTapped;
 
   const _ReviewListView({
     required this.bakery,
     required this.reviews,
     required this.onTrailingTap,
+    required this.onReportReviewTapped,
     super.key
   });
 
@@ -326,6 +343,7 @@ class _ReviewListView extends StatelessWidget {
                       Column(
                         children: [
                           _ReviewContentView(
+                            onReportReviewTapped: onReportReviewTapped,
                             review: reviews![index],
                             horizontalPadding: horizontalPadding,
                           ),
@@ -342,10 +360,12 @@ class _ReviewListView extends StatelessWidget {
 }
 
 class _ReviewContentView extends StatelessWidget {
+  final void Function(String) onReportReviewTapped;
   final BakeryReviewEntity review;
   final double horizontalPadding;
 
   const _ReviewContentView({
+    required this.onReportReviewTapped,
     required this.review,
     required this.horizontalPadding,
     super.key
@@ -369,6 +389,7 @@ class _ReviewContentView extends StatelessWidget {
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
+              // textBaseline: TextBaseline.ideographic,
               children: [
                 Text(
                   review.writerNickName, style: AppTextStyles.pretendardBold.copyWith(
@@ -383,6 +404,29 @@ class _ReviewContentView extends StatelessWidget {
                   fontSize: 16,
                   color: AppColors.fontGrey,
                 )),
+
+                 Spacer(),
+
+
+                InkWell(
+                  onTap: () => onReportReviewTapped(review.id),
+                  child: Column(
+                    children: [
+                      Text(
+                        '신고하기',
+                          style: AppTextStyles.pretendardBold.copyWith(
+                            fontSize: 14,
+                            color:  AppColors.error,
+                          ),
+                      ),
+
+                      SizedBox(
+                        height: 14,
+                      )
+                    ],
+                  ),
+
+                )
               ],
             ),
 
@@ -424,3 +468,20 @@ class _ReviewContentView extends StatelessWidget {
   }
 }
 
+Widget _buildReportDialog(BuildContext context, String reviewId){
+  return CommonDialog(
+    content: '해당 리뷰를 신고하시겠습니까?',
+    positiveButtonText: '신고',
+    negativeButtonText: '취소',
+    onTapPositiveButton: (){
+      context.pop();
+      context.push(
+          Routes.reportReview,
+          extra: reviewId,
+      );
+    },
+    onTapNegativeButton: (){
+      context.pop();
+    },
+  );
+}

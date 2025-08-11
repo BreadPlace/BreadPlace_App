@@ -47,4 +47,19 @@ class FirestoreUseCase {
   Future<RecommendBakeryEntity> fetchRecommendBakery() async {
     return await _repository.fetchRecommendBakery();
   }
+
+  /// 리뷰 신고하기
+  Future<void> reportReview({
+    required String targetReviewId,
+    required String writerUid,
+    required String title,
+    required String content,
+  }) async {
+    return await _repository.reportReview(
+        targetReviewId: targetReviewId,
+        writerUid: writerUid,
+        title: title,
+        content: content
+    );
+  }
 }
