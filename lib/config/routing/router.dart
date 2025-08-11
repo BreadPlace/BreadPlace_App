@@ -1,3 +1,5 @@
+import 'package:bread_place/ui/review/bloc/report_review_bloc.dart';
+import 'package:bread_place/ui/review/view/report_review_screen.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:bread_place/config/routing/routes.dart';
@@ -20,7 +22,6 @@ import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/login/view/login_screen_main.dart';
 import 'package:bread_place/utils/stream_to_listenable.dart';
-import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/domain/usecases/login_use_case.dart';
 import 'package:bread_place/ui/permission/view/permission_info_screen.dart';
 import 'package:bread_place/ui/login/bloc/nickname_edit_bloc.dart';
@@ -200,6 +201,23 @@ GoRouter createRouter({required bool isFirstLaunch}) {
             child: const MyReviewScreen(),
           );
         },
+      ),
+
+      /// 리뷰 신고
+      GoRoute(
+          path: Routes.reportReview,
+          builder: (context, state) {
+            final targetReviewId = state.extra as String;
+
+            return BlocProvider(
+                create: (_) => ReportReviewBloc(
+                    fireStoreUseCase: di<FirestoreUseCase>(),
+                    userLocalStorageUseCase: di<UserLocalStorageUseCase>(),
+                    targetReviewId: targetReviewId,
+                ),
+                child: ReportReviewScreen(),
+            );
+          }
       ),
 
       /// 이용 약관
