@@ -5,13 +5,11 @@ class PermissionState extends Equatable {
   final AppPermissionStatus locationStatus;
   final AppPermissionStatus locationAlwaysStatus;
   final AppPermissionStatus notificationStatus;
-  final bool shouldShowSettingsDialog;
 
   const PermissionState({
     this.locationStatus = AppPermissionStatus.denied,
     this.locationAlwaysStatus = AppPermissionStatus.denied,
     this.notificationStatus = AppPermissionStatus.denied,
-    this.shouldShowSettingsDialog = false,
   });
 
   /// 지오펜스 등록을 위한 모든 권한이 허용되었는지 여부
@@ -32,13 +30,11 @@ class PermissionState extends Equatable {
     AppPermissionStatus? locationStatus,
     AppPermissionStatus? locationAlwaysStatus,
     AppPermissionStatus? notificationStatus,
-    bool? shouldShowSettingsDialog,
   }) {
     return PermissionState(
       locationStatus: locationStatus ?? this.locationStatus,
       locationAlwaysStatus: locationAlwaysStatus ?? this.locationAlwaysStatus,
       notificationStatus: notificationStatus ?? this.notificationStatus,
-      shouldShowSettingsDialog: shouldShowSettingsDialog ?? this.shouldShowSettingsDialog,
     );
   }
 
