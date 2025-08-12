@@ -19,12 +19,13 @@ import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/utils/calculate_distance.dart';
 import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 import 'package:bread_place/ui/like/bloc/like_bloc.dart';
-import 'package:bread_place/ui/like/bloc/like_event.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
 import 'package:bread_place/ui/permission/bloc/permission_event.dart';
 import 'package:bread_place/ui/common_widgets/common_dialog.dart';
 import 'package:bread_place/ui/permission/bloc/permission_state.dart';
+import 'package:bread_place/ui/like/bloc/like_state.dart';
+import 'package:bread_place/ui/like/bloc/like_event.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -39,6 +40,7 @@ class HomeScreenMain extends StatefulWidget {
 
 class _HomeScreenMainState extends State<HomeScreenMain> {
   GoogleMapController? mapController;
+  bool _isPermissionDialogShowing = false; // 중복 다이얼로그 방지
 
   @override
   void initState() {
@@ -55,17 +57,13 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   }
 
   void _checkGeofenceDataIfLoggedIn() async {
-    final likeBloc = context.read<LikeBloc>();
-    final geofence = await likeBloc.getLocalSavedGeofence();
-
-    // 지오펜스 데이터 없으면 종료
-    if (geofence.isEmpty) return;
-
-    // 권한 상태 최신화 요청
-    _checkPermissionStatus();
+    context.read<LikeBloc>().add(CheckGeofenceIfLoggedIn());
   }
 
   void _showPermissionRequestDialog(BuildContext context) {
+    if (_isPermissionDialogShowing) return;
+    _isPermissionDialogShowing = true;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -79,9 +77,12 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
         negativeButtonText: '취소',
         onTapPositiveButton: () {
           _ensurePermission();
+          context.pop();
+          _isPermissionDialogShowing = false;
         },
         onTapNegativeButton: () {
           context.pop();
+          _isPermissionDialogShowing = false;
         },
       ),
     );
@@ -154,23 +155,29 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
 
     return MultiBlocListener(
       listeners: [
-        // 1. 로그인 상태 감지
-        // 로그인 성공(Authenticated) 시 로컬에 저장된 지오펜스 데이터 존재 여부를 확인함
         BlocListener<LoginBloc, LoginState>(
           listener: (context, loginState) {
+            // 1. 로그인 -> 지오펜스 확인
             if (loginState is Authenticated) {
               _checkGeofenceDataIfLoggedIn();
             }
           },
         ),
+        BlocListener<LikeBloc, LikeState>(
+            listener: (context, likeState) {
+              // 2. 지오펜스 확인 -> 권한 확인
+              if (likeState.hasLocalGeofence) {
+                _checkPermissionStatus();
+              }
+            }),
 
-        // 2. 권한 상태 감지
-        // 권한이 모두 허용되었으면 지오펜스 초기화
         BlocListener<PermissionBloc, PermissionState>(
           listener: (context, permissionState) {
+            // 3. 권한 체크 -> 지오펜스 초기 등록
             if (permissionState.isAllGranted) {
               context.read<LikeBloc>().add(InitializeGeofence());
             } else  {
+              // 권한 필요 다이얼로그
               _showPermissionRequestDialog(context);
             }
           },

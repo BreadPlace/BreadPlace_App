@@ -11,13 +11,14 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
   final LikedBakeryUseCase _likedBakeryUseCase;
   final GeofencingUseCase _geofencingUseCase;
 
-  LikeBloc(this._likedBakeryUseCase, this._geofencingUseCase) : super(LikeState(status: LikeStatus.initial)) {
+  LikeBloc(this._likedBakeryUseCase, this._geofencingUseCase) : super(LikeState(status: LikeStatus.initial, hasLocalGeofence: false)) {
     on<FetchLikedBakeries>(_onFetchLikedBakeries);
     on<ResetLikedBakeries>(_onResetLikedBakeries);
     on<AddLike>(_onAddLike);
     on<RemoveLike>(_onRemoveLike);
     on<ToggleNotification>(_onToggleNotificationAndUpdateGeofence);
     on<InitializeGeofence>(_onInitializeGeofenceRegistration);
+    on<CheckGeofenceIfLoggedIn>(_hasGeofence);
   }
 
   /// 좋아요 목록에 추가
@@ -150,5 +151,12 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
       emit(state.copyWith(status: LikeStatus.error));
       print("InitializeGeofence error $e");
     }
+  }
+
+  Future<void> _hasGeofence(CheckGeofenceIfLoggedIn event, Emitter<LikeState> emit) async {
+      final geofence = await getLocalSavedGeofence();
+      geofence.isEmpty
+          ? emit(state.copyWith(hasLocalGeofence: false))
+          : emit(state.copyWith(hasLocalGeofence: true));
   }
 }
