@@ -145,9 +145,10 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
   Future<void> _onInitializeGeofenceRegistration(InitializeGeofence event, Emitter<LikeState> emit) async {
     try {
       await _geofencingUseCase.initializeGeofenceFromLocalStorage();
+      emit(state.copyWith(status: LikeStatus.geofenceInitSuccess));
     } catch (e) {
+      emit(state.copyWith(status: LikeStatus.error));
       print("InitializeGeofence error $e");
     }
-    emit(state.copyWith(status: LikeStatus.geofenceInitSuccess));
   }
 }
