@@ -12,11 +12,24 @@ class PermissionState extends Equatable {
     this.notificationStatus = AppPermissionStatus.denied,
   });
 
+  /// 지오펜스 등록을 위한 모든 권한이 허용되었는지 여부
+  bool get isAllGranted =>
+      locationStatus == AppPermissionStatus.granted &&
+      locationAlwaysStatus == AppPermissionStatus.granted &&
+      notificationStatus == AppPermissionStatus.granted;
+
+  /// 푸시 알림이 허용되었는지 여부
+  bool get isNotificationGranted =>
+      notificationStatus == AppPermissionStatus.granted;
+
+  /// 지도를 위한 위치 권한 허용 여부
+  bool get isLocationPermissionGranted =>
+      locationStatus == AppPermissionStatus.granted;
+
   PermissionState copyWith({
     AppPermissionStatus? locationStatus,
     AppPermissionStatus? locationAlwaysStatus,
     AppPermissionStatus? notificationStatus,
-    AppPermissionStatus? cameraStatus,
   }) {
     return PermissionState(
       locationStatus: locationStatus ?? this.locationStatus,

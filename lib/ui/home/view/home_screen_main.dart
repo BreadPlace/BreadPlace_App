@@ -18,6 +18,14 @@ import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:bread_place/utils/calculate_distance.dart';
 import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
+import 'package:bread_place/ui/like/bloc/like_bloc.dart';
+import 'package:bread_place/ui/login/bloc/login_state.dart';
+import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
+import 'package:bread_place/ui/permission/bloc/permission_event.dart';
+import 'package:bread_place/ui/common_widgets/common_dialog.dart';
+import 'package:bread_place/ui/permission/bloc/permission_state.dart';
+import 'package:bread_place/ui/like/bloc/like_state.dart';
+import 'package:bread_place/ui/like/bloc/like_event.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +40,7 @@ class HomeScreenMain extends StatefulWidget {
 
 class _HomeScreenMainState extends State<HomeScreenMain> {
   GoogleMapController? mapController;
+  bool _isPermissionDialogShowing = false; // 중복 다이얼로그 방지
 
   @override
   void initState() {
@@ -43,9 +52,44 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     context.read<LoginBloc>().add(CheckAuthStatus());
   }
 
-  // 벨 아이콘이 눌렸을 때 이벤트
-  void _onBellIconTapped() {
-    context.read<HomeBloc>().add(HomeBellIconTapped());
+  void _checkPermissionStatus() {
+    context.read<PermissionBloc>().add(CheckAllPermissionStatus());
+  }
+
+  void _checkGeofenceDataIfLoggedIn() async {
+    context.read<LikeBloc>().add(CheckGeofenceIfLoggedIn());
+  }
+
+  void _showPermissionRequestDialog(BuildContext context) {
+    if (_isPermissionDialogShowing) return;
+    _isPermissionDialogShowing = true;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => CommonDialog(
+        title: '권한 요청',
+        content: '알림을 켜둔 빵집이 있어요!\n'
+            '이 기능을 사용하려면 아래 권한을 허용해 주세요.\n\n'
+            '📍 위치 (항상 허용)\n'
+            '🔔 알림',
+        positiveButtonText: '권한 허용',
+        negativeButtonText: '취소',
+        onTapPositiveButton: () {
+          _ensurePermission();
+          context.pop();
+          _isPermissionDialogShowing = false;
+        },
+        onTapNegativeButton: () {
+          context.pop();
+          _isPermissionDialogShowing = false;
+        },
+      ),
+    );
+  }
+
+  void _ensurePermission() {
+    context.read<PermissionBloc>().add(EnsureGeofencePermission());
   }
 
   // 탐색 버튼이 눌렸을 때 이벤트
@@ -109,49 +153,80 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
     const String mapViewTitle = '현재 위치';
     const String bakeryListViewTitle = '근처 베이커리';
 
-    return Column(
-      children: [
-        // 커스텀 타이틀
-        BreadPlaceTitleView(
-          title: tabTitle,
-          titleImage: const AssetImage('assets/images/Croissant.png'),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<LoginBloc, LoginState>(
+          listener: (context, loginState) {
+            // 1. 로그인 -> 지오펜스 확인
+            if (loginState is Authenticated) {
+              _checkGeofenceDataIfLoggedIn();
+            }
+          },
         ),
+        BlocListener<LikeBloc, LikeState>(
+            listener: (context, likeState) {
+              // 2. 지오펜스 확인 -> 권한 확인
+              if (likeState.hasLocalGeofence) {
+                _checkPermissionStatus();
+              }
+            }),
 
-        const SizedBox(height: 8),
-
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 랜덤 추천 빵집
-                _RecommendBakeryView(onRecommendBakeryTapped: _onSelectRecommendBakery),
-                const SizedBox(height: 16),
-
-                // 근처 빵집 지도
-                _MapView(
-                  title: mapViewTitle,
-                  onTrailingTap: _onSearchLocationTapped,
-                  onMapCreated: _onMapCreated,
-                  onMarkerTapped: _onMarkerTapped,
-                  onMapTapped: _onMapTapped,
-                  changeCameraPosition: _changeCameraPosition,
-                  onMapMoved: _onMapMoved,
-                  onMapStopped: _onMapStopped,
-                ),
-                const SizedBox(height: 16),
-
-                // 근처 빵집 리스트
-                _BakeryListView(
-                  title: bakeryListViewTitle,
-                  onSelectBakery: _onSelectBakery,
-                ),
-                const SizedBox(height: 32),
-              ],
-            ),
-          ),
+        BlocListener<PermissionBloc, PermissionState>(
+          listener: (context, permissionState) {
+            // 3. 권한 체크 -> 지오펜스 초기 등록
+            if (permissionState.isAllGranted) {
+              context.read<LikeBloc>().add(InitializeGeofence());
+            } else  {
+              // 권한 필요 다이얼로그
+              _showPermissionRequestDialog(context);
+            }
+          },
         ),
       ],
+        child: Column(
+          children: [
+            // 커스텀 타이틀
+            BreadPlaceTitleView(
+              title: tabTitle,
+              titleImage: const AssetImage('assets/images/Croissant.png'),
+            ),
+
+            const SizedBox(height: 8),
+
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 랜덤 추천 빵집
+                    _RecommendBakeryView(onRecommendBakeryTapped: _onSelectRecommendBakery),
+                    const SizedBox(height: 16),
+
+                    // 근처 빵집 지도
+                    _MapView(
+                      title: mapViewTitle,
+                      onTrailingTap: _onSearchLocationTapped,
+                      onMapCreated: _onMapCreated,
+                      onMarkerTapped: _onMarkerTapped,
+                      onMapTapped: _onMapTapped,
+                      changeCameraPosition: _changeCameraPosition,
+                      onMapMoved: _onMapMoved,
+                      onMapStopped: _onMapStopped,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 근처 빵집 리스트
+                    _BakeryListView(
+                      title: bakeryListViewTitle,
+                      onSelectBakery: _onSelectBakery,
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
     );
   }
 }

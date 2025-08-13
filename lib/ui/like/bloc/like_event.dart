@@ -42,3 +42,6 @@ class ToggleNotification extends LikeEvent {
 class AddGeofence extends LikeEvent {}
 
 class RemoveGeofence extends LikeEvent {}
+
+class InitializeGeofence extends LikeEvent {}
+class CheckGeofenceIfLoggedIn extends LikeEvent {}

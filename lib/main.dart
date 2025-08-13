@@ -1,15 +1,14 @@
-import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:bread_place/config/di/locator.dart';
 import 'package:bread_place/config/routing/router.dart';
 import 'package:bread_place/domain/usecases/notification_use_case.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
-import 'package:bread_place/domain/usecases/geofencing_use_case.dart';
 import 'package:bread_place/domain/usecases/user_local_storage_use_case.dart';
 import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/ui/like/bloc/like_bloc.dart';
 import 'package:bread_place/ui/like/bloc/like_event.dart';
+import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,7 +52,6 @@ Future<void> _initializeApp() async {
   await _initFirebase();
   await _initDependencies();
   _initLocalNotification();
-  _initGeofencing();
 }
 
 Future<void> _initDependencies() async {
@@ -76,14 +74,6 @@ Future<void> _initFirebase() async {
 Future<void> _initLocalNotification() async {
   final instance = di<NotificationUseCase>();
   await instance.initService();
-}
-
-Future<void> _initGeofencing() async {
-  final geofenceInstance = di<GeofencingUseCase>();
-  final localInstance = di<UserLocalStorageUseCase>();
-
-  final locations = await localInstance.getGeofencingLocations();
-  await geofenceInstance.setGeofencingLocations(locations);
 }
 
 Future<bool> isFirstLaunch() async {

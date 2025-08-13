@@ -22,29 +22,31 @@ class GeofencingUseCase {
     _listenGeofencingEntered();
   }
 
+  // 주어진 위치 리스트를 로컬에 저장하고, 네이티브 지오펜스 등록
   Future<void> setGeofencingLocations(List<String> locations) async {
     if (locations.isEmpty) {
-      await _stopGeofencingLocations();
+      await stopGeofencingLocations();
       return;
     }
 
     await _userLocalStorageRepository.saveGeofencingLocations(locations);
-    final savedLocations = await _getLocalSavedLocations();
+    final savedLocations = await getLocalSavedLocations();
     await _geofencingRepository.setGeofencingLocations(savedLocations);
   }
 
-  Future<void> setTestGeofencingLocations(List<String> locations) async {
-    final regions = [
-      '36.328690, 127.427554',
-      '36.8065, 127.1522',
-      '37.55467884, 126.9706069',
-      '37.46333, 126.44000',
-    ];
+  // 로컬 저장소에 저장된 위치를 가져와 네이티브 지오펜스 등록
+  Future<void> initializeGeofenceFromLocalStorage() async {
+    final savedLocations = await getLocalSavedLocations();
 
-    await _geofencingRepository.setGeofencingLocations(regions);
+    if(savedLocations.isEmpty) {
+      await stopGeofencingLocations();
+      return;
+    }
+
+    await _geofencingRepository.setGeofencingLocations(savedLocations);
   }
 
-  Future<void> _stopGeofencingLocations() async {
+  Future<void> stopGeofencingLocations() async {
     await _userLocalStorageRepository.removeGeofencingLocationAll();
     await _geofencingRepository.stopGeofencingLocations();
   }
@@ -62,12 +64,12 @@ class GeofencingUseCase {
     });
   }
 
-  Future<List<String>> _getLocalSavedLocations() async {
+  Future<List<String>> getLocalSavedLocations() async {
     return await _userLocalStorageRepository.getGeofencingLocations();
   }
 
   Future<void> updateGeofenceLocation(String location) async {
-    final savedLocations = await _getLocalSavedLocations();
+    final savedLocations = await getLocalSavedLocations();
     final isAlreadySaved = savedLocations.contains(location);
     List<String> updatedLocations;
 
@@ -85,7 +87,7 @@ class GeofencingUseCase {
   }
 
   Future<String> findBakeryNameByPlaceId(String geofenceId) async {
-    final savedLocations = await _getLocalSavedLocations();
+    final savedLocations = await getLocalSavedLocations();
 
     for (final location in savedLocations) {
       final parts = location.split('|');
