@@ -1,6 +1,7 @@
 import 'package:bread_place/config/constants/app_enum/app_social_platform.dart';
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
 import 'package:bread_place/domain/entities/user_entity.dart';
+import 'package:bread_place/domain/repositories/apple_login_repository.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/domain/repositories/geofencing_repository.dart';
 import 'package:bread_place/domain/repositories/google_login_repository.dart';
@@ -12,6 +13,7 @@ class LoginUseCase {
   final UserLocalStorageRepository _userLocalStorageRepository;
   final KakaoLoginRepository _kakaoLoginRepository;
   final GoogleLoginRepository _googleLoginRepository;
+  final AppleLoginRepository _appleLoginRepository;
   final GeofencingRepository _geofencingRepository;
 
   LoginUseCase({
@@ -19,12 +21,14 @@ class LoginUseCase {
     required UserLocalStorageRepository userLocalStorageRepository,
     required KakaoLoginRepository kakaoLoginRepository,
     required GoogleLoginRepository googleLoginRepository,
+    required AppleLoginRepository appleLoginRepository,
     required GeofencingRepository geofencingRepository,
   })
       : _firestoreRepository = firestoreRepository,
         _userLocalStorageRepository = userLocalStorageRepository,
         _kakaoLoginRepository = kakaoLoginRepository,
         _googleLoginRepository = googleLoginRepository,
+        _appleLoginRepository = appleLoginRepository,
         _geofencingRepository = geofencingRepository;
 
   Future<String> loginAndGetUID(AppSocialPlatform platform) async {
@@ -36,6 +40,9 @@ class LoginUseCase {
         break;
       case AppSocialPlatform.google:
         uid = await _googleLoginRepository.loginWithGoogleAndGetUID();
+        break;
+      case AppSocialPlatform.apple:
+        uid = await _appleLoginRepository.loginWithAppleAndGetUID();
         break;
     }
 
