@@ -2,6 +2,7 @@ import 'package:bread_place/config/constants/app_constants.dart';
 import 'package:bread_place/data/services/firebase/firestore_service.dart';
 import 'package:bread_place/data/services/geofencing/geofencing_service.dart';
 import 'package:bread_place/data/services/local/user_local_storage.dart';
+import 'package:bread_place/data/services/login/apple_login_service.dart';
 import 'package:bread_place/data/services/login/google_login_service.dart';
 import 'package:bread_place/data/services/login/kakao_login_service.dart';
 import 'package:bread_place/data/services/notification/local_notification_service.dart';
@@ -17,6 +18,8 @@ void registerService(GetIt di) {
   di.registerLazySingleton<KakaoLoginService>(() => KakaoLoginService());
   // Google Login
   di.registerLazySingleton<GoogleLoginService>(() => GoogleLoginService());
+  // Apple Login
+  di.registerLazySingleton<AppleLoginService>(() => AppleLoginService());
 
   // 파이어 베이스
   di.registerLazySingleton<FirestoreService>(() => FirestoreService(FirebaseFirestore.instance));
