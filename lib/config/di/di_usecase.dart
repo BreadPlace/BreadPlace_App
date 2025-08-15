@@ -1,3 +1,5 @@
+import 'package:bread_place/data/services/login/apple_login_service.dart';
+import 'package:bread_place/domain/repositories/apple_login_repository.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/domain/repositories/geofencing_repository.dart';
 import 'package:bread_place/domain/repositories/google_login_repository.dart';
@@ -50,6 +52,7 @@ void registerUseCase(GetIt di) {
       userLocalStorageRepository: await di.getAsync<UserLocalStorageRepository>(),
       kakaoLoginRepository: await di.getAsync<KakaoLoginRepository>(),
       googleLoginRepository: await di.getAsync<GoogleLoginRepository>(),
+      appleLoginRepository: await di.getAsync<AppleLoginRepository>(),
       geofencingRepository: await di.getAsync<GeofencingRepository>(),
     );
   });

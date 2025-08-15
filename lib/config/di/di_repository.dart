@@ -1,3 +1,4 @@
+import 'package:bread_place/data/repositories/apple_login_repository_impl.dart';
 import 'package:bread_place/data/repositories/firestore_repository_impl.dart';
 import 'package:bread_place/data/repositories/geofencing_repository_impl.dart';
 import 'package:bread_place/data/repositories/google_login_repository_impl.dart';
@@ -14,11 +15,13 @@ import 'package:bread_place/data/services/firebase/firestore_service.dart';
 import 'package:bread_place/data/services/geofencing/geofencing_service.dart';
 import 'package:bread_place/data/services/image/image_compress_service.dart';
 import 'package:bread_place/data/services/local/user_local_storage.dart';
+import 'package:bread_place/data/services/login/apple_login_service.dart';
 import 'package:bread_place/data/services/login/google_login_service.dart';
 import 'package:bread_place/data/services/login/kakao_login_service.dart';
 import 'package:bread_place/data/services/notification/local_notification_service.dart';
 import 'package:bread_place/data/services/permission/permission_service.dart';
 import 'package:bread_place/data/services/userlocation/user_location_service.dart';
+import 'package:bread_place/domain/repositories/apple_login_repository.dart';
 import 'package:bread_place/domain/repositories/firestore_repository.dart';
 import 'package:bread_place/domain/repositories/geofencing_repository.dart';
 import 'package:bread_place/domain/repositories/google_login_repository.dart';
@@ -45,6 +48,12 @@ void registerRepository(GetIt di) {
   di.registerSingletonAsync<GoogleLoginRepository>(() async {
     final googleLoginService = di<GoogleLoginService>();
     return GoogleLoginRepositoryImpl(googleLoginService: googleLoginService);
+  });
+
+  // 애플 로그인
+  di.registerSingletonAsync<AppleLoginRepository>(() async {
+    final appleLoginService = di<AppleLoginService>();
+    return AppleLoginRepositoryImpl(appleLoginService: appleLoginService);
   });
 
   // 구글 플레이스

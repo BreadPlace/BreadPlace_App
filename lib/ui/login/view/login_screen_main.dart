@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +13,9 @@ import 'package:bread_place/config/constants/app_enum/app_social_platform.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:sign_in_with_apple/sign_in_with_apple.dart' as apple;
+
 
 class LoginScreenMain extends StatefulWidget {
   const LoginScreenMain({super.key});
@@ -39,7 +44,7 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
             color: AppColors.background,
             child: SingleChildScrollView(
               child: SizedBox(
-                height: 900,
+                height: 1000,
                 child: Column(
                   children: [
                     _cancelLoginButton(),
@@ -47,8 +52,13 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
                     Flexible(flex: 2, child: _content()),
 
                     SizedBox(height: 20),
+
                     Flexible(child: _kakaoLoginButton()),
                     Flexible(child: _googleLoginButton()),
+
+                    if(Platform.isIOS)
+                      Flexible(child: _appleLoginButton()),
+
                     _loginOptionButtonDivider(),
                     Flexible(child: _guestModeButton()),
                   ],
@@ -238,6 +248,21 @@ class _LoginScreenMainState extends State<LoginScreenMain> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _appleLoginButton() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
+      child: apple.SignInWithAppleButton(
+        onPressed: () {
+          context.read<LoginBloc>().add(LoginRequested(platform: AppSocialPlatform.apple));
+        },
+        style: apple.SignInWithAppleButtonStyle.black,
+        height: 54,
+        iconAlignment: apple.IconAlignment.left,
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }
