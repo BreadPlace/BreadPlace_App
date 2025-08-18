@@ -1,4 +1,3 @@
-import 'package:bread_place/ui/common_widgets/common_retry_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +18,9 @@ import 'package:bread_place/ui/home/bloc/home_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_bloc.dart';
 import 'package:bread_place/ui/login/bloc/login_state.dart';
 import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
+import 'package:bread_place/ui/common_widgets/common_retry_view.dart';
+import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
+import 'package:bread_place/ui/permission/bloc/permission_event.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -153,8 +155,34 @@ class LikedListView extends StatelessWidget {
     }
 
     void onBellButtonPressed(Bakery bakery, bool isNotificationAllowed) async {
-      context.read<LikeBloc>().add(ToggleNotification(
-          bakery: bakery, isNotificationAllowed: isNotificationAllowed));
+      context.read<PermissionBloc>().add(CheckAllPermissionStatus());
+
+      // 권한 있으면 - 벨 아이콘 변경 및 지오펜스 등록
+      if(context.read<PermissionBloc>().state.isAllGranted) {
+        context.read<LikeBloc>().add(ToggleNotification(bakery: bakery, isNotificationAllowed: isNotificationAllowed));
+      } else {
+        // 권한 없으면 - 요청 다이얼로그
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => CommonDialog(
+            title: '필수 권한 요청',
+            content: '빵집 알림 기능을 사용하려면 아래 권한을 허용해 주세요.\n\n'
+                '📍 위치 (항상 허용)\n'
+                '🔔 알림',
+            positiveButtonText: '권한 설정',
+            negativeButtonText: '취소',
+            onTapPositiveButton: () {
+              context.read<PermissionBloc>().add(EnsureGeofencePermission());
+              context.pop();
+            },
+            onTapNegativeButton: () {
+              context.pop();
+            },
+          ),
+        );
+      }
     }
 
     return BlocListener<SearchBloc, SearchState>(
