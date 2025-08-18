@@ -45,11 +45,6 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   @override
   void initState() {
     super.initState();
-    _checkLogin();
-  }
-
-  void _checkLogin() {
-    context.read<LoginBloc>().add(CheckAuthStatus());
   }
 
   void _checkPermissionStatus() {
