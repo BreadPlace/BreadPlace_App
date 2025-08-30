@@ -21,6 +21,8 @@ import 'package:bread_place/ui/common_widgets/spread_butter_view.dart';
 import 'package:bread_place/ui/common_widgets/common_retry_view.dart';
 import 'package:bread_place/ui/permission/bloc/permission_bloc.dart';
 import 'package:bread_place/ui/permission/bloc/permission_event.dart';
+import 'package:bread_place/ui/permission/bloc/permission_state.dart';
+import 'package:bread_place/ui/common_widgets/geofence_permission_dialog.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,53 +41,85 @@ class _LikeScreenMainState extends State<LikeScreenMain> {
   void initState() {
     super.initState();
     _fetchLikedBakeries();
+    _checkInitialPermission();
   }
 
   void _fetchLikedBakeries() {
     context.read<LikeBloc>().add(FetchLikedBakeries());
   }
 
+  // LikeScreen 진입 시 최초 권한 확인
+  void _checkInitialPermission() {
+    context.read<PermissionBloc>().add(CheckAllPermissionStatus());
+  }
+
+  // LikeScreen 진입 시 최초 권한 다이얼로그 표시 함수
+  void _showInitialPermissionDialog() {
+    if (!mounted) return;
+    final stateContext = context; // _LikeScreenMainState의 context
+    showAppPermissionDialog(stateContext);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
-      listenWhen: (previous, current) => current is Unauthenticated,
-      listener: (context, state) {
-        context.read<LikeBloc>().add(ResetLikedBakeries());
-      },
-      child: BlocSelector<LikeBloc, LikeState, LikeState>(
-        selector: (state) => state,
-        builder: (context, state) {
-          switch (state.status) {
-            case LikeStatus.success:
-              return LikedListView(); // 성공 상태 시 빌드
+    return MultiBlocListener(
+      listeners: [
+        /// 로그인 여부 체크
+        BlocListener<LoginBloc, LoginState>(
+          listenWhen: (previous, current) => current is Unauthenticated,
+          listener: (context, state) {
+            return context.read<LikeBloc>().add(ResetLikedBakeries());
+          }),
 
-            case LikeStatus.empty:
-              return const Center(
-                child: EmptyResultView(
-                  headLine: '',
-                  message: '좋아요 누른 빵집이 빵개입니다...',
-                  imageProvider: AssetImage('assets/images/image_donut.png'),
-                ),
-              );
-
-            case LikeStatus.geofenceLimitExceeded:
-              return RetryView(
-                  message: state.errorMessage ?? '',
-                  buttonText: '돌아가기',
-                  onRetry: _fetchLikedBakeries
-              );
-
-            case LikeStatus.error:
-              return RetryView(
-                onRetry: _fetchLikedBakeries,
-              );
-
-            default:
-              return SpreadButterView();
+        /// 화면 진입 시 초기 권한 체크
+        BlocListener<PermissionBloc, PermissionState>(
+          listenWhen: (previous, current) {
+            return previous.checkStatus != PermissionCheckStatus.checked
+                && current.checkStatus == PermissionCheckStatus.checked;
+          }, listener: (context, state) {
+          if (!state.isAllGranted) {
+            _showInitialPermissionDialog();
           }
-        },
-      ),
-    );
+        }),
+      ],
+        /// 좋아요 상태에 따라 화면 UI 분기
+        child: BlocSelector<LikeBloc, LikeState, LikeState>(
+          selector: (state) => state,
+          builder: (context, state) {
+            switch (state.status) {
+              case LikeStatus.success:
+                return LikedListView(); // 좋아요 목록 불러오기 성공 상태 시 빌드
+
+              case LikeStatus.geofenceInitSuccess:
+                return LikedListView(); // 지오펜스 성공 상태 시 빌드
+
+              case LikeStatus.empty:
+                return const Center(
+                  child: EmptyResultView(
+                    headLine: '',
+                    message: '좋아요 누른 빵집이 빵개입니다...',
+                    imageProvider: AssetImage('assets/images/image_donut.png'),
+                  ),
+                );
+
+              case LikeStatus.geofenceLimitExceeded:
+                return RetryView(
+                    message: state.errorMessage ?? '',
+                    buttonText: '돌아가기',
+                    onRetry: _fetchLikedBakeries
+                );
+
+              case LikeStatus.error:
+                return RetryView(
+                  onRetry: _fetchLikedBakeries,
+                );
+
+              default:
+                return SpreadButterView();
+            }
+          },
+        ),
+      );
   }
 }
 
@@ -141,11 +175,6 @@ class LikedListView extends StatelessWidget {
         .where((likedBakery) => likedBakery.isNotificationAllowed)
         .length;
 
-    // 베이커리 클릭 시, 검색 트리거
-    void onBakeryContainerTapped(Bakery bakery) {
-      context.read<SearchBloc>().add(SearchPlaceById(placeId: bakery.id));
-    }
-
     // 좋아요 취소 다이얼로그
     void showRemoveDialog(BuildContext context, Bakery bakery) {
       showDialog(
@@ -154,47 +183,59 @@ class LikedListView extends StatelessWidget {
       );
     }
 
-    void onBellButtonPressed(Bakery bakery, bool isNotificationAllowed) async {
-      context.read<PermissionBloc>().add(CheckAllPermissionStatus());
-
-      // 권한 있으면 - 벨 아이콘 변경 및 지오펜스 등록
-      if(context.read<PermissionBloc>().state.isAllGranted) {
-        context.read<LikeBloc>().add(ToggleNotification(bakery: bakery, isNotificationAllowed: isNotificationAllowed));
-      } else {
-        // 권한 없으면 - 요청 다이얼로그
-
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => CommonDialog(
-            title: '필수 권한 요청',
-            content: '빵집 알림 기능을 사용하려면 아래 권한을 허용해 주세요.\n\n'
-                '📍 위치 (항상 허용)\n'
-                '🔔 알림',
-            positiveButtonText: '권한 설정',
-            negativeButtonText: '취소',
-            onTapPositiveButton: () {
-              context.read<PermissionBloc>().add(EnsureGeofencePermission());
-              context.pop();
-            },
-            onTapNegativeButton: () {
-              context.pop();
-            },
-          ),
-        );
-      }
+    // 베이커리 클릭 시, 검색 트리거
+    void onBakeryContainerTapped(Bakery bakery) {
+      context.read<SearchBloc>().add(SearchPlaceById(placeId: bakery.id));
     }
 
-    return BlocListener<SearchBloc, SearchState>(
-      listener: (context, state) {
-        // 검색 결과가 있으면 상세 페이지로 이동
-        if (state is SearchSuccess && state.bakeries.isNotEmpty) {
-          final bakery = state.bakeries.first;
-          context.push(Routes.bakeryDetail, extra: bakery);
-        } else {
-          SnackBar(content: Text('빵집 정보 없음'));
-        }
-      },
+    // 벨버튼 클릭 시, 권한 재확인 트리거
+    void handleBellButtonPressed(Bakery bakery, bool isNotificationAllowed) {
+      // 1. LikeBloc에 "이 빵집에 대한 알림 설정을 시작한다"는 정보 저장
+      context.read<LikeBloc>().add(SelectBakery(bakery: bakery, isNotificationAllowed: isNotificationAllowed));
+
+      // 2. PermissionBloc에 "현재 모든 권한 상태를 다시 확인해달라"고 요청
+      context.read<PermissionBloc>().add(CheckAllPermissionStatus());
+    }
+
+    return MultiBlocListener(
+      listeners: [
+        /// 검색 결과가 있으면 상세 페이지로 이동
+        BlocListener<SearchBloc, SearchState>(
+            listener: (context, state) {
+              if (state is SearchSuccess && state.bakeries.isNotEmpty) {
+                final bakery = state.bakeries.first;
+                context.push(Routes.bakeryDetail, extra: bakery);
+              } else {
+                SnackBar(content: Text('빵집 정보 없음'));
+              }
+            }),
+        /// 개별 벨 버튼 클릭 후 권한 상태 변경 시 반응
+        BlocListener<PermissionBloc, PermissionState>(
+          listenWhen: (previous, current) {
+            // LikeBloc에 처리할 빵집 정보가 있고, PermissionBloc의 상태가 'checked'로 변경되었을 때만 반응
+            final likeState = context.read<LikeBloc>().state;
+            return likeState.selectedBakery != null &&
+                previous.checkStatus != PermissionCheckStatus.checked &&
+                current.checkStatus == PermissionCheckStatus.checked;
+          },
+          listener: (context, state) {
+            final selectedBakery = context.read<LikeBloc>().state.selectedBakery;
+
+            // 권한 있을 때 - 선택된 베이커리의 bell 버튼 토글
+            if (selectedBakery != null && selectedBakery.bakery != null) {
+              context.read<LikeBloc>().add(
+                ToggleNotification(
+                  bakery: selectedBakery.bakery!,
+                  isNotificationAllowed: selectedBakery.isNotificationAllowed,
+                ),
+              );
+            } else {
+              // 권한 없을 때 - 권한 요청 다이얼로그 표시
+              showAppPermissionDialog(context);
+            }
+          },
+        ),
+      ],
       child: Column(
         children: [
           Padding(
@@ -242,7 +283,7 @@ class LikedListView extends StatelessWidget {
                       bakery: bakery,
                       onTapContainer: () => onBakeryContainerTapped(bakery),
                       onHeartButtonPressed: () => showRemoveDialog(context, bakery),
-                      onBellButtonPressed: () => onBellButtonPressed(bakery, notify),
+                      onBellButtonPressed: () => handleBellButtonPressed(bakery, notify),
                       isNotified: notify,
                       userLocation: userLocation,
                     );
