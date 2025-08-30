@@ -19,6 +19,7 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
     on<ToggleNotification>(_onToggleNotificationAndUpdateGeofence);
     on<InitializeGeofence>(_onInitializeGeofenceRegistration);
     on<CheckGeofenceIfLoggedIn>(_hasGeofence);
+    on<SelectBakery>(_onSelectBakery);
   }
 
   /// 좋아요 목록에 추가
@@ -78,6 +79,18 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
         errorMessage: '좋아요한 베이커리 불러오기 실패',
       ));
     }
+  }
+
+  void _onSelectBakery(SelectBakery event, Emitter emit) {
+    emit(
+        state.copyWith(
+            selectedBakery: LikedBakeryEntity(
+                bakery: event.bakery,
+                isNotificationAllowed: event.isNotificationAllowed,
+                updatedAt: DateTime.now().toIso8601String()
+            )
+        )
+    );
   }
 
   /// 해당 빵집 Notification 허용 여부 토글 + 지오펜스 등록
