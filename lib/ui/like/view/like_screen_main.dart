@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:bread_place/ui/common_widgets/common_snack_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -83,15 +85,18 @@ class _LikeScreenMainState extends State<LikeScreenMain> {
         }),
       ],
         /// 좋아요 상태에 따라 화면 UI 분기
-        child: BlocSelector<LikeBloc, LikeState, LikeState>(
-          selector: (state) => state,
+        child: BlocSelector<LikeBloc, LikeState, LikeStatus>(
+          selector: (state) => state.status,
           builder: (context, state) {
-            switch (state.status) {
+            switch (state) {
               case LikeStatus.success:
-                return LikedListView(); // 좋아요 목록 불러오기 성공 상태 시 빌드
+                return LikedListView(key: ValueKey('LikedListView')); // 좋아요 목록 불러오기 성공 상태 시 빌드
 
               case LikeStatus.geofenceInitSuccess:
-                return LikedListView(); // 지오펜스 성공 상태 시 빌드
+                return LikedListView(key: ValueKey('LikedListView')); // 지오펜스 성공 상태 시 빌드
+
+              case LikeStatus.loading:
+                return LikedListView(key: ValueKey('LikedListView'));
 
               case LikeStatus.empty:
                 return const Center(
@@ -104,7 +109,7 @@ class _LikeScreenMainState extends State<LikeScreenMain> {
 
               case LikeStatus.geofenceLimitExceeded:
                 return RetryView(
-                    message: state.errorMessage ?? '',
+                    message: '알림 개수 20개를 초과했습니다',
                     buttonText: '돌아가기',
                     onRetry: _fetchLikedBakeries
                 );
@@ -173,6 +178,18 @@ class LikedListView extends StatefulWidget {
 }
 
 class _LikedListViewState extends State<LikedListView> {
+  // 쓰로틀링 관련 상태 변수
+  bool _isBellButtonClickable = true; // 현재 벨 버튼 클릭 가능 여부
+  Timer? _bellButtonThrottleTimer;     // 쓰로틀링 타이머
+
+  // 쓰로틀링 시간 간격
+  final Duration _throttleDuration = const Duration(seconds: 2);
+
+  @override
+  void dispose() {
+    _bellButtonThrottleTimer?.cancel(); // 위젯이 dispose될 때 타이머 취소
+    super.dispose();
+  }
 
   // 좋아요 취소 다이얼로그
   void _showRemoveDialog(BuildContext context, Bakery bakery) {
@@ -189,11 +206,31 @@ class _LikedListViewState extends State<LikedListView> {
 
   // 벨버튼 클릭 시, 권한 재확인 트리거
   void _handleBellButtonPressed(Bakery bakery, bool isNotificationAllowed) {
+    if (mounted) {
+      setState(() {
+        _isBellButtonClickable = false;
+      });
+    }
+
+    // 실제 동작 수행
     // 1. LikeBloc에 "이 빵집에 대한 알림 설정을 시작한다"는 정보 저장
     context.read<LikeBloc>().add(SelectBakery(bakery: bakery, isNotificationAllowed: isNotificationAllowed));
 
     // 2. PermissionBloc에 "현재 모든 권한 상태를 다시 확인해달라"고 요청
     context.read<PermissionBloc>().add(CheckAllPermissionStatus());
+
+    // 지정된 시간 후에 다시 클릭 가능하도록 타이머 설정
+    _bellButtonThrottleTimer = Timer(_throttleDuration, () {
+      if (mounted) {
+        setState(() {
+          _isBellButtonClickable = true;
+        });
+      }
+    });
+  }
+
+  void _showThrottleLimitSnackBar() {
+    CommonSnackBar.showInfo(context, '요청이 너무 잦습니다. 잠시 후 다시 이용해 주세요');
   }
 
   @override
@@ -202,7 +239,6 @@ class _LikedListViewState extends State<LikedListView> {
     final isNotifyCount = likes
         .where((likedBakery) => likedBakery.isNotificationAllowed)
         .length;
-
 
     return MultiBlocListener(
       listeners: [
@@ -290,7 +326,10 @@ class _LikedListViewState extends State<LikedListView> {
                       bakery: bakery,
                       onTapContainer: () => _onBakeryContainerTapped(bakery),
                       onHeartButtonPressed: () => _showRemoveDialog(context, bakery),
-                      onBellButtonPressed: () => _handleBellButtonPressed(bakery, notify),
+                      onBellButtonPressed: () =>
+                      _isBellButtonClickable
+                          ? _handleBellButtonPressed(bakery, notify)
+                          : _showThrottleLimitSnackBar(),
                       isNotified: notify,
                       userLocation: userLocation,
                     );

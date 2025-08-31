@@ -96,12 +96,12 @@ class LikeBloc extends Bloc<LikeEvent, LikeState> {
   /// 해당 빵집 Notification 허용 여부 토글 + 지오펜스 등록
   Future<void> _onToggleNotificationAndUpdateGeofence(ToggleNotification event,
       Emitter<LikeState> emit) async {
+    emit(state.copyWith(status: LikeStatus.loading));
+
     Bakery bakery = event.bakery;
     bool currentState = event.isNotificationAllowed;
     bool newState = !currentState;
     String location = event.bakery.formattedLocationWithDetail;
-
-    emit(state.copyWith(status: LikeStatus.loading));
 
     try {
       await _updateGeofenceLocation(location);

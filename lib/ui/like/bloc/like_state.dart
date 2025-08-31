@@ -1,4 +1,5 @@
 import 'package:bread_place/domain/entities/liked_bakery_entity.dart';
+import 'package:equatable/equatable.dart';
 
 enum LikeStatus {
   initial,
@@ -10,7 +11,7 @@ enum LikeStatus {
   geofenceInitSuccess,
 }
 
-class LikeState {
+class LikeState extends Equatable {
   final LikeStatus status;
   final List<LikedBakeryEntity> bakeries;
   final String? errorMessage;
@@ -40,4 +41,13 @@ class LikeState {
       selectedBakery: selectedBakery ?? this.selectedBakery,
     );
   }
+  @override
+  List<Object?> get props => [
+    status,
+    bakeries,
+    errorMessage,
+    hasLocalGeofence,
+    selectedBakery,
+  ];
+
 }
