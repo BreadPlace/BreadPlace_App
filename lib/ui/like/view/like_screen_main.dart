@@ -165,8 +165,36 @@ Widget buildRemoveDialog(BuildContext context, Bakery bakery) {
 }
 
 /// 좋아요 컨테이너 목록을 보여주는 뷰
-class LikedListView extends StatelessWidget {
+class LikedListView extends StatefulWidget {
   const LikedListView({super.key});
+
+  @override
+  State<LikedListView> createState() => _LikedListViewState();
+}
+
+class _LikedListViewState extends State<LikedListView> {
+
+  // 좋아요 취소 다이얼로그
+  void _showRemoveDialog(BuildContext context, Bakery bakery) {
+    showDialog(
+      context: context,
+      builder: (_) => buildRemoveDialog(context, bakery),
+    );
+  }
+
+  // 베이커리 클릭 시, 검색 트리거
+  void _onBakeryContainerTapped(Bakery bakery) {
+    context.read<SearchBloc>().add(SearchPlaceById(placeId: bakery.id));
+  }
+
+  // 벨버튼 클릭 시, 권한 재확인 트리거
+  void _handleBellButtonPressed(Bakery bakery, bool isNotificationAllowed) {
+    // 1. LikeBloc에 "이 빵집에 대한 알림 설정을 시작한다"는 정보 저장
+    context.read<LikeBloc>().add(SelectBakery(bakery: bakery, isNotificationAllowed: isNotificationAllowed));
+
+    // 2. PermissionBloc에 "현재 모든 권한 상태를 다시 확인해달라"고 요청
+    context.read<PermissionBloc>().add(CheckAllPermissionStatus());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -175,27 +203,6 @@ class LikedListView extends StatelessWidget {
         .where((likedBakery) => likedBakery.isNotificationAllowed)
         .length;
 
-    // 좋아요 취소 다이얼로그
-    void showRemoveDialog(BuildContext context, Bakery bakery) {
-      showDialog(
-        context: context,
-        builder: (_) => buildRemoveDialog(context, bakery),
-      );
-    }
-
-    // 베이커리 클릭 시, 검색 트리거
-    void onBakeryContainerTapped(Bakery bakery) {
-      context.read<SearchBloc>().add(SearchPlaceById(placeId: bakery.id));
-    }
-
-    // 벨버튼 클릭 시, 권한 재확인 트리거
-    void handleBellButtonPressed(Bakery bakery, bool isNotificationAllowed) {
-      // 1. LikeBloc에 "이 빵집에 대한 알림 설정을 시작한다"는 정보 저장
-      context.read<LikeBloc>().add(SelectBakery(bakery: bakery, isNotificationAllowed: isNotificationAllowed));
-
-      // 2. PermissionBloc에 "현재 모든 권한 상태를 다시 확인해달라"고 요청
-      context.read<PermissionBloc>().add(CheckAllPermissionStatus());
-    }
 
     return MultiBlocListener(
       listeners: [
@@ -281,9 +288,9 @@ class LikedListView extends StatelessWidget {
                   builder: (context, userLocation) {
                     return LikedBakeryContainer(
                       bakery: bakery,
-                      onTapContainer: () => onBakeryContainerTapped(bakery),
-                      onHeartButtonPressed: () => showRemoveDialog(context, bakery),
-                      onBellButtonPressed: () => handleBellButtonPressed(bakery, notify),
+                      onTapContainer: () => _onBakeryContainerTapped(bakery),
+                      onHeartButtonPressed: () => _showRemoveDialog(context, bakery),
+                      onBellButtonPressed: () => _handleBellButtonPressed(bakery, notify),
                       isNotified: notify,
                       userLocation: userLocation,
                     );
