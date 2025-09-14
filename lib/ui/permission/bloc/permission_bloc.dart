@@ -43,27 +43,29 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
   }
 
   // 전체 권한 상태 확인
-  Future<void> _onCheckAllPermissionStatus(
-    CheckAllPermissionStatus event,
-    Emitter<PermissionState> emit,
-  ) async {
-    final location = await _permissionUseCase.getPermissionStatus(
-      AppPermission.location,
-    );
-    final locationAlways = await _permissionUseCase.getPermissionStatus(
-      AppPermission.locationAlways,
-    );
-    final notification = await _permissionUseCase.getPermissionStatus(
-      AppPermission.notification,
-    );
+  Future<void> _onCheckAllPermissionStatus(CheckAllPermissionStatus event,
+      Emitter<PermissionState> emit,) async {
+    emit(state.copyWith(checkStatus: PermissionCheckStatus.checking));
 
-    emit(
-      state.copyWith(
-        locationStatus: location,
-        locationAlwaysStatus: locationAlways,
-        notificationStatus: notification,
-      ),
-    );
+    try {
+      final location = await _permissionUseCase.getPermissionStatus(
+          AppPermission.location);
+      final locationAlways = await _permissionUseCase.getPermissionStatus(
+          AppPermission.locationAlways);
+      final notification = await _permissionUseCase.getPermissionStatus(
+          AppPermission.notification);
+
+      emit(
+        state.copyWith(
+          locationStatus: location,
+          locationAlwaysStatus: locationAlways,
+          notificationStatus: notification,
+          checkStatus: PermissionCheckStatus.checked,
+        ),
+      );
+    } catch (e) {
+      print("_onCheckAllPermissionStatus error $e");
+    }
   }
 
   // 위치 권한 요청

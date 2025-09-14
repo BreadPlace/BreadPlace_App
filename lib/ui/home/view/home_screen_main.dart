@@ -45,15 +45,6 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
   @override
   void initState() {
     super.initState();
-    _checkLogin();
-  }
-
-  void _checkLogin() {
-    context.read<LoginBloc>().add(CheckAuthStatus());
-  }
-
-  void _checkPermissionStatus() {
-    context.read<PermissionBloc>().add(CheckAllPermissionStatus());
   }
 
   void _checkGeofenceDataIfLoggedIn() async {
@@ -167,18 +158,19 @@ class _HomeScreenMainState extends State<HomeScreenMain> {
             listener: (context, likeState) {
               // 2. 지오펜스 확인 -> 권한 확인
               if (likeState.hasLocalGeofence) {
-                _checkPermissionStatus();
+                // _checkPermissionStatus();
               }
             }),
 
         BlocListener<PermissionBloc, PermissionState>(
           listener: (context, permissionState) {
             // 3. 권한 체크 -> 지오펜스 초기 등록
-            if (permissionState.isAllGranted) {
+            if (permissionState.checkStatus == PermissionCheckStatus.checked &&
+                permissionState.isAllGranted) {
               context.read<LikeBloc>().add(InitializeGeofence());
-            } else  {
+            } else {
               // 권한 필요 다이얼로그
-              _showPermissionRequestDialog(context);
+              // _showPermissionRequestDialog(context);
             }
           },
         ),

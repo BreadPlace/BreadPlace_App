@@ -39,6 +39,13 @@ class ToggleNotification extends LikeEvent {
   });
 }
 
+class SelectBakery extends LikeEvent {
+  final Bakery bakery;
+  final bool isNotificationAllowed;
+
+  SelectBakery({required this.bakery, required this.isNotificationAllowed});
+}
+
 class AddGeofence extends LikeEvent {}
 
 class RemoveGeofence extends LikeEvent {}

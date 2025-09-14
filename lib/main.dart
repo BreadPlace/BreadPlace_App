@@ -1,3 +1,4 @@
+import 'package:bread_place/ui/login/bloc/login_event.dart';
 import 'package:flutter/material.dart';
 
 import 'package:bread_place/config/di/locator.dart';
@@ -14,11 +15,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'bp_observer.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _initializeApp();
+
+  // BlocObserver 등록
+  Bloc.observer = AppBlocObserver();
 
   runApp(MyApp(isFirstLaunch: await isFirstLaunch()));
 }
@@ -32,7 +37,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => di<LoginBloc>()),
+        BlocProvider(create: (_) => di<LoginBloc>()..add(CheckAuthStatus())),
         BlocProvider(create: (_) => di<LikeBloc>()..add(FetchLikedBakeries())),
         BlocProvider(create: (_) => di<HomeBloc>()..add(HomeAppInitiate())),
         BlocProvider(create: (_) => di<PermissionBloc>())
